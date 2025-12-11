@@ -4,55 +4,126 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dawn Tribe</title>
+
     <link rel="stylesheet" href="./src/output.css" />
     <link rel="stylesheet" href="./global.css" />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap"
       rel="stylesheet"
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Estonia&family=Great+Vibes&family=Italianno&family=Kapakana:wght@300..400&family=Meow+Script&family=Monoton&family=MonteCarlo&family=Poiret+One&family=Quicksand:wght@300..700&family=Rouge+Script&family=Tangerine:wght@400;700&family=WindSong:wght@400;500&display=swap"
       rel="stylesheet"
-      <link
-      rel="stylesheet"
-      href="https://unpkg.com/aos@next/dist/aos.css"
     />
+
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-    <script src="./main.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            borderRadius: {
+              "4xl": "2rem",
+            },
+            fontFamily: {
+              dancing: ["Dancing Script", "cursive"],
+              comfortaa: ["Comfortaa", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      @keyframes float-slow {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+      }
+      @keyframes float-medium {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      @keyframes float-diagonal {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(10px, -15px);
+        }
+      }
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.3;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.6;
+        }
+      }
+      .animate-float-slow {
+        animation: float-slow 6s ease-in-out infinite;
+      }
+      .animate-float-medium {
+        animation: float-medium 4s ease-in-out infinite;
+      }
+      .animate-float-diagonal {
+        animation: float-diagonal 8s ease-in-out infinite;
+      }
+      .animate-breathe {
+        animation: breathe 8s ease-in-out infinite;
+      }
+    </style>
   </head>
-  <body class="relative min-h-screen w-screen">
+  <body class="relative min-h-screen w-screen bg-[#fff8f0]">
     <nav
-      class="fixed top-0 h-[80px] z-[10] flex left-0 right-0 items-center justify-center p-2"
+      class="fixed top-0 left-0 right-0 z-[50] flex h-[80px] items-center justify-center p-2"
     >
       <div
-        class="h-full w-[20rem] bg-[rgb(174,144,80)]/10 backdrop-blur-md rounded-4xl p-2 flex items-center justify-between"
+        class="rounded-4xl flex h-full w-[20rem] items-center justify-between border border-white/20 bg-[rgb(174,144,80)]/10 p-2 shadow-lg backdrop-blur-md"
       >
         <div
-          class="h-[50px] aspect-square rounded-full bg-[url('./assets/figma_logo.png')] bg-cover p-2"
+          class="flex aspect-square h-[50px] items-center justify-center rounded-full bg-[#552a12] bg-cover p-2"
         >
-          <img src="./assets/LOGOS-11.svg" alt="Figma Logo" />
+          <svg
+            class="h-6 w-6 text-[#dbb668]"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z"
+            />
+          </svg>
         </div>
-        <div class="text-amber-900">Gallery</div>
+        <div class="font-comfortaa text-[#552a12] font-bold">Gallery</div>
         <div
-          class="bg-amber-400 px-6 h-[80%] rounded-4xl flex items-center justify-center text-amber-900 font-bold"
+          class="rounded-4xl flex h-[80%] cursor-pointer items-center justify-center bg-[#dbb668] px-6 font-bold text-[#552a12] shadow-sm transition-colors hover:bg-[#cda452]"
         >
           Book
         </div>
       </div>
     </nav>
 
-    <div class="h-[100vh] overflow-hidden relative sec1">
-      <div class="absolute top-0 left-0"></div>
+    <div class="sec1 relative h-[100vh] overflow-hidden">
+      <div class="absolute left-0 top-0 bg-amber-300"></div>
       <div>
-        <img
-          src="./assets/LOGOS-03.svg"
-          alt="Dawn Tribe glyph"
-          class="logo-glyph"
-        />
+        <img src="./assets/LOGOS-03.svg" alt="Ahyensode " class="logo-glyph" />
       </div>
       <div class="">
         <ul class="bullets">
@@ -62,46 +133,177 @@
         </ul>
       </div>
       <button
-        class="absolute bottom-10 left-1/2 -translate-x-1/2 bg-amber-400 px-6 py-2 rounded-4xl text-amber-900 font-bold cursor-pointer hover:bg-amber-500 transition-all duration-300"
+        class="rounded-4xl absolute bottom-10 left-1/2 -translate-x-1/2 bg-amber-400 px-6 py-2 font-bold text-amber-900 transition-all duration-300 hover:bg-amber-500 cursor-pointer"
       >
         Schedule With Us
       </button>
     </div>
-    <div class="flex md:flex-row flex-col">
-      <div class="md:w-1/3 w-full aspect-auto bg-white md:h-[100vh] text-[#552a12] flex flex-col justify-between items-center">
-        <div><img src="./assets/mark.svg" alt="to mark svg" class="h-[100px]"/></div>
-        <div class="font-extrabold text-[2rem]">TO MARK</div>
-         <div class="p-4 flex items-start h-[40%]">
+
+    <div class="flex flex-col md:flex-row">
+      <div
+        class="aspect-auto flex w-full flex-col items-center justify-between bg-white text-[#552a12] md:min-h-[100vh] md:w-1/3"
+      >
+        <div>
+          <img src="./assets/mark.svg" alt="to mark svg" class="h-[100px]" />
+        </div>
+        <div class="text-[2rem] font-extrabold">TO MARK</div>
+        <div class="flex min-h-[50%] items-start p-4 font-comfortaa">
           "Ahyensode" originates from Ghana's Ashanti Twi language, meaning "to
           mark." This concept embodies the essence of the creative design
-          agency's mission: to leave a distinet and lasting impression on their
+          agency's mission: to leave a distinct and lasting impression on their
           clients' brands. The mark symbolizes the agency's ability to make its
           clients stand out in their industries, crafting identities that
           resonate deeply with their target audiences and set them apart from
           competitors.
         </div>
       </div>
-      <div class="md:w-1/3 w-full aspect-square bg-[#dbb668] md:h-[100vh] text-[#552a12] flex flex-col justify-between items-center">
-        <div><img src="./assets/choose.svg" alt="to choose svg" class="h-[100px]"/></div>
-        <div class="font-extrabold text-[2rem]">TO CHOOSE</div>
-         <div class="p-4 flex items-start h-[40%]">
+      <div
+        class="aspect-square flex w-full flex-col items-center justify-between bg-[#dbb668] text-[#552a12] md:min-h-[100vh] md:w-1/3"
+      >
+        <div>
+          <img
+            src="./assets/choose.svg"
+            alt="to choose svg"
+            class="h-[100px]"
+          />
+        </div>
+        <div class="text-[2rem] font-extrabold">TO CHOOSE</div>
+        <div class="flex min-h-[50%] items-start p-4 font-comfortaa">
           The select icon was purposefully incorporated into the logo design to
           symbolize a call to action, encouraging businesses in need of creative
           solutions to choose Ahyensode as their preferred creative agency. This
-          icon reflects the agency's commitment to deliver- ing top-notch
-          services that elevate their clients' brand, placing them prominently
-          on the pedestal of success in their respective industries.
+          icon reflects the agency's commitment to delivering top-notch services
+          that elevate their clients' brand, placing them prominently on the
+          pedestal of success in their respective industries.
         </div>
       </div>
-      <div class="md:w-1/3 w-full aspect-square bg-[#552a12] md:h-[100vh] text-[#dbb668] flex flex-col justify-between items-center">
-        <div><img src="./assets/create.svg" alt="to create svg" class="h-[100px]"/></div>
-        <div class="font-extrabold text-[2rem]">TO CREATE</div>
-        <div class="p-4 flex items-start h-[40%]">
-          With our pentool we create, we design, we visually direct, we en-
-          hance, we provide. The pentool is our means of providing essential
-          solutions to brands.
+      <div
+        class="aspect-square flex w-full flex-col items-center justify-between bg-[#552a12] text-[#dbb668] md:min-h-[100vh] md:w-1/3"
+      >
+        <div>
+          <img
+            src="./assets/create.svg"
+            alt="to create svg"
+            class="h-[100px]"
+          />
+        </div>
+        <div class="text-[2rem] font-extrabold">TO CREATE</div>
+        <div class="flex min-h-[50%] items-start p-4 font-comfortaa">
+          With our pentool we create, we design, we visually direct, we enhance,
+          we provide. The pentool is our means of providing essential solutions
+          to brands.
         </div>
       </div>
     </div>
+
+    <div
+      class="relative h-[100vh] w-full bg-[#fff] overflow-hidden border-t border-[#dbb668]/20"
+    >
+      <div
+        class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
+      >
+        <div class="text-center">
+          <span
+            class="block font-dancing text-6xl text-[#552a12] drop-shadow-lg mb-2"
+            >Our Works</span
+          >
+
+        </div>
+      </div>
+
+      <!-- <div
+        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96  rounded-full blur-[120px] opacity-10 animate-breathe"
+      ></div>
+
+      <div
+        class="absolute top-16 left-10 md:left-24 animate-float-slow p-6 bg-[#fff8f0] rounded-full shadow-xl border-2 border-[#dbb668] transition-transform hover:scale-110"
+      >
+        <img
+          src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg"
+          class="h-16 w-16 md:h-20 md:w-20"
+        />
+      </div>
+
+      <div
+        class="absolute top-1/4 right-8 md:right-32 animate-float-medium p-4 bg-[#fff8f0] rounded-full shadow-xl border-2 border-[#dbb668]"
+        style="animation-delay: 0.5s"
+      >
+        <img
+          src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg"
+          class="h-14 w-14 md:h-16 md:w-16"
+        />
+      </div>
+
+      <div
+        class="absolute bottom-20 left-6 md:left-20 animate-float-diagonal p-5 bg-[#fff8f0] rounded-full shadow-xl border-2 border-[#dbb668]"
+        style="animation-delay: 1s"
+      >
+        <img
+          src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-original.svg"
+          class="h-16 w-16 md:h-20 md:w-20 rounded-md"
+        />
+      </div>
+
+      <div
+        class="absolute bottom-32 right-10 md:right-24 animate-float-slow p-4 bg-[#fff8f0] rounded-full shadow-xl border-2 border-[#dbb668] opacity-90"
+        style="animation-delay: 2s"
+      >
+        <img
+          src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/illustrator/illustrator-plain.svg"
+          class="h-12 w-12 md:h-16 md:w-16"
+        />
+      </div> -->
+
+      <div
+        class="1 absolute top-1/3 left-1/4 animate-float-medium p-3 rounded-full shadow-lg 
+        bg-[url('./assets/IMG_0260.JPG')] bg-cover border-2 border-[#dbb668] h-[10rem] aspect-square
+        "
+      >
+      </div>
+      <div
+        class="2 absolute top-2/3 left-2/4 animate-float-medium p-3 rounded-full shadow-lg 
+        bg-[url('./assets/IMG_0267.JPG')] bg-cover border-2 border-[#dbb668] h-[10rem] aspect-square
+        "
+      >
+      </div>
+      <div
+        class="3 absolute top-2/7 left-2/4 animate-float-medium p-3 rounded-full shadow-lg 
+        bg-[url('./assets/IMG_4673.PNG')] bg-cover border-2 border-[#dbb668] h-[10rem] aspect-square
+        "
+      >
+      </div>
+      <div
+        class="4 absolute top-2/5 left-2/4 animate-float-medium p-3 rounded-full shadow-lg 
+        bg-[url('./assets/IMG_4690.PNG')] bg-cover border-2 border-[#dbb668] h-[10rem] aspect-square
+        "
+      >
+      </div>
+      <div
+        class="5 absolute top-2/5 left-2/4 animate-float-medium p-3 rounded-full shadow-lg 
+        bg-[url('./assets/IMG_4691.PNG')] bg-cover border-2 border-[#dbb668] h-[10rem] aspect-square
+        "
+      >
+      </div>
+      <div
+        class="6 absolute top-3/5 left-3/4 animate-float-medium p-3 rounded-full shadow-lg 
+        bg-[url('./assets/IMG_4692.PNG')] bg-cover border-2 border-[#dbb668] h-[10rem] aspect-square
+        "
+      >
+      </div>
+      <div
+        class="7 absolute top-2/5 left-2/6 animate-float-medium p-3 rounded-full shadow-lg 
+        bg-[url('./assets/IMG_4693.PNG')] bg-cover border-2 border-[#dbb668] h-[10rem] aspect-square
+        "
+      >
+      </div>
+      <div
+        class="8 absolute top-3/4 right-3 animate-float-medium p-3 rounded-full shadow-lg 
+        bg-[url('./assets/IMG_4696.PNG')] bg-cover border-2 border-[#dbb668] h-[10rem] aspect-square
+        "
+      >
+      </div>
+    </div>
+
+    <script src="./main.js"></script>
   </body>
 </html>

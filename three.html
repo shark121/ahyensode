@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slow Motion Physics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Smooth hardware acceleration */
+        .physics-box {
+            will-change: transform;
+            /* Hide initially to prevent FOUC (flash of unstyled content) */
+            opacity: 0; 
+            transition: opacity 0.5s ease-in;
+        }
+        .physics-box.loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-8">
+
+    <div id="simulation-container" class="relative w-full max-w-4xl h-[500px] bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden cursor-default select-none">
+        
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-60"></div>
+            <div class="absolute bottom-0 right-0 w-96 h-96 bg-purple-50 rounded-full blur-3xl opacity-40"></div>
+            <div class="absolute top-8 left-8 text-slate-300 font-bold text-6xl opacity-20 z-0">PHYSICS</div>
+        </div>
+
+        <div class="physics-box absolute w-24 h-24 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center justify-center z-10">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" class="w-12 h-12 pointer-events-none">
+        </div>
+
+        <div class="physics-box absolute w-24 h-24 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center justify-center z-10">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" class="w-12 h-12 pointer-events-none">
+        </div>
+
+        <div class="physics-box absolute w-24 h-24 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center justify-center z-10">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swift/swift-original.svg" class="w-12 h-12 pointer-events-none">
+        </div>
+
+        <div class="physics-box absolute w-24 h-24 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center justify-center z-10">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg" class="w-12 h-12 pointer-events-none">
+        </div>
+
+        <div class="physics-box absolute w-24 h-24 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center justify-center z-10">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" class="w-12 h-12 pointer-events-none">
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('simulation-container');
+            const elements = Array.from(document.querySelectorAll('.physics-box'));
+            
+            // --- CONFIGURATION ---
+            const SPEED_LIMIT = 1; // Lower = Slower max speed
+            const MIN_SPEED = 0.3;   // Ensures they don't stop completely
+            const BOX_SIZE = 96;     // Match w-24 (24 * 4px = 96px)
+            const PADDING = 10;      // Gap from walls
+            
+            // State storage
+            let containerWidth = container.clientWidth;
+            let containerHeight = container.clientHeight;
+
+            // Initialize Bodies
+            const bodies = elements.map((el, index) => {
+                // Random start position (with padding to avoid sticking to wall immediately)
+                const startX = PADDING + Math.random() * (containerWidth - BOX_SIZE - PADDING * 2);
+                const startY = PADDING + Math.random() * (containerHeight - BOX_SIZE - PADDING * 2);
+                
+                // Random slow velocity
+                const vx = (Math.random() - 0.5) * SPEED_LIMIT * 2;
+                const vy = (Math.random() - 0.5) * SPEED_LIMIT * 2;
+
+                el.classList.add('loaded'); // Show element
+
+                return {
+                    el,
+                    x: startX,
+                    y: startY,
+                    vx: vx === 0 ? 0.1 : vx, // Prevent absolute zero
+                    vy: vy === 0 ? 0.1 : vy,
+                    width: BOX_SIZE,
+                    height: BOX_SIZE,
+                    mass: 1 // Assume equal mass for simplicity
+                };
+            });
+
+            // --- PHYSICS ENGINE ---
+
+            function checkWallCollisions(body) {
+                // Right Wall
+                if (body.x + body.width >= containerWidth) {
+                    body.x = containerWidth - body.width;
+                    body.vx *= -1;
+                }
+                // Left Wall
+                else if (body.x <= 0) {
+                    body.x = 0;
+                    body.vx *= -1;
+                }
+
+                // Bottom Wall
+                if (body.y + body.height >= containerHeight) {
+                    body.y = containerHeight - body.height;
+                    body.vy *= -1;
+                }
+                // Top Wall
+                else if (body.y <= 0) {
+                    body.y = 0;
+                    body.vy *= -1;
+                }
+            }
+
+            function checkObjectCollisions() {
+                for (let i = 0; i < bodies.length; i++) {
+                    for (let j = i + 1; j < bodies.length; j++) {
+                        const b1 = bodies[i];
+                        const b2 = bodies[j];
+
+                        // Calculate centers
+                        const b1Center = { x: b1.x + b1.width/2, y: b1.y + b1.height/2 };
+                        const b2Center = { x: b2.x + b2.width/2, y: b2.y + b2.height/2 };
+
+                        // Distance vector
+                        const dx = b2Center.x - b1Center.x;
+                        const dy = b2Center.y - b1Center.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        // Simple Circle-ish collision detection
+                        // (We treat the squares as circles for smoother physics math)
+                        const minDist = b1.width; // Since width = height
+
+                        if (distance < minDist) {
+                            // Collision detected!
+
+                            // 1. Resolve Overlap (prevent sticking)
+                            const overlap = minDist - distance;
+                            const nx = dx / distance; // Normal X
+                            const ny = dy / distance; // Normal Y
+                            
+                            // Move bodies apart
+                            b1.x -= (nx * overlap / 2);
+                            b1.y -= (ny * overlap / 2);
+                            b2.x += (nx * overlap / 2);
+                            b2.y += (ny * overlap / 2);
+
+                            // 2. Resolve Velocity (Elastic Collision)
+                            // Tangent vector
+                            const tx = -ny;
+                            const ty = nx;
+
+                            // Dot Product Tangent
+                            const dpTan1 = b1.vx * tx + b1.vy * ty;
+                            const dpTan2 = b2.vx * tx + b2.vy * ty;
+
+                            // Dot Product Normal
+                            const dpNorm1 = b1.vx * nx + b1.vy * ny;
+                            const dpNorm2 = b2.vx * nx + b2.vy * ny;
+
+                            // Conservation of momentum in 1D
+                            const m1 = b1.mass;
+                            const m2 = b2.mass;
+
+                            const m1v1 = (dpNorm1 * (m1 - m2) + 2 * m2 * dpNorm2) / (m1 + m2);
+                            const m2v2 = (dpNorm2 * (m2 - m1) + 2 * m1 * dpNorm1) / (m1 + m2);
+
+                            // Update velocities
+                            b1.vx = tx * dpTan1 + nx * m1v1;
+                            b1.vy = ty * dpTan1 + ny * m1v1;
+                            b2.vx = tx * dpTan2 + nx * m2v2;
+                            b2.vy = ty * dpTan2 + ny * m2v2;
+                        }
+                    }
+                }
+            }
+
+            function limitVelocity(body) {
+                const speed = Math.sqrt(body.vx * body.vx + body.vy * body.vy);
+                
+                // Cap max speed
+                if (speed > SPEED_LIMIT) {
+                    body.vx = (body.vx / speed) * SPEED_LIMIT;
+                    body.vy = (body.vy / speed) * SPEED_LIMIT;
+                }
+
+                // Ensure min speed (to keep them floating)
+                if (speed < MIN_SPEED && speed > 0) {
+                     body.vx = (body.vx / speed) * MIN_SPEED;
+                     body.vy = (body.vy / speed) * MIN_SPEED;
+                }
+            }
+
+            function animate() {
+                // 1. Update Physics State
+                checkObjectCollisions();
+
+                bodies.forEach(body => {
+                    checkWallCollisions(body);
+                    limitVelocity(body);
+
+                    body.x += body.vx;
+                    body.y += body.vy;
+
+                    // 2. Render to DOM
+                    // Using translate3d for GPU acceleration
+                    body.el.style.transform = `translate3d(${body.x}px, ${body.y}px, 0)`;
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            // Start Loop
+            animate();
+
+            // Resize Handler
+            window.addEventListener('resize', () => {
+                containerWidth = container.clientWidth;
+                containerHeight = container.clientHeight;
+                // Push any out-of-bounds bodies back in
+                bodies.forEach(b => {
+                    if(b.x > containerWidth) b.x = containerWidth - b.width;
+                    if(b.y > containerHeight) b.y = containerHeight - b.height;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bold Glass Agency - 10 Variants</title>
+    <style>
+        /* BASE RESET & STRUCTURE */
+        :root {
+            --gold: #dbb668;
+            --brown: #552a12;
+            --white: #ffffff;
+            --black: #000000;
+        }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; transition: background 0.5s; overflow-x: hidden; min-height: 100vh; }
+        
+        /* The Layout Container */
+        .layout { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            position: relative;
+            z-index: 2; /* Sits above background blobs */
+        }
+
+        /* Standard Components (Their specific look is controlled by JS injection) */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4rem; padding: 1.5rem; border-radius: 16px; transition: 0.3s; }
+        .logo { font-weight: 900; font-size: 1.5rem; letter-spacing: -1px; text-transform: uppercase; }
+        .nav a { text-decoration: none; margin-left: 1.5rem; font-weight: 700; font-size: 0.9rem; transition: 0.3s; }
+        
+        .hero { padding: 5rem 3rem; text-align: center; margin-bottom: 4rem; border-radius: 24px; transition: 0.3s; }
+        .headline { font-size: 3.5rem; font-weight: 800; margin: 0 0 1.5rem 0; line-height: 1.1; letter-spacing: -1px; }
+        .subhead { font-size: 1.2rem; max-width: 600px; margin: 0 auto 2.5rem auto; font-weight: 500; }
+        .cta { display: inline-block; padding: 1rem 3rem; text-decoration: none; font-weight: 800; border-radius: 50px; transition: 0.3s; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .card { padding: 2rem; border-radius: 20px; transition: 0.3s; display: flex; flex-direction: column; justify-content: center; min-height: 200px; }
+        .card h3 { font-size: 1.5rem; margin: 0 0 0.5rem 0; font-weight: 800; }
+        .card p { margin: 0; font-size: 1rem; line-height: 1.5; }
+
+        .footer { text-align: center; margin-top: auto; padding-top: 4rem; opacity: 0.6; font-size: 0.8rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+
+        /* UI CONTROLS */
+        #controls { position: fixed; top: 20px; right: 20px; z-index: 9999; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 220px; font-family: sans-serif; }
+        #controls h4 { margin: 0 0 10px 0; font-size: 12px; text-transform: uppercase; color: #333; }
+        select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+        
+        /* DYNAMIC STYLE BLOCK */
+        #dynamic-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; transition: 0.5s; }
+    </style>
+    <style id="variant-style"></style>
+</head>
+<body>
+
+    <div id="controls">
+        <h4>Select Glass Variant</h4>
+        <select id="variant-select" onchange="loadVariant(this.value)"></select>
+    </div>
+
+    <div id="dynamic-bg"></div>
+
+    <div class="layout">
+        <header class="header">
+            <div class="logo">Agency.</div>
+            <nav class="nav">
+                <a href="#">Work</a>
+                <a href="#">Studio</a>
+                <a href="#">Contact</a>
+            </nav>
+        </header>
+
+        <main class="hero">
+            <h1 class="headline">We build digital empires.</h1>
+            <p class="subhead">Bold strategy. Crystal clear design. Unbreakable code.</p>
+            <a href="#" class="cta">Start Project</a>
+        </main>
+
+        <section class="grid">
+            <div class="card">
+                <h3>Strategy</h3>
+                <p>Audits & Positioning</p>
+            </div>
+            <div class="card">
+                <h3>Design</h3>
+                <p>UI/UX & Art Direction</p>
+            </div>
+            <div class="card">
+                <h3>Development</h3>
+                <p>Web & Mobile Solutions</p>
+            </div>
+        </section>
+
+        <footer class="footer">
+            &copy; 2025 Agency.
+        </footer>
+    </div>
+
+    <script>
+        const variants = [
+            {
+                name: "1. Obsidian & Gold (Dark Glass)",
+                bg: "radial-gradient(circle at 20% 20%, #552a12 0%, #000 60%)",
+                css: `
+                    body { color: #fff; }
+                    .header, .card, .hero { 
+                        background: rgba(0, 0, 0, 0.4); 
+                        backdrop-filter: blur(20px); 
+                        border: 1px solid rgba(219, 182, 104, 0.2); 
+                        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+                    }
+                    .logo { color: var(--gold); }
+                    .nav a { color: #aaa; } .nav a:hover { color: var(--gold); }
+                    .headline { color: #fff; text-shadow: 0 0 20px rgba(0,0,0,0.5); }
+                    .subhead { color: #ccc; }
+                    .cta { background: var(--gold); color: var(--black); box-shadow: 0 0 20px rgba(219, 182, 104, 0.3); }
+                    .cta:hover { background: #fff; }
+                    .card h3 { color: var(--gold); }
+                    .card:hover { border-color: var(--gold); transform: translateY(-5px); }
+                `
+            },
+            {
+                name: "2. The Golden Prism",
+                bg: "linear-gradient(135deg, #000 0%, #552a12 100%)",
+                css: `
+                    /* Adding a geometric gold shape via CSS clip-path or background */
+                    #dynamic-bg::before {
+                        content: ''; position: absolute; top: -10%; right: -10%; width: 60%; height: 60%;
+                        background: linear-gradient(45deg, var(--gold), transparent);
+                        border-radius: 50%; filter: blur(100px); opacity: 0.4;
+                    }
+                    body { color: #fff; }
+                    .header, .hero, .card {
+                        background: rgba(255, 255, 255, 0.05);
+                        backdrop-filter: blur(40px);
+                        border-top: 1px solid rgba(255,255,255,0.2);
+                        border-left: 1px solid rgba(255,255,255,0.2);
+                        box-shadow: 20px 20px 50px rgba(0,0,0,0.5);
+                    }
+                    .headline { background: linear-gradient(to right, #fff, var(--gold)); -webkit-background-clip: text; color: transparent; }
+                    .cta { border: 1px solid var(--gold); color: var(--gold); background: rgba(0,0,0,0.3); }
+                    .cta:hover { background: var(--gold); color: #000; }
+                    .card h3 { color: var(--gold); }
+                    .card p { color: #bbb; }
+                `
+            },
+            {
+                name: "3. Frosted Amber (Light)",
+                bg: "#dbb668",
+                css: `
+                    /* Light theme glass */
+                    #dynamic-bg { background-image: radial-gradient(circle at 50% 50%, #fff 20%, #dbb668 100%); }
+                    body { color: var(--brown); }
+                    .header, .hero, .card {
+                        background: rgba(255, 255, 255, 0.25);
+                        backdrop-filter: blur(15px);
+                        border: 1px solid rgba(255, 255, 255, 0.4);
+                        box-shadow: 0 4px 30px rgba(85, 42, 18, 0.1);
+                    }
+                    .logo { color: var(--brown); }
+                    .nav a { color: var(--brown); }
+                    .headline { color: var(--brown); }
+                    .subhead { color: #552a12; opacity: 0.8; }
+                    .cta { background: var(--brown); color: var(--gold); }
+                    .cta:hover { transform: scale(1.05); }
+                    .card h3 { color: #000; }
+                    .card:hover { background: rgba(255,255,255,0.4); }
+                `
+            },
+            {
+                name: "4. Future Terminal (Green/Gold)",
+                bg: "#000",
+                css: `
+                    /* Matrix/Tech vibe but with Gold */
+                    body { font-family: 'Courier New', monospace; color: var(--gold); }
+                    .layout { max-width: 1200px; }
+                    .header, .hero, .card {
+                        background: rgba(0, 10, 0, 0.6);
+                        backdrop-filter: blur(4px);
+                        border: 1px solid var(--gold);
+                        box-shadow: 0 0 15px rgba(219, 182, 104, 0.1);
+                        border-radius: 0; /* Boxy */
+                    }
+                    .logo { text-transform: uppercase; letter-spacing: 2px; }
+                    .headline { font-size: 2.5rem; text-transform: uppercase; border-bottom: 2px solid var(--brown); display: inline-block; padding-bottom: 1rem; }
+                    .cta { background: var(--gold); color: #000; border-radius: 0; font-family: 'Courier New', monospace; }
+                    .cta:hover { background: #fff; box-shadow: 0 0 20px var(--gold); }
+                    .card:hover { background: rgba(85, 42, 18, 0.3); }
+                `
+            },
+            {
+                name: "5. Deep Sea Oil (Fluid)",
+                bg: "#111",
+                css: `
+                    /* Fluid blobs in background */
+                    #dynamic-bg {
+                        background: #000;
+                    }
+                    #dynamic-bg::before {
+                        content:''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                        background: radial-gradient(circle at 30% 30%, var(--brown), transparent 40%),
+                                    radial-gradient(circle at 70% 70%, var(--gold), transparent 40%);
+                        filter: blur(60px); opacity: 0.6;
+                    }
+                    body { color: #fff; }
+                    .header, .hero, .card {
+                        background: rgba(255, 255, 255, 0.03);
+                        backdrop-filter: blur(30px);
+                        border-radius: 30px;
+                        border: 1px solid rgba(255, 255, 255, 0.05);
+                    }
+                    .headline { font-weight: 300; letter-spacing: -2px; }
+                    .cta { border-radius: 50px; background: rgba(255,255,255,0.1); border: 1px solid var(--gold); color: var(--gold); backdrop-filter: blur(10px); }
+                    .cta:hover { background: var(--gold); color: #000; }
+                    .card h3 { color: var(--gold); font-family: serif; font-style: italic; }
+                `
+            },
+            {
+                name: "6. The Monolith (Heavy Glass)",
+                bg: "#552a12",
+                css: `
+                    /* Thick, heavy glass blocks */
+                    body { color: #fff; }
+                    .header, .hero, .card {
+                        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+                        backdrop-filter: blur(20px);
+                        border: 1px solid rgba(255, 255, 255, 0.18);
+                        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+                        border-radius: 4px; /* Sharp corners */
+                    }
+                    .hero { border-left: 10px solid var(--gold); }
+                    .headline { font-size: 4rem; text-transform: uppercase; font-weight: 900; line-height: 0.9; }
+                    .cta { background: #000; color: #fff; border: 1px solid #333; }
+                    .cta:hover { border-color: var(--gold); color: var(--gold); }
+                    .card { border-top: 5px solid var(--gold); }
+                    .card h3 { text-transform: uppercase; letter-spacing: 2px; font-size: 1rem; }
+                `
+            },
+            {
+                name: "7. Executive Suite (Clean)",
+                bg: "#fff",
+                css: `
+                    /* Very clean, high-end corporate glass */
+                    #dynamic-bg { background: linear-gradient(to bottom, #f0f0f0, #e0e0e0); }
+                    body { color: var(--black); }
+                    .layout { max-width: 900px; }
+                    .header, .hero, .card {
+                        background: rgba(255, 255, 255, 0.6);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid #fff;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    }
+                    .logo { color: var(--brown); font-family: serif; }
+                    .headline { color: var(--brown); font-family: serif; font-weight: 500; }
+                    .subhead { color: #666; font-family: sans-serif; letter-spacing: 1px; text-transform: uppercase; font-size: 0.8rem; }
+                    .cta { background: var(--brown); color: #fff; font-family: serif; font-style: italic; }
+                    .card h3 { color: var(--brown); font-size: 1.2rem; }
+                    .card p { color: #666; font-size: 0.9rem; }
+                    .card:hover { border-color: var(--gold); transform: translateY(-3px); }
+                `
+            },
+            {
+                name: "8. Neon Night (Glow)",
+                bg: "#050505",
+                css: `
+                    /* Dark mode with neon gold glow */
+                    body { color: #fff; }
+                    .header { border-bottom: 1px solid rgba(219, 182, 104, 0.3); border-radius: 0; background: transparent; backdrop-filter: blur(5px); }
+                    .hero { background: rgba(0,0,0,0.5); border: 2px solid var(--gold); box-shadow: 0 0 20px rgba(219, 182, 104, 0.2), inset 0 0 20px rgba(219, 182, 104, 0.1); backdrop-filter: blur(10px); }
+                    .headline { color: var(--gold); text-shadow: 0 0 10px rgba(219, 182, 104, 0.5); }
+                    .cta { background: transparent; border: 1px solid var(--gold); color: var(--gold); text-shadow: 0 0 5px var(--gold); box-shadow: 0 0 10px var(--gold); }
+                    .cta:hover { background: var(--gold); color: #000; }
+                    .card { background: rgba(20, 10, 5, 0.6); border: 1px solid #333; backdrop-filter: blur(10px); }
+                    .card:hover { border-color: var(--gold); box-shadow: 0 0 15px rgba(219, 182, 104, 0.3); }
+                    .card h3 { color: #fff; }
+                `
+            },
+            {
+                name: "9. Champagne Bubbles",
+                bg: "#dbb668",
+                css: `
+                    /* Fun, bubbly glass */
+                    #dynamic-bg { background: linear-gradient(180deg, #dbb668 0%, #a88b4d 100%); }
+                    body { color: #fff; }
+                    .header, .hero, .card {
+                        background: rgba(255, 255, 255, 0.15);
+                        backdrop-filter: blur(8px);
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        border-radius: 50px; /* Very rounded */
+                        box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
+                    }
+                    .hero { padding: 6rem 2rem; }
+                    .headline { font-size: 3rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+                    .cta { background: #fff; color: var(--brown); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+                    .cta:hover { transform: scale(1.1) rotate(-2deg); }
+                    .card { align-items: center; text-align: center; }
+                    .card:hover { background: rgba(255,255,255,0.25); transform: scale(1.02); }
+                `
+            },
+            {
+                name: "10. The Void (Minimal Dark)",
+                bg: "#000",
+                css: `
+                    /* Extremely minimal, barely there glass */
+                    body { color: #eee; }
+                    .header, .hero, .card {
+                        background: transparent;
+                        backdrop-filter: blur(50px); /* Heavy blur, no bg color */
+                        border: 1px solid rgba(255,255,255,0.08);
+                    }
+                    .logo { font-weight: 300; letter-spacing: 4px; }
+                    .headline { font-weight: 100; font-size: 4rem; letter-spacing: -2px; color: var(--gold); }
+                    .subhead { color: #777; }
+                    .cta { border-bottom: 1px solid var(--gold); border-radius: 0; padding: 10px 0; color: #fff; font-weight: 400; }
+                    .cta:hover { color: var(--gold); letter-spacing: 2px; }
+                    .card h3 { font-weight: 300; color: var(--gold); }
+                    .card:hover { background: rgba(255,255,255,0.02); }
+                `
+            }
+        ];
+
+        const select = document.getElementById('variant-select');
+        const styleTag = document.getElementById('variant-style');
+        const bgLayer = document.getElementById('dynamic-bg');
+
+        // Populate Dropdown
+        variants.forEach((v, index) => {
+            let option = document.createElement('option');
+            option.value = index;
+            option.text = v.name;
+            select.appendChild(option);
+        });
+
+        function loadVariant(index) {
+            const v = variants[index];
+            styleTag.innerHTML = v.css;
+            bgLayer.style.background = v.bg;
+        }
+
+        // Initialize
+        loadVariant(0);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Agency - 10 Variants</title>
+
+    <style>
+        #style-switcher-ui {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 9999;
+            font-family: sans-serif;
+            width: 250px;
+        }
+        #style-switcher-ui h4 { margin: 0 0 10px 0; font-size: 14px; color: #333; }
+        #style-switcher-ui select { width: 100%; padding: 8px; margin-bottom: 10px; }
+        #style-switcher-ui .btn-group { display: flex; gap: 5px; }
+        #style-switcher-ui button { flex: 1; padding: 5px; cursor: pointer; }
+    </style>
+
+    <style id="dynamic-style">
+        /* Default styles will be loaded here by JS */
+    </style>
+</head>
+<body>
+
+    <div id="style-switcher-ui">
+        <h4>Select Design Variant</h4>
+        <select id="variant-select" onchange="loadVariant(this.value)"></select>
+        <div class="btn-group">
+            <button onclick="prevVariant()">&larr; Prev</button>
+            <button onclick="nextVariant()">Next &rarr;</button>
+        </div>
+    </div>
+
+    <div class="layout">
+        <header class="header">
+            <div class="logo">AGENCY.</div>
+            <nav class="nav">
+                <a href="#">Work</a>
+                <a href="#">Studio</a>
+                <a href="#">Contact</a>
+            </nav>
+        </header>
+
+        <main class="hero">
+            <h1 class="headline">We build digital products.</h1>
+            <p class="subhead">Focused on clarity, utility, and aesthetics.</p>
+            <a href="#" class="cta">Start a Project</a>
+        </main>
+
+        <section class="grid">
+            <div class="card">
+                <h3>Strategy</h3>
+                <p>Brand positioning & audit</p>
+            </div>
+            <div class="card">
+                <h3>Design</h3>
+                <p>UI/UX & Art Direction</p>
+            </div>
+            <div class="card">
+                <h3>Development</h3>
+                <p>Web & Mobile Solutions</p>
+            </div>
+        </section>
+
+        <footer class="footer">
+            &copy; 2025 Agency.
+        </footer>
+    </div>
+<script>
+        const variants = [
+            // ... (Your previous 10 minimalist ones can stay here if you want) ...
+
+            {
+                name: "11. Corporate SaaS (Blue & Clean)",
+                css: `
+                    :root { --primary: #2563EB; --bg: #F8FAFC; --surface: #FFFFFF; --text: #1E293B; }
+                    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+                    .layout { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+                    .header { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 1rem 2rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 3rem; }
+                    .logo { font-weight: 800; font-size: 1.5rem; color: var(--primary); letter-spacing: -1px; }
+                    .nav a { text-decoration: none; color: #64748B; margin-left: 1.5rem; font-weight: 600; transition: color 0.2s; }
+                    .nav a:hover { color: var(--primary); }
+                    .hero { text-align: center; padding: 4rem 1rem; background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%); border-radius: 16px; border: 1px solid #DBEAFE; margin-bottom: 3rem; }
+                    .headline { font-size: 3.5rem; line-height: 1.1; margin-bottom: 1rem; color: #0F172A; font-weight: 800; }
+                    .subhead { font-size: 1.25rem; color: #475569; max-width: 600px; margin: 0 auto 2rem auto; }
+                    .cta { background: var(--primary); color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 6px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); transition: transform 0.2s; display: inline-block; }
+                    .cta:hover { transform: translateY(-2px); }
+                    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+                    .card { background: var(--surface); padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #E2E8F0; transition: transform 0.2s; }
+                    .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+                    .card h3 { color: var(--primary); margin-top: 0; font-size: 1.25rem; }
+                    .footer { text-align: center; margin-top: 4rem; color: #94A3B8; font-size: 0.9rem; }
+                `
+            },
+            {
+                name: "12. Neo-Brutalism (Pop Art)",
+                css: `
+                    body { font-family: 'Courier New', Courier, monospace; background: #FFDEE9; background-image: linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%); min-height: 100vh; margin: 0; padding: 2rem; }
+                    .layout { max-width: 900px; margin: 0 auto; }
+                    .header { background: #fff; border: 3px solid #000; padding: 1.5rem; display: flex; justify-content: space-between; box-shadow: 8px 8px 0px #000; margin-bottom: 3rem; }
+                    .logo { font-weight: 900; font-size: 1.5rem; text-transform: uppercase; background: #FFD700; padding: 0 5px; }
+                    .nav a { text-decoration: none; color: #000; font-weight: bold; margin-left: 1.5rem; text-transform: uppercase; border-bottom: 2px solid transparent; }
+                    .nav a:hover { border-bottom: 2px solid #000; }
+                    .hero { background: #FF6B6B; border: 3px solid #000; padding: 3rem; box-shadow: 8px 8px 0px #000; margin-bottom: 3rem; color: #fff; }
+                    .headline { font-size: 3rem; text-transform: uppercase; text-shadow: 3px 3px 0 #000; margin: 0 0 1rem 0; }
+                    .subhead { font-weight: bold; background: #000; color: #fff; display: inline-block; padding: 5px; }
+                    .cta { display: inline-block; background: #fff; color: #000; border: 3px solid #000; padding: 1rem 2rem; text-decoration: none; font-weight: 900; margin-top: 2rem; box-shadow: 4px 4px 0 #000; transition: 0.2s; }
+                    .cta:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
+                    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+                    .card { background: #fff; border: 3px solid #000; padding: 1.5rem; box-shadow: 8px 8px 0px #000; transition: 0.2s; }
+                    .card:nth-child(2) { background: #4ECDC4; }
+                    .card:hover { transform: translate(-2px, -2px); box-shadow: 12px 12px 0 #000; }
+                    .footer { margin-top: 3rem; font-weight: bold; text-align: center; background: #fff; border: 3px solid #000; padding: 1rem; display: inline-block; }
+                    @media(max-width:768px){ .grid{grid-template-columns:1fr;} }
+                `
+            },
+            {
+                name: "13. Dark Glassmorphism",
+                css: `
+                    body { font-family: sans-serif; background: #0f0c29; background: linear-gradient(to right, #24243e, #302b63, #0f0c29); color: #fff; min-height: 100vh; margin: 0; padding: 2rem; }
+                    .layout { max-width: 1000px; margin: 0 auto; }
+                    .header { display: flex; justify-content: space-between; padding: 1.5rem; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 4rem; }
+                    .logo { font-weight: 700; letter-spacing: 2px; text-transform: uppercase; background: -webkit-linear-gradient(#eee, #333); -webkit-background-clip: text; }
+                    .nav a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
+                    .nav a:hover { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+                    .hero { text-align: center; padding: 4rem 1rem; position: relative; }
+                    /* Creating a glow behind hero */
+                    .hero::before { content:''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; background: purple; filter: blur(90px); opacity: 0.5; z-index: -1; }
+                    .headline { font-size: 4rem; font-weight: 100; margin-bottom: 1rem; letter-spacing: -2px; }
+                    .subhead { font-size: 1.2rem; color: rgba(255,255,255,0.6); margin-bottom: 2rem; }
+                    .cta { background: rgba(255,255,255,0.1); color: #fff; padding: 1rem 3rem; text-decoration: none; border-radius: 50px; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; backdrop-filter: blur(5px); }
+                    .cta:hover { background: rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+                    .grid { display: flex; gap: 2rem; margin-top: 3rem; flex-wrap: wrap; }
+                    .card { flex: 1; min-width: 250px; padding: 2rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; backdrop-filter: blur(10px); transition: 0.3s; }
+                    .card:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-5px); }
+                    .card h3 { color: #a8c0ff; margin-top: 0; }
+                    .footer { text-align: center; margin-top: 4rem; color: rgba(255,255,255,0.3); }
+                `
+            },
+            {
+                name: "14. Elegant & Warm (Serif)",
+                css: `
+                    :root { --bg: #F5F5DC; --text: #3E2723; --accent: #D84315; }
+                    body { font-family: 'Garamond', 'Georgia', serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; line-height: 1.6; }
+                    .layout { max-width: 800px; margin: 0 auto; background: #FFF8E1; min-height: 100vh; padding: 4rem; box-shadow: 0 0 50px rgba(0,0,0,0.1); }
+                    .header { text-align: center; margin-bottom: 4rem; border-bottom: 1px solid #D7CCC8; padding-bottom: 2rem; }
+                    .logo { font-size: 2rem; letter-spacing: 0.2rem; margin-bottom: 1rem; display: block; }
+                    .nav a { color: var(--text); text-decoration: none; margin: 0 1rem; font-style: italic; font-size: 1.1rem; }
+                    .hero { text-align: center; padding: 2rem 0; }
+                    .headline { font-size: 3.5rem; font-weight: normal; margin-bottom: 1rem; color: var(--accent); }
+                    .subhead { font-family: sans-serif; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 3rem; opacity: 0.7; }
+                    .cta { border: 1px solid var(--accent); color: var(--accent); padding: 1rem 2.5rem; text-decoration: none; font-style: italic; transition: 0.3s; }
+                    .cta:hover { background: var(--accent); color: #fff; }
+                    .grid { margin-top: 5rem; display: grid; gap: 3rem; border-top: 1px solid #D7CCC8; padding-top: 3rem; }
+                    .card { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px dotted #D7CCC8; padding-bottom: 1rem; }
+                    .card h3 { margin: 0; font-size: 1.5rem; font-weight: normal; }
+                    .card p { margin: 0; font-family: sans-serif; font-size: 0.9rem; opacity: 0.6; }
+                    .footer { text-align: center; margin-top: 5rem; font-style: italic; opacity: 0.5; }
+                `
+            },
+            {
+                name: "15. Navy & Gold (High End)",
+                css: `
+                    body { font-family: 'Helvetica Neue', sans-serif; background: #0F172A; color: #F1F5F9; margin: 0; }
+                    .layout { display: flex; flex-direction: column; min-height: 100vh; }
+                    .header { background: #1E293B; padding: 1.5rem 10%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+                    .logo { color: #FCD34D; font-weight: bold; letter-spacing: 1px; }
+                    .nav a { color: #CBD5E1; text-decoration: none; margin-left: 2rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+                    .hero { background: #0F172A; padding: 8rem 10%; background-image: radial-gradient(circle at top right, #334155 0%, transparent 40%); }
+                    .headline { font-size: 4rem; color: #fff; margin: 0 0 1.5rem 0; max-width: 800px; }
+                    .subhead { color: #94A3B8; font-size: 1.3rem; margin-bottom: 3rem; max-width: 500px; border-left: 3px solid #FCD34D; padding-left: 1rem; }
+                    .cta { background: #FCD34D; color: #0F172A; padding: 1rem 2.5rem; text-decoration: none; font-weight: bold; border-radius: 2px; }
+                    .grid { background: #1E293B; padding: 6rem 10%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; }
+                    .card { padding: 2rem; background: #0F172A; border: 1px solid #334155; position: relative; top: 0; transition: top 0.3s; }
+                    .card:hover { top: -10px; border-color: #FCD34D; }
+                    .card h3 { color: #FCD34D; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; }
+                    .footer { background: #020617; padding: 2rem 10%; color: #475569; font-size: 0.8rem; }
+                    @media(max-width:768px){ .headline{font-size:2.5rem;} .grid{grid-template-columns:1fr;} }
+                `
+            },
+            {
+                name: "16. Retro Computer (Windows 95)",
+                css: `
+                    body { font-family: 'Courier New', monospace; background: #008080; padding: 2rem; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+                    .layout { background: #C0C0C0; width: 100%; max-width: 800px; border: 2px solid #fff; border-right-color: #404040; border-bottom-color: #404040; padding: 4px; box-shadow: 10px 10px 0 rgba(0,0,0,0.5); }
+                    .header { background: #000080; padding: 0.5rem 1rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+                    .logo { color: #fff; font-weight: bold; }
+                    .nav a { color: #fff; text-decoration: none; margin-left: 1rem; font-size: 0.9rem; }
+                    .hero { padding: 2rem; text-align: center; border: 2px inset #fff; margin: 1rem; background: #fff; color: #000; }
+                    .headline { font-size: 2rem; margin-bottom: 1rem; }
+                    .subhead { margin-bottom: 2rem; font-style: italic; }
+                    .cta { background: #C0C0C0; color: #000; border: 2px solid #fff; border-right-color: #404040; border-bottom-color: #404040; padding: 0.5rem 1.5rem; text-decoration: none; display: inline-block; font-weight: bold; }
+                    .cta:active { border: 2px solid #404040; border-right-color: #fff; border-bottom-color: #fff; }
+                    .grid { display: flex; gap: 1rem; padding: 1rem; }
+                    .card { flex: 1; background: #C0C0C0; border: 2px solid #fff; border-right-color: #404040; border-bottom-color: #404040; padding: 1rem; }
+                    .card h3 { margin-top: 0; text-decoration: underline; }
+                    .footer { text-align: center; padding: 1rem; font-size: 0.8rem; }
+                    @media(max-width:600px){ .grid{flex-direction:column;} }
+                `
+            },
+            {
+                name: "17. Colorful Gradient Mesh",
+                css: `
+                    body { font-family: 'Arial', sans-serif; background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%); margin: 0; min-height: 100vh; color: #fff; }
+                    .layout { max-width: 900px; margin: 0 auto; padding: 2rem; }
+                    .header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; margin-bottom: 4rem; }
+                    .logo { font-size: 2rem; font-weight: 900; }
+                    .nav a { color: #fff; text-decoration: none; font-weight: bold; margin-left: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                    .hero { background: rgba(255, 255, 255, 0.25); border-radius: 20px; padding: 4rem; backdrop-filter: blur(5px); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); border: 1px solid rgba(255, 255, 255, 0.18); text-align: center; margin-bottom: 4rem; }
+                    .headline { font-size: 4rem; margin: 0 0 1rem 0; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                    .cta { background: #fff; color: #ff9a9e; padding: 1rem 3rem; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 2rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1); transition: 0.3s; }
+                    .cta:hover { transform: scale(1.05); }
+                    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+                    .card { background: rgba(255, 255, 255, 0.4); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); color: #444; }
+                    .card h3 { color: #fff; font-size: 1.5rem; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+                    .footer { text-align: center; margin-top: 4rem; opacity: 0.8; }
+                    @media(max-width:768px){ .grid{grid-template-columns:1fr;} }
+                `
+            },
+            {
+                name: "18. Tech Terminal (Green/Black)",
+                css: `
+                    body { font-family: 'Consolas', 'Monaco', monospace; background: #000; color: #0f0; margin: 0; padding: 2rem; }
+                    .layout { border: 1px solid #0f0; padding: 2rem; max-width: 1000px; margin: 0 auto; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); position: relative; }
+                    .layout::before { content: "SYSTEM ONLINE"; position: absolute; top: -10px; left: 20px; background: #000; padding: 0 10px; font-size: 0.8rem; }
+                    .header { border-bottom: 1px dashed #0f0; padding-bottom: 1rem; margin-bottom: 3rem; display: flex; justify-content: space-between; }
+                    .logo { text-shadow: 0 0 5px #0f0; }
+                    .nav a { color: #0f0; text-decoration: none; margin-left: 2rem; }
+                    .nav a:hover { background: #0f0; color: #000; }
+                    .headline { font-size: 3rem; margin-bottom: 1rem; }
+                    .headline::after { content: "_"; animation: blink 1s infinite; }
+                    @keyframes blink { 50% { opacity: 0; } }
+                    .subhead { opacity: 0.8; margin-bottom: 2rem; }
+                    .cta { border: 1px solid #0f0; color: #0f0; padding: 1rem 2rem; text-decoration: none; display: inline-block; transition: 0.2s; }
+                    .cta:hover { background: #0f0; color: #000; box-shadow: 0 0 20px #0f0; }
+                    .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; margin-top: 4rem; }
+                    .card { border: 1px solid #333; padding: 1rem; transition: 0.3s; }
+                    .card:hover { border-color: #0f0; background: #001100; }
+                    .footer { margin-top: 4rem; border-top: 1px dashed #0f0; padding-top: 1rem; opacity: 0.6; }
+                `
+            },
+            {
+                name: "19. The 'Notion' Vibe",
+                css: `
+                    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background: #fff; color: #37352f; margin: 0; line-height: 1.5; }
+                    .layout { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
+                    .header { display: flex; justify-content: space-between; margin-bottom: 4rem; align-items: center; }
+                    .logo { font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; }
+                    .logo::before { content: "🧊"; margin-right: 10px; font-size: 1.5rem; }
+                    .nav a { color: #37352f; text-decoration: none; margin-left: 1.5rem; border-bottom: 1px solid transparent; }
+                    .nav a:hover { border-bottom: 1px solid #37352f; }
+                    .hero { margin-bottom: 4rem; }
+                    .headline { font-size: 3rem; font-weight: 700; margin: 0 0 1rem 0; line-height: 1.2; }
+                    .subhead { font-size: 1.2rem; color: #666; background: #F7F6F3; display: inline-block; padding: 0.5rem 1rem; border-radius: 4px; }
+                    .cta { display: inline-block; margin-top: 2rem; background: #37352f; color: #fff; padding: 0.8rem 1.5rem; text-decoration: none; border-radius: 4px; font-weight: 500; }
+                    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; border-top: 1px solid #EAEAEA; padding-top: 2rem; }
+                    .card { padding: 1rem; border-radius: 4px; transition: background 0.2s; }
+                    .card:hover { background: #F7F6F3; }
+                    .card h3 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.5rem 0; display: flex; align-items: center; }
+                    .card h3::before { content: "→"; margin-right: 8px; color: #999; }
+                    .footer { margin-top: 4rem; color: #999; font-size: 0.8rem; }
+                    @media(max-width:768px){ .grid{grid-template-columns:1fr;} }
+                `
+            },
+            {
+                name: "20. Mondrian (Artistic Grid)",
+                css: `
+                    :root { --red: #e7000b; --blue: #00569a; --yellow: #f8c900; --black: #111; --white: #f0f0f0; }
+                    body { background: var(--white); margin: 0; padding: 2rem; font-family: 'Verdana', sans-serif; display: flex; justify-content: center; }
+                    .layout { display: grid; grid-template-columns: 200px 1fr 1fr; grid-template-rows: auto auto auto; gap: 10px; background: var(--black); border: 10px solid var(--black); width: 100%; max-width: 1000px; }
+                    .layout > * { background: var(--white); padding: 2rem; }
+                    .header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; background: var(--white); }
+                    .logo { font-weight: 900; font-size: 2rem; color: var(--black); }
+                    .nav { display: flex; gap: 1rem; }
+                    .nav a { color: var(--black); font-weight: bold; text-decoration: none; text-transform: uppercase; }
+                    .hero { grid-column: 2 / -1; grid-row: 2 / 3; background: var(--red); color: white; display: flex; flex-direction: column; justify-content: center; }
+                    .headline { font-size: 3rem; line-height: 1; margin-bottom: 1rem; }
+                    .subhead { font-weight: bold; color: rgba(255,255,255,0.8); }
+                    .cta { background: var(--black); color: white; text-decoration: none; padding: 1rem; text-align: center; display: inline-block; margin-top: 1rem; width: max-content; }
+                    /* Sidebar area fake */
+                    .grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: var(--black); padding: 0; border: none; }
+                    .card { background: var(--white); padding: 2rem; }
+                    .card:nth-child(1) { background: var(--blue); color: white; }
+                    .card:nth-child(3) { background: var(--yellow); }
+                    .footer { grid-column: 1 / -1; text-align: center; background: var(--white); }
+                    @media(max-width:768px){ .layout{display:flex; flex-direction:column; gap:10px; background:var(--black);} .grid{display:flex; flex-direction:column; gap:10px;} }
+                `
+            },
+            {
+                name: "21. Cyberpunk Neon",
+                css: `
+                    body { background: #050505; color: #fff; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 2rem; }
+                    .layout { max-width: 1000px; margin: 0 auto; border: 2px solid #0ff; padding: 2rem; box-shadow: 0 0 20px rgba(0, 255, 255, 0.2); background: #0a0a0a; }
+                    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f; padding-bottom: 1rem; margin-bottom: 3rem; }
+                    .logo { color: #f0f; font-size: 2rem; text-shadow: 0 0 10px #f0f; font-weight: bold; letter-spacing: 2px; }
+                    .nav a { color: #0ff; text-decoration: none; margin-left: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+                    .nav a:hover { text-shadow: 0 0 8px #0ff; background: rgba(0, 255, 255, 0.1); }
+                    .hero { text-align: left; padding: 4rem 0; border-left: 4px solid #f0f; padding-left: 2rem; margin-bottom: 4rem; background: linear-gradient(90deg, rgba(255,0,255,0.1) 0%, transparent 100%); }
+                    .headline { font-size: 3.5rem; margin: 0 0 1rem 0; color: #fff; text-shadow: 2px 2px 0px #0ff; }
+                    .subhead { color: #ccc; font-size: 1.2rem; margin-bottom: 2rem; }
+                    .cta { background: #0ff; color: #000; padding: 1rem 3rem; text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; box-shadow: 5px 5px 0px #f0f; transition: 0.2s; display: inline-block; }
+                    .cta:hover { transform: translate(2px, 2px); box-shadow: 3px 3px 0px #f0f; }
+                    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+                    .card { border: 1px solid #333; padding: 1.5rem; background: #111; position: relative; overflow: hidden; }
+                    .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: #0ff; }
+                    .card h3 { color: #f0f; margin-top: 0; text-transform: uppercase; }
+                    .footer { text-align: center; margin-top: 4rem; color: #555; font-size: 0.8rem; border-top: 1px solid #333; padding-top: 1rem; }
+                `
+            },
+            {
+                name: "22. The Daily Newspaper",
+                css: `
+                    body { font-family: 'Times New Roman', Times, serif; background: #f4f4f4; color: #111; margin: 0; padding: 2rem; }
+                    .layout { background: #fff; max-width: 900px; margin: 0 auto; padding: 2rem 4rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+                    .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 1rem; margin-bottom: 2rem; }
+                    .logo { font-size: 3rem; font-weight: 900; letter-spacing: -1px; display: block; margin-bottom: 1rem; text-transform: uppercase; }
+                    .nav { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 0.5rem 0; display: flex; justify-content: center; gap: 2rem; }
+                    .nav a { color: #000; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; font-family: Arial, sans-serif; }
+                    .hero { text-align: center; padding: 3rem 0; border-bottom: 1px solid #ccc; margin-bottom: 3rem; }
+                    .headline { font-size: 4rem; line-height: 0.9; margin: 0 0 1rem 0; font-weight: bold; }
+                    .subhead { font-style: italic; font-size: 1.2rem; color: #444; margin-bottom: 2rem; font-family: Georgia, serif; }
+                    .cta { text-decoration: underline; font-weight: bold; color: #000; font-family: Arial, sans-serif; text-transform: uppercase; font-size: 0.9rem; }
+                    .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; }
+                    .card { text-align: left; }
+                    .card h3 { font-family: Arial, sans-serif; font-size: 1rem; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
+                    .card p { font-size: 0.95rem; line-height: 1.4; text-align: justify; }
+                    .footer { text-align: center; margin-top: 3rem; border-top: 1px solid #000; padding-top: 1rem; font-size: 0.7rem; text-transform: uppercase; }
+                `
+            },
+            {
+                name: "23. Code Editor (Dark Theme)",
+                css: `
+                    :root { --bg: #1e1e1e; --sidebar: #252526; --text: #d4d4d4; --blue: #569cd6; --yellow: #dcdcaa; --orange: #ce9178; }
+                    body { background: var(--bg); color: var(--text); font-family: 'Consolas', 'Courier New', monospace; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+                    .layout { width: 100%; max-width: 1000px; display: flex; }
+                    .header { background: var(--sidebar); width: 200px; padding: 2rem 1rem; display: flex; flex-direction: column; border-right: 1px solid #333; }
+                    .logo { color: var(--blue); margin-bottom: 2rem; font-weight: normal; }
+                    .logo::before { content: "const "; color: var(--blue); }
+                    .logo::after { content: " ="; color: #fff; }
+                    .nav { display: flex; flex-direction: column; gap: 0.5rem; }
+                    .nav a { color: var(--text); text-decoration: none; font-size: 0.9rem; opacity: 0.7; }
+                    .nav a::before { content: "# "; color: #6a9955; }
+                    .nav a:hover { opacity: 1; background: #2a2d2e; }
+                    .hero { flex: 1; padding: 4rem; }
+                    .headline { font-size: 2.5rem; color: var(--yellow); margin: 0 0 1rem 0; font-weight: normal; }
+                    .headline::before { content: "<"; color: #808080; }
+                    .headline::after { content: " />"; color: #808080; }
+                    .subhead { color: var(--orange); margin-bottom: 2rem; }
+                    .cta { background: var(--blue); color: #fff; padding: 0.5rem 1rem; text-decoration: none; border-radius: 2px; display: inline-block; }
+                    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 4rem; }
+                    .card { background: #2d2d2d; padding: 1.5rem; border-radius: 4px; border: 1px solid #3e3e42; }
+                    .card h3 { color: var(--blue); margin-top: 0; font-size: 1.1rem; }
+                    .card h3::after { content: "()"; color: var(--yellow); }
+                    .footer, .subhead { font-size: 0.9rem; }
+                    .footer { position: fixed; bottom: 0; right: 0; background: var(--blue); color: white; padding: 2px 10px; font-size: 0.7rem; }
+                `
+            },
+            {
+                name: "24. Vivid Gradient Blur",
+                css: `
+                    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #000; min-height: 100vh; color: #fff; overflow-x: hidden; }
+                    /* The background blobs */
+                    body::before { content: ''; position: fixed; top: -20%; left: -20%; width: 70vw; height: 70vw; background: #ff00cc; border-radius: 50%; filter: blur(100px); opacity: 0.4; z-index: -1; animation: float 10s infinite alternate; }
+                    body::after { content: ''; position: fixed; bottom: -20%; right: -20%; width: 70vw; height: 70vw; background: #3333ff; border-radius: 50%; filter: blur(100px); opacity: 0.4; z-index: -1; animation: float 8s infinite alternate-reverse; }
+                    @keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(50px, 50px); } }
+                    
+                    .layout { max-width: 900px; margin: 0 auto; padding: 2rem; backdrop-filter: blur(0px); }
+                    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5rem; }
+                    .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -1px; }
+                    .nav a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 1.5rem; font-weight: 500; transition: 0.3s; }
+                    .nav a:hover { color: #fff; }
+                    .hero { text-align: center; margin-bottom: 5rem; }
+                    .headline { font-size: 4.5rem; font-weight: 800; line-height: 0.95; letter-spacing: -2px; margin-bottom: 1.5rem; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; color: transparent; }
+                    .subhead { font-size: 1.2rem; color: rgba(255,255,255,0.8); max-width: 500px; margin: 0 auto 2.5rem auto; }
+                    .cta { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 1rem 2.5rem; border-radius: 30px; text-decoration: none; backdrop-filter: blur(10px); transition: 0.3s; }
+                    .cta:hover { background: #fff; color: #000; }
+                    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+                    .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 2rem; border-radius: 20px; backdrop-filter: blur(20px); transition: 0.3s; }
+                    .card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.1); }
+                    .card h3 { margin-top: 0; font-size: 1.2rem; }
+                    .card p { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+                    .footer { text-align: center; margin-top: 4rem; opacity: 0.4; font-size: 0.8rem; }
+                    @media(max-width:768px){ .headline{font-size:3rem;} .grid{grid-template-columns:1fr;} }
+                `
+            },
+            {
+                name: "25. The Architect's Blueprint",
+                css: `
+                    body { background-color: #0056ba; background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 40px 40px; color: #fff; font-family: 'Courier New', monospace; padding: 2rem; }
+                    .layout { max-width: 1000px; margin: 0 auto; border: 4px solid #fff; padding: 2rem; position: relative; }
+                    /* Corner markers */
+                    .layout::before { content:'+'; position: absolute; top: -12px; left: -10px; background: #0056ba; font-size: 20px; }
+                    .layout::after { content:'+'; position: absolute; bottom: -12px; right: -10px; background: #0056ba; font-size: 20px; }
+                    
+                    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #fff; padding-bottom: 1rem; margin-bottom: 3rem; }
+                    .logo { border: 2px solid #fff; padding: 5px 15px; font-weight: bold; text-transform: uppercase; }
+                    .nav a { color: #fff; text-decoration: none; margin-left: 2rem; text-transform: uppercase; border-bottom: 1px dashed transparent; }
+                    .nav a:hover { border-bottom: 1px dashed #fff; }
+                    .hero { text-align: left; padding: 2rem; border: 2px solid #fff; margin-bottom: 3rem; background: rgba(0, 86, 186, 0.9); }
+                    .headline { font-size: 3rem; margin: 0; text-transform: uppercase; letter-spacing: 5px; }
+                    .subhead { font-size: 1rem; margin-top: 1rem; border-top: 1px solid #fff; padding-top: 1rem; display: inline-block; }
+                    .cta { display: inline-block; background: #fff; color: #0056ba; font-weight: bold; padding: 1rem 2rem; margin-top: 2rem; text-decoration: none; text-transform: uppercase; }
+                    .grid { display: flex; gap: 2rem; }
+                    .card { flex: 1; border: 2px dashed #fff; padding: 1.5rem; background: rgba(0,0,0,0.1); }
+                    .card h3 { margin-top: 0; border-bottom: 1px solid #fff; padding-bottom: 10px; font-size: 1.2rem; }
+                    .footer { text-align: right; margin-top: 2rem; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; }
+                `
+            },
+            {
+                name: "26. Skeuomorphic Card Stock",
+                css: `
+                    body { background: #e0e5ec; font-family: 'Segoe UI', sans-serif; color: #4a4a4a; display: flex; justify-content: center; padding: 4rem 0; margin: 0; }
+                    .layout { width: 100%; max-width: 800px; padding: 2rem; }
+                    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+                    .logo { font-weight: 700; color: #555; text-shadow: 1px 1px 0 #fff; }
+                    .nav a { color: #777; text-decoration: none; margin-left: 20px; font-weight: 600; font-size: 0.9rem; }
+                    /* Neumorphic style for Hero */
+                    .hero { padding: 3rem; border-radius: 30px; background: #e0e5ec; box-shadow: 20px 20px 60px #bec3c9, -20px -20px 60px #ffffff; text-align: center; margin-bottom: 4rem; }
+                    .headline { color: #555; font-size: 2.5rem; margin-bottom: 1rem; }
+                    .subhead { color: #888; }
+                    .cta { margin-top: 2rem; display: inline-block; padding: 1rem 2.5rem; border-radius: 50px; background: #e0e5ec; box-shadow: 6px 6px 12px #bec3c9, -6px -6px 12px #ffffff; color: #555; text-decoration: none; font-weight: bold; transition: 0.2s; }
+                    .cta:active { box-shadow: inset 4px 4px 8px #bec3c9, inset -4px -4px 8px #ffffff; }
+                    .grid { display: flex; gap: 2rem; flex-wrap: wrap; }
+                    .card { flex: 1; min-width: 200px; padding: 2rem; border-radius: 20px; background: #e0e5ec; box-shadow: 9px 9px 16px #bec3c9, -9px -9px 16px #ffffff; }
+                    .card h3 { color: #555; margin-top: 0; }
+                    .footer { text-align: center; margin-top: 4rem; color: #999; text-shadow: 1px 1px 0 #fff; }
+                `
+            },
+            {
+                name: "27. Swiss Poster (Orange/Black)",
+                css: `
+                    body { background: #ff5722; color: #000; font-family: Helvetica, Arial, sans-serif; margin: 0; }
+                    .layout { display: flex; flex-direction: column; min-height: 100vh; }
+                    .header { background: #000; padding: 2rem; display: flex; justify-content: space-between; align-items: center; }
+                    .logo { color: #fff; font-size: 2rem; font-weight: bold; letter-spacing: -2px; }
+                    .nav a { color: #fff; text-decoration: none; font-weight: bold; text-transform: uppercase; margin-left: 2rem; font-size: 0.9rem; }
+                    .hero { padding: 4rem 2rem; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+                    .headline { font-size: 6rem; line-height: 0.85; margin: 0; letter-spacing: -3px; font-weight: 900; max-width: 800px; }
+                    .subhead { font-weight: bold; font-size: 1.5rem; margin-top: 2rem; border-left: 5px solid #000; padding-left: 1rem; }
+                    .cta { display: none; } /* Poster style usually lacks buttons */
+                    .grid { background: #000; color: #fff; padding: 4rem 2rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4rem; }
+                    .card h3 { font-size: 2rem; line-height: 1; margin: 0 0 1rem 0; letter-spacing: -1px; }
+                    .card p { font-size: 1rem; opacity: 0.7; line-height: 1.4; }
+                    .footer { background: #000; color: #555; padding: 2rem; text-align: center; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem; }
+                    @media(max-width:768px){ .headline{font-size:3.5rem;} .grid{grid-template-columns:1fr; gap:2rem;} }
+                `
+            },
+            {
+                name: "28. Corporate Clean (Stripe-ish)",
+                css: `
+                    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f6f9fc; color: #425466; }
+                    /* Angled background */
+                    .layout { background: #fff; position: relative; overflow: hidden; }
+                    .header { position: absolute; top: 0; left: 0; width: 100%; box-sizing: border-box; padding: 2rem 10%; display: flex; justify-content: space-between; z-index: 10; }
+                    .logo { font-weight: 900; color: #fff; font-size: 1.5rem; }
+                    .nav a { color: rgba(255,255,255,0.8); text-decoration: none; margin-left: 2rem; font-weight: 600; font-size: 0.95rem; }
+                    .nav a:hover { color: #fff; }
+                    
+                    .hero { background: linear-gradient(150deg, #53f 15%, #05d5ff 70%, #a6ffcb 94%); padding: 10rem 10% 8rem 10%; clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%); margin-bottom: 2rem; }
+                    .headline { color: #fff; font-size: 3.5rem; font-weight: 800; margin: 0 0 1.5rem 0; letter-spacing: -1px; }
+                    .subhead { color: rgba(255,255,255,0.9); font-size: 1.25rem; line-height: 1.6; max-width: 600px; margin-bottom: 2.5rem; }
+                    .cta { background: #fff; color: #53f; padding: 1rem 2rem; border-radius: 30px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 14px 0 rgba(0, 118, 255, 0.39); transition: 0.2s; }
+                    .cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 118, 255, 0.23); }
+                    
+                    .grid { padding: 2rem 10% 6rem 10%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+                    .card { padding: 1rem 0; }
+                    .card h3 { color: #0a2540; font-weight: 600; margin-bottom: 0.5rem; }
+                    .card p { line-height: 1.6; font-size: 0.95rem; }
+                    .footer { text-align: center; padding: 2rem; background: #f6f9fc; color: #8898aa; font-size: 0.85rem; }
+                    @media(max-width:768px){ .hero{clip-path:none; padding-top:6rem;} .header .nav{display:none;} .grid{grid-template-columns:1fr;} }
+                `
+            },
+            {
+                name: "29. Botanical / Organic",
+                css: `
+                    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Quicksand:wght@400;600&display=swap');
+                    body { background: #f1f8e9; color: #33691e; font-family: 'Quicksand', sans-serif; margin: 0; padding: 2rem; }
+                    .layout { max-width: 1000px; margin: 0 auto; background: #fff; border-radius: 30px; overflow: hidden; box-shadow: 0 10px 30px rgba(51, 105, 30, 0.1); }
+                    .header { padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; }
+                    .logo { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: #2e7d32; }
+                    .nav a { color: #558b2f; text-decoration: none; margin-left: 1.5rem; font-weight: 600; }
+                    .hero { padding: 4rem 3rem; background: #DCEDC8; text-align: center; border-radius: 0 0 50% 50% / 0 0 20px 20px; margin-bottom: 3rem; }
+                    .headline { font-family: 'DM Serif Display', serif; font-size: 3.5rem; color: #1b5e20; margin: 0 0 1rem 0; line-height: 1.1; }
+                    .subhead { font-size: 1.1rem; color: #33691e; max-width: 500px; margin: 0 auto 2rem auto; }
+                    .cta { background: #558b2f; color: #fff; padding: 0.8rem 2rem; border-radius: 50px; text-decoration: none; font-weight: bold; box-shadow: 0 5px 15px rgba(85, 139, 47, 0.4); }
+                    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; padding: 0 3rem 4rem 3rem; }
+                    .card { background: #f9fbe7; padding: 2rem; border-radius: 20px; text-align: center; transition: 0.3s; }
+                    .card:hover { transform: translateY(-5px); background: #f1f8e9; }
+                    .card h3 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: #2e7d32; margin-bottom: 0.5rem; }
+                    .footer { text-align: center; padding-bottom: 2rem; color: #9e9d24; font-size: 0.8rem; }
+                    @media(max-width:768px){ .headline{font-size:2.5rem;} .grid{grid-template-columns:1fr;} }
+                `
+            },
+            {
+                name: "30. Luxury Dark (Gold/Black)",
+                css: `
+                    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap');
+                    body { background: #000; color: #d4af37; font-family: 'Lato', sans-serif; margin: 0; }
+                    .layout { max-width: 1200px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+                    .header { padding: 3rem 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; border-bottom: 1px solid #222; }
+                    .logo { font-family: 'Cinzel', serif; font-size: 2rem; letter-spacing: 5px; text-transform: uppercase; color: #fff; }
+                    .nav { margin-top: 1rem; }
+                    .nav a { color: #888; text-decoration: none; margin: 0 1.5rem; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem; transition: 0.3s; }
+                    .nav a:hover { color: #d4af37; }
+                    .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 4rem 2rem; background: radial-gradient(circle at center, #111 0%, #000 100%); }
+                    .headline { font-family: 'Cinzel', serif; font-size: 4rem; color: #d4af37; margin: 0 0 2rem 0; font-weight: 400; }
+                    .subhead { color: #fff; font-weight: 300; letter-spacing: 1px; margin-bottom: 3rem; }
+                    .cta { border: 1px solid #d4af37; color: #d4af37; padding: 1rem 3rem; text-decoration: none; text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; transition: 0.3s; }
+                    .cta:hover { background: #d4af37; color: #000; }
+                    .grid { display: flex; justify-content: center; gap: 4rem; padding: 4rem 2rem; border-top: 1px solid #222; }
+                    .card { text-align: center; max-width: 250px; }
+                    .card h3 { font-family: 'Cinzel', serif; color: #fff; font-size: 1.2rem; margin-bottom: 1rem; letter-spacing: 1px; }
+                    .card p { color: #666; font-size: 0.9rem; line-height: 1.6; }
+                    .footer { text-align: center; padding: 2rem; color: #333; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; }
+                    @media(max-width:768px){ .headline{font-size:2.5rem;} .grid{flex-direction:column; align-items:center;} }
+                `
+            },
+        {
+            name: "1. The Luxury Brand (Dark Brown & Gold)",
+            css: `
+                body { background: #552a12; color: #fff; font-family: 'Georgia', serif; margin: 0; display: flex; align-items: center; min-height: 100vh; }
+                .layout { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; border: 1px solid #dbb668; text-align: center; }
+                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(219, 182, 104, 0.3); padding-bottom: 2rem; margin-bottom: 4rem; }
+                .logo { color: #dbb668; font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; }
+                .nav a { color: #fff; text-decoration: none; margin-left: 2rem; font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; transition: color 0.3s; }
+                .nav a:hover { color: #dbb668; }
+                .hero { margin-bottom: 4rem; }
+                .headline { font-size: 4rem; color: #fff; font-weight: normal; margin-bottom: 1rem; }
+                .subhead { color: #dbb668; font-style: italic; font-size: 1.2rem; margin-bottom: 3rem; }
+                .cta { background: transparent; color: #dbb668; border: 1px solid #dbb668; padding: 1rem 3rem; text-decoration: none; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px; transition: 0.3s; }
+                .cta:hover { background: #dbb668; color: #552a12; }
+                .grid { display: flex; justify-content: center; gap: 3rem; border-top: 1px solid rgba(219, 182, 104, 0.3); padding-top: 3rem; }
+                .card h3 { color: #dbb668; font-weight: normal; font-size: 1.2rem; margin-bottom: 0.5rem; }
+                .card p { color: rgba(255,255,255,0.7); font-size: 0.9rem; font-family: sans-serif; }
+                .footer { margin-top: 4rem; color: rgba(255,255,255,0.4); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; }
+            `
+        },
+        {
+            name: "2. The Atelier (White & Sharp)",
+            css: `
+                body { background: #fff; color: #000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 2rem; }
+                .layout { max-width: 1000px; margin: 0 auto; }
+                .header { padding: 2rem 0; display: flex; justify-content: space-between; align-items: baseline; }
+                .logo { font-weight: 900; font-size: 2rem; color: #000; }
+                .nav a { color: #552a12; text-decoration: none; margin-left: 2rem; font-weight: bold; }
+                .hero { padding: 6rem 0; }
+                .headline { font-size: 5rem; line-height: 0.9; margin: 0 0 2rem 0; letter-spacing: -2px; color: #000; }
+                .subhead { font-size: 1.5rem; color: #552a12; max-width: 500px; margin-bottom: 3rem; border-left: 4px solid #dbb668; padding-left: 1rem; }
+                .cta { background: #000; color: #fff; padding: 1rem 2.5rem; text-decoration: none; font-weight: bold; }
+                .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4rem; margin-top: 6rem; }
+                .card { border-top: 4px solid #dbb668; padding-top: 1rem; }
+                .card h3 { font-size: 1.5rem; margin: 0 0 0.5rem 0; color: #552a12; }
+                .footer { margin-top: 4rem; font-size: 0.8rem; color: #999; }
+            `
+        },
+        {
+            name: "3. The Gold Rush (Background Focus)",
+            css: `
+                body { background: #dbb668; color: #552a12; font-family: 'Courier New', monospace; margin: 0; padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+                .layout { background: #fff; flex: 1; padding: 2rem; border: 2px solid #552a12; box-shadow: 15px 15px 0 #552a12; max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+                .header { display: flex; justify-content: space-between; border-bottom: 2px solid #552a12; padding-bottom: 1rem; margin-bottom: 3rem; }
+                .logo { font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+                .nav a { color: #552a12; text-decoration: none; margin-left: 1.5rem; font-weight: bold; }
+                .hero { text-align: center; padding: 3rem 0; }
+                .headline { font-size: 3.5rem; margin: 0 0 1rem 0; text-transform: uppercase; }
+                .subhead { font-style: italic; margin-bottom: 2rem; background: #dbb668; color: #fff; display: inline-block; padding: 5px 10px; }
+                .cta { display: inline-block; border: 2px solid #552a12; color: #552a12; padding: 1rem 2rem; text-decoration: none; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+                .cta:hover { background: #552a12; color: #dbb668; }
+                .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem; }
+                .card { background: #f9f9f9; padding: 1.5rem; border: 1px solid #ddd; }
+                .card h3 { margin-top: 0; color: #000; text-decoration: underline; text-decoration-color: #dbb668; }
+                .footer { text-align: center; margin-top: 4rem; border-top: 1px solid #eee; padding-top: 1rem; font-size: 0.8rem; opacity: 0.6; }
+                @media(max-width:768px){ .grid{grid-template-columns:1fr;} }
+            `
+        },
+        {
+            name: "4. Noir & Gold (High Contrast)",
+            css: `
+                body { background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
+                .layout { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+                .header { display: flex; justify-content: space-between; padding: 2rem 0; }
+                .logo { color: #fff; font-weight: 700; letter-spacing: -1px; font-size: 1.2rem; border: 1px solid #fff; padding: 5px 10px; }
+                .nav a { color: #888; text-decoration: none; margin-left: 2rem; font-size: 0.9rem; }
+                .nav a:hover { color: #dbb668; }
+                .hero { padding: 8rem 0; border-bottom: 1px solid #222; }
+                .headline { font-size: 5rem; font-weight: 800; margin: 0 0 1rem 0; color: #dbb668; letter-spacing: -3px; }
+                .subhead { color: #fff; font-size: 1.5rem; max-width: 600px; margin-bottom: 3rem; }
+                .cta { background: #fff; color: #000; padding: 1rem 3rem; text-decoration: none; font-weight: bold; border-radius: 50px; }
+                .cta:hover { background: #dbb668; }
+                .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #222; border: 1px solid #222; margin-top: 4rem; }
+                .card { background: #000; padding: 2rem; transition: background 0.3s; }
+                .card:hover { background: #111; }
+                .card h3 { color: #fff; margin-top: 0; }
+                .card p { color: #552a12; /* Using the brown as a dark muted text color */ color: #885530; } 
+                .footer { padding: 4rem 0; color: #444; font-size: 0.8rem; }
+            `
+        },
+        {
+            name: "5. The Minimalist Card (Soft)",
+            css: `
+                body { background: #f4f1ea; /* Very light tint of the brown/gold mix */ font-family: 'Times New Roman', serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+                .layout { background: #fff; padding: 3rem; max-width: 500px; width: 100%; box-shadow: 0 20px 40px rgba(85, 42, 18, 0.1); text-align: center; }
+                .header { margin-bottom: 2rem; }
+                .logo { font-style: italic; font-size: 1.5rem; color: #552a12; }
+                .nav { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; font-family: sans-serif; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; }
+                .nav a { color: #999; text-decoration: none; }
+                .hero { margin: 3rem 0; }
+                .headline { font-size: 2.5rem; color: #000; margin: 0 0 1rem 0; line-height: 1.1; }
+                .subhead { color: #552a12; font-family: sans-serif; font-size: 0.9rem; line-height: 1.6; }
+                .cta { display: block; margin-top: 2rem; background: #552a12; color: #dbb668; padding: 1rem; text-decoration: none; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+                .grid { text-align: left; margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+                .card h3 { font-size: 1rem; margin: 0; color: #000; }
+                .card p { margin: 0; font-family: sans-serif; font-size: 0.8rem; color: #999; }
+                .footer { margin-top: 2rem; font-size: 0.7rem; color: #ccc; }
+            `
+        },
+        {
+            name: "6. The Split (Brown & White)",
+            css: `
+                body { margin: 0; font-family: sans-serif; height: 100vh; overflow: hidden; }
+                .layout { display: flex; height: 100%; }
+                .header { position: absolute; top: 2rem; left: 2rem; z-index: 10; }
+                .logo { font-weight: 900; color: #dbb668; }
+                .nav { display: none; }
+                .hero { flex: 1; background: #552a12; color: #fff; display: flex; flex-direction: column; justify-content: center; padding: 4rem; position: relative; }
+                .headline { font-size: 4rem; margin: 0; font-family: 'Georgia', serif; }
+                .subhead { color: #dbb668; margin-top: 1rem; font-size: 1.2rem; }
+                .cta { margin-top: 2rem; color: #fff; text-decoration: underline; text-decoration-color: #dbb668; }
+                .grid { flex: 1; background: #fff; display: flex; flex-direction: column; justify-content: center; padding: 4rem; gap: 2rem; }
+                .card { border-left: 3px solid #dbb668; padding-left: 1rem; }
+                .card h3 { margin: 0; font-size: 1.5rem; color: #000; }
+                .card p { margin: 5px 0 0 0; color: #552a12; opacity: 0.7; }
+                .footer { position: absolute; bottom: 1rem; left: 2rem; color: #dbb668; font-size: 0.8rem; opacity: 0.5; }
+                @media(max-width:768px){ .layout{flex-direction:column; overflow:auto;} }
+            `
+        },
+        {
+            name: "7. Wireframe Deluxe (Outline)",
+            css: `
+                body { background: #fff; color: #552a12; font-family: 'Courier New', monospace; padding: 2rem; margin: 0; box-sizing: border-box; }
+                .layout { max-width: 1100px; margin: 0 auto; border: 1px solid #552a12; padding: 2rem; position: relative; }
+                .header { display: flex; justify-content: space-between; border-bottom: 1px solid #552a12; padding-bottom: 1rem; margin-bottom: 4rem; }
+                .logo { background: #552a12; color: #fff; padding: 0 10px; font-weight: bold; }
+                .nav a { color: #552a12; text-decoration: none; margin-left: 2rem; border: 1px solid transparent; padding: 5px 10px; }
+                .nav a:hover { border: 1px solid #dbb668; color: #dbb668; }
+                .hero { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 4rem; }
+                .headline { font-size: 3rem; margin: 0 0 1rem 0; border-bottom: 5px solid #dbb668; padding-bottom: 10px; display: inline-block; }
+                .subhead { font-size: 1.1rem; color: #000; }
+                .cta { margin-top: 2rem; border: 1px solid #552a12; padding: 1rem 3rem; text-decoration: none; color: #552a12; font-weight: bold; box-shadow: 4px 4px 0 #dbb668; transition: 0.2s; }
+                .cta:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #dbb668; }
+                .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+                .card { border: 1px solid #552a12; padding: 1.5rem; }
+                .card h3 { margin-top: 0; color: #000; background: #dbb668; display: inline-block; padding: 0 5px; }
+                .footer { margin-top: 4rem; border-top: 1px dashed #552a12; padding-top: 1rem; text-align: right; font-size: 0.8rem; }
+            `
+        },
+        {
+            name: "8. Brutalist Gold",
+            css: `
+                body { background: #dbb668; color: #000; font-family: Arial, sans-serif; margin: 0; padding: 1rem; }
+                .layout { background: #dbb668; min-height: 100vh; display: flex; flex-direction: column; }
+                .header { border-bottom: 4px solid #000; padding: 1rem 0; display: flex; justify-content: space-between; align-items: center; }
+                .logo { font-size: 2rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
+                .nav a { color: #000; font-weight: 900; text-decoration: none; margin-left: 1rem; text-transform: uppercase; background: #fff; padding: 5px 10px; border: 2px solid #000; }
+                .hero { padding: 4rem 0; border-bottom: 4px solid #000; }
+                .headline { font-size: 5rem; line-height: 0.8; font-weight: 900; text-transform: uppercase; margin: 0; -webkit-text-stroke: 2px #000; color: transparent; }
+                .headline:hover { color: #000; }
+                .subhead { background: #552a12; color: #fff; display: inline-block; padding: 0.5rem 1rem; font-weight: bold; margin-top: 2rem; font-family: 'Courier New', monospace; }
+                .cta { display: none; }
+                .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 4px solid #000; }
+                .card { border-right: 4px solid #000; padding: 2rem; background: #fff; }
+                .card:last-child { border-right: none; }
+                .card h3 { font-weight: 900; text-transform: uppercase; font-size: 1.5rem; margin-top: 0; }
+                .footer { padding: 2rem 0; font-weight: bold; }
+                @media(max-width:768px){ .grid{grid-template-columns:1fr;} .card{border-right:none; border-bottom:4px solid #000;} }
+            `
+        },
+        {
+            name: "9. The App Interface (Clean UI)",
+            css: `
+                body { background: #f0f0f0; color: #333; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; display: flex; justify-content: center; min-height: 100vh; padding: 2rem; box-sizing: border-box; }
+                .layout { background: #fff; width: 100%; max-width: 600px; border-radius: 24px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+                .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+                .logo { font-weight: 800; color: #552a12; font-size: 1.2rem; }
+                .nav a { font-size: 0.9rem; color: #999; text-decoration: none; margin-left: 1rem; font-weight: 500; }
+                .nav a:hover { color: #000; }
+                .hero { background: #552a12; border-radius: 16px; padding: 2rem; color: #fff; text-align: center; margin-bottom: 2rem; }
+                .headline { font-size: 2rem; margin: 0 0 0.5rem 0; font-weight: 600; }
+                .subhead { font-size: 0.9rem; opacity: 0.8; margin-bottom: 1.5rem; }
+                .cta { background: #dbb668; color: #552a12; padding: 0.7rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.9rem; display: inline-block; }
+                .grid { display: flex; flex-direction: column; gap: 1rem; }
+                .card { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 1px solid #eee; border-radius: 12px; transition: 0.2s; }
+                .card:hover { border-color: #dbb668; background: #fffdf5; }
+                .card h3 { margin: 0; font-size: 1rem; color: #000; font-weight: 600; }
+                .card p { margin: 0; font-size: 0.8rem; color: #888; }
+                .footer { text-align: center; margin-top: 2rem; font-size: 0.8rem; color: #ccc; }
+            `
+        },
+        {
+            name: "10. Vintage Poster (Typography)",
+            css: `
+                body { background: #fff; color: #552a12; font-family: 'Times New Roman', serif; margin: 0; padding: 2rem; }
+                .layout { max-width: 800px; margin: 0 auto; border: 10px solid #552a12; padding: 3rem; background: #fdfbf7; }
+                .header { text-align: center; border-bottom: 2px solid #dbb668; padding-bottom: 2rem; margin-bottom: 2rem; }
+                .logo { font-size: 3rem; font-weight: bold; letter-spacing: -2px; color: #000; }
+                .nav { margin-top: 1rem; }
+                .nav a { color: #552a12; text-decoration: none; margin: 0 1rem; font-style: italic; font-size: 1.2rem; }
+                .hero { text-align: center; margin-bottom: 4rem; }
+                .headline { font-size: 4.5rem; line-height: 0.9; margin: 0 0 1.5rem 0; color: #552a12; }
+                .subhead { font-family: sans-serif; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; color: #dbb668; font-weight: bold; }
+                .cta { display: block; width: 100%; border-top: 2px solid #dbb668; border-bottom: 2px solid #dbb668; padding: 1rem 0; margin-top: 2rem; text-decoration: none; color: #000; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+                .cta:hover { background: #dbb668; color: #fff; }
+                .grid { display: flex; justify-content: space-between; gap: 2rem; text-align: center; }
+                .card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #000; }
+                .card p { font-style: italic; color: #777; }
+                .footer { margin-top: 4rem; text-align: center; font-size: 0.8rem; text-transform: uppercase; }
+                @media(max-width:768px){ .headline{font-size:3rem;} .grid{flex-direction:column;} }
+            `
+        },{ 
+        name: "1. Themed Gradient Blurs",
+            css: `
+                body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #552a12; min-height: 100vh; color: #fff; overflow-x: hidden; }
+                /* The themed background blobs - using Gold */
+                body::before { content: ''; position: fixed; top: -20%; left: -20%; width: 70vw; height: 70vw; background: #dbb668; border-radius: 50%; filter: blur(120px); opacity: 0.3; z-index: -1; animation: float 10s infinite alternate; }
+                body::after { content: ''; position: fixed; bottom: -20%; right: -20%; width: 70vw; height: 70vw; background: #dbb668; border-radius: 50%; filter: blur(150px); opacity: 0.2; z-index: -1; animation: float 8s infinite alternate-reverse; }
+                @keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(50px, 50px); } }
+                
+                .layout { max-width: 900px; margin: 0 auto; padding: 2rem; }
+                .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5rem; padding: 1.5rem; border-radius: 20px; background: rgba(0,0,0,0.2); backdrop-filter: blur(20px); border: 1px solid rgba(219, 182, 104, 0.1); }
+                .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -1px; color: #dbb668; }
+                .nav a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 1.5rem; font-weight: 500; transition: 0.3s; }
+                .nav a:hover { color: #dbb668; }
+                .hero { text-align: center; margin-bottom: 5rem; }
+                /* Gradient text using Gold and White */
+                .headline { font-size: 4.5rem; font-weight: 800; line-height: 0.95; letter-spacing: -2px; margin-bottom: 1.5rem; background: linear-gradient(to right, #fff, #dbb668); -webkit-background-clip: text; color: transparent; }
+                .subhead { font-size: 1.2rem; color: rgba(255,255,255,0.8); max-width: 500px; margin: 0 auto 2.5rem auto; }
+                .cta { background: rgba(219, 182, 104, 0.2); border: 1px solid #dbb668; color: #dbb668; padding: 1rem 2.5rem; border-radius: 30px; text-decoration: none; backdrop-filter: blur(10px); transition: 0.3s; font-weight: bold; }
+                .cta:hover { background: #dbb668; color: #552a12; box-shadow: 0 0 20px rgba(219, 182, 104, 0.4); }
+                .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+                /* Dark glass cards with gold borders */
+                .card { background: rgba(0,0,0,0.3); border: 1px solid rgba(219, 182, 104, 0.2); padding: 2rem; border-radius: 20px; backdrop-filter: blur(20px); transition: 0.3s; }
+                .card:hover { transform: translateY(-10px); background: rgba(0,0,0,0.5); border-color: rgba(219, 182, 104, 0.5); }
+                .card h3 { margin-top: 0; font-size: 1.2rem; color: #dbb668; }
+                .card p { color: rgba(255,255,255,0.7); font-size: 0.9rem; }
+                .footer { text-align: center; margin-top: 4rem; opacity: 0.4; font-size: 0.8rem; }
+                @media(max-width:768px){ .headline{font-size:3rem;} .grid{grid-template-columns:1fr;} }
+            `
+        },
+        {
+            name: "2. Themed Dark Glassmorphism",
+            css: `
+                body { font-family: sans-serif; background: #000; background: linear-gradient(to bottom right, #000, #552a12); color: #fff; min-height: 100vh; margin: 0; padding: 2rem; }
+                .layout { max-width: 1000px; margin: 0 auto; }
+                /* Dark glass header with subtle gold tint border */
+                .header { display: flex; justify-content: space-between; padding: 1.5rem; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(219, 182, 104, 0.1); margin-bottom: 4rem; }
+                .logo { font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #dbb668; text-shadow: 0 0 10px rgba(219, 182, 104, 0.3); }
+                .nav a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
+                .nav a:hover { color: #dbb668; }
+                .hero { text-align: center; padding: 4rem 1rem; position: relative; }
+                /* Creating a GOLD glow behind hero */
+                .hero::before { content:''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 300px; background: #dbb668; filter: blur(120px); opacity: 0.25; z-index: -1; }
+                .headline { font-size: 4rem; font-weight: 100; margin-bottom: 1rem; letter-spacing: -2px; color: #fff; }
+                .subhead { font-size: 1.2rem; color: rgba(255,255,255,0.6); margin-bottom: 2rem; }
+                .cta { background: rgba(219, 182, 104, 0.1); color: #dbb668; padding: 1rem 3rem; text-decoration: none; border-radius: 50px; border: 1px solid rgba(219, 182, 104, 0.3); transition: 0.3s; backdrop-filter: blur(5px); font-weight: bold; }
+                .cta:hover { background: rgba(219, 182, 104, 0.3); box-shadow: 0 0 30px rgba(219, 182, 104, 0.3); color: #fff; }
+                .grid { display: flex; gap: 2rem; margin-top: 3rem; flex-wrap: wrap; }
+                /* Dark glass cards */
+                .card { flex: 1; min-width: 250px; padding: 2rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(219, 182, 104, 0.1); border-radius: 16px; backdrop-filter: blur(20px); transition: 0.3s; }
+                .card:hover { background: rgba(0, 0, 0, 0.5); transform: translateY(-5px); border-color: rgba(219, 182, 104, 0.3); }
+                .card h3 { color: #dbb668; margin-top: 0; }
+                .card p { color: rgba(255,255,255,0.7); }
+                .footer { text-align: center; margin-top: 4rem; color: rgba(255,255,255,0.3); }
+            `
+        },
+        {
+            name: "1. Skeuomorphic Gold (Pressed Metal)",
+            css: `
+                body { 
+                    background: #dbb668; 
+                    color: #552a12; 
+                    font-family: 'Segoe UI', sans-serif; 
+                    display: flex; 
+                    justify-content: center; 
+                    padding: 4rem 2rem; 
+                    margin: 0; 
+                    min-height: 100vh;
+                }
+                .layout { 
+                    width: 100%; 
+                    max-width: 900px; 
+                }
+                .header { 
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center; 
+                    margin-bottom: 3rem; 
+                    padding: 1rem 2rem;
+                    border-radius: 50px;
+                    /* The Skeuomorphic Shadow: Brown for dark, White for light */
+                    box-shadow: 8px 8px 16px rgba(85, 42, 18, 0.25), 
+                                -8px -8px 16px rgba(255, 255, 255, 0.4);
+                }
+                .logo { 
+                    font-weight: 900; 
+                    color: #552a12; 
+                    font-size: 1.5rem;
+                    text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
+                }
+                .nav a { 
+                    color: #552a12; 
+                    text-decoration: none; 
+                    margin-left: 20px; 
+                    font-weight: 700; 
+                    font-size: 0.9rem; 
+                    text-transform: uppercase;
+                }
+                .nav a:hover { opacity: 0.7; }
+
+                .hero { 
+                    padding: 4rem; 
+                    border-radius: 40px; 
+                    background: #dbb668; 
+                    text-align: center; 
+                    margin-bottom: 4rem; 
+                    /* Deep pressed effect */
+                    box-shadow: 20px 20px 60px rgba(85, 42, 18, 0.25), 
+                                -20px -20px 60px rgba(255, 255, 255, 0.4);
+                }
+                .headline { 
+                    color: #552a12; 
+                    font-size: 3rem; 
+                    margin: 0 0 1rem 0; 
+                    font-weight: 800;
+                    text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+                }
+                .subhead { 
+                    color: #552a12; 
+                    opacity: 0.8; 
+                    font-weight: 500;
+                }
+                .cta { 
+                    margin-top: 2rem; 
+                    display: inline-block; 
+                    padding: 1rem 3rem; 
+                    border-radius: 50px; 
+                    background: #dbb668; 
+                    color: #552a12; 
+                    text-decoration: none; 
+                    font-weight: 900; 
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    /* Button pops out */
+                    box-shadow: 6px 6px 12px rgba(85, 42, 18, 0.3), 
+                                -6px -6px 12px rgba(255, 255, 255, 0.5);
+                    transition: 0.2s;
+                }
+                .cta:active { 
+                    box-shadow: inset 4px 4px 8px rgba(85, 42, 18, 0.3), 
+                                inset -4px -4px 8px rgba(255, 255, 255, 0.5);
+                    transform: translateY(2px);
+                }
+
+                .grid { display: flex; gap: 2rem; flex-wrap: wrap; }
+                .card { 
+                    flex: 1; 
+                    min-width: 250px; 
+                    padding: 2rem; 
+                    border-radius: 30px; 
+                    background: #dbb668; 
+                    box-shadow: 9px 9px 16px rgba(85, 42, 18, 0.2), 
+                                -9px -9px 16px rgba(255, 255, 255, 0.4);
+                    transition: 0.3s;
+                }
+                .card:hover { transform: translateY(-5px); }
+                .card h3 { color: #552a12; margin-top: 0; font-weight: 800; }
+                .card p { color: #552a12; opacity: 0.7; }
+                .footer { text-align: center; margin-top: 4rem; color: #552a12; opacity: 0.5; font-weight: bold; }
+            `
+        },
+        {
+            name: "2. Skeuomorphic Dark Leather",
+            css: `
+                body { 
+                    background: #552a12; 
+                    color: #dbb668; 
+                    font-family: 'Segoe UI', sans-serif; 
+                    display: flex; 
+                    justify-content: center; 
+                    padding: 4rem 2rem; 
+                    margin: 0; 
+                    min-height: 100vh;
+                }
+                .layout { width: 100%; max-width: 900px; }
+                
+                .header { 
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center; 
+                    margin-bottom: 3rem; 
+                    padding: 1.5rem;
+                    border-radius: 20px;
+                    /* Black shadows, faint gold lights */
+                    box-shadow: 5px 5px 10px #2a1509, 
+                                -5px -5px 10px #803f1b;
+                }
+                .logo { 
+                    font-weight: 900; 
+                    color: #fff; 
+                    font-size: 1.5rem; 
+                    letter-spacing: 1px;
+                }
+                .nav a { 
+                    color: #dbb668; 
+                    text-decoration: none; 
+                    margin-left: 20px; 
+                    font-weight: 600; 
+                    font-size: 0.9rem; 
+                }
+
+                .hero { 
+                    padding: 4rem; 
+                    border-radius: 40px; 
+                    background: #552a12; 
+                    text-align: center; 
+                    margin-bottom: 4rem; 
+                    box-shadow: 20px 20px 60px #221107, 
+                                -20px -20px 60px #88431d;
+                }
+                .headline { 
+                    color: #dbb668; 
+                    font-size: 3rem; 
+                    margin: 0 0 1rem 0; 
+                    font-weight: 700;
+                }
+                .subhead { color: #fff; opacity: 0.7; }
+
+                .cta { 
+                    margin-top: 2rem; 
+                    display: inline-block; 
+                    padding: 1rem 3rem; 
+                    border-radius: 50px; 
+                    background: #552a12; 
+                    color: #fff; 
+                    text-decoration: none; 
+                    font-weight: bold; 
+                    transition: 0.2s;
+                    border: 1px solid #dbb668;
+                    box-shadow: 6px 6px 12px #221107, 
+                                -6px -6px 12px #88431d;
+                }
+                .cta:hover { color: #dbb668; }
+                .cta:active { 
+                    box-shadow: inset 4px 4px 8px #221107, 
+                                inset -4px -4px 8px #88431d;
+                }
+
+                .grid { display: flex; gap: 2rem; flex-wrap: wrap; }
+                .card { 
+                    flex: 1; 
+                    min-width: 250px; 
+                    padding: 2rem; 
+                    border-radius: 30px; 
+                    background: #552a12; 
+                    box-shadow: 9px 9px 16px #2a1509, 
+                                -9px -9px 16px #803f1b;
+                }
+                .card h3 { color: #fff; margin-top: 0; }
+                .card p { color: #dbb668; font-size: 0.9rem; }
+                .footer { text-align: center; margin-top: 4rem; color: #dbb668; opacity: 0.4; }
+            `
+        },
+        {
+            name: "1. Classic Neumorphism (Brown & Gold Accents)",
+            css: `
+                body { 
+                    /* Classic Neumorphic Base */
+                    background: #e0e5ec; 
+                    /* Accent Color: Dark Brown text instead of gray */
+                    color: #552a12; 
+                    font-family: 'Segoe UI', sans-serif; 
+                    display: flex; 
+                    justify-content: center; 
+                    padding: 4rem 2rem; 
+                    margin: 0; 
+                    min-height: 100vh;
+                }
+                .layout { width: 100%; max-width: 900px; }
+                
+                .header { 
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center; 
+                    margin-bottom: 3rem; 
+                    padding: 1.5rem;
+                    border-radius: 50px;
+                    background: #e0e5ec;
+                    /* Soft Shadows */
+                    box-shadow: 9px 9px 16px #a3b1c6, 
+                                -9px -9px 16px #ffffff;
+                }
+                .logo { 
+                    font-weight: 900; 
+                    color: #552a12; 
+                    font-size: 1.5rem; 
+                }
+                .nav a { 
+                    color: #552a12; 
+                    text-decoration: none; 
+                    margin-left: 20px; 
+                    font-weight: 600; 
+                    font-size: 0.9rem; 
+                    transition: 0.2s;
+                }
+                /* Gold Accent on Hover */
+                .nav a:hover { color: #dbb668; }
+
+                .hero { 
+                    padding: 4rem; 
+                    border-radius: 50px; 
+                    background: #e0e5ec; 
+                    text-align: center; 
+                    margin-bottom: 4rem; 
+                    box-shadow: 20px 20px 60px #a3b1c6, 
+                                -20px -20px 60px #ffffff;
+                }
+                .headline { 
+                    color: #552a12; 
+                    font-size: 3rem; 
+                    margin: 0 0 1rem 0; 
+                    font-weight: 700;
+                }
+                .subhead { 
+                    color: #552a12; 
+                    opacity: 0.6; 
+                    font-weight: 500;
+                }
+
+                .cta { 
+                    margin-top: 2rem; 
+                    display: inline-block; 
+                    padding: 1rem 3rem; 
+                    border-radius: 50px; 
+                    background: #e0e5ec; 
+                    /* Accent: Gold Text */
+                    color: #dbb668; 
+                    text-decoration: none; 
+                    font-weight: 900; 
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    box-shadow: 6px 6px 12px #a3b1c6, 
+                                -6px -6px 12px #ffffff;
+                    transition: 0.2s;
+                    border: 1px solid transparent;
+                }
+                .cta:hover { 
+                    color: #552a12; /* Brown on hover */
+                    border-color: #dbb668; /* Slight gold rim */
+                }
+                .cta:active { 
+                    box-shadow: inset 4px 4px 8px #a3b1c6, 
+                                inset -4px -4px 8px #ffffff;
+                }
+
+                .grid { display: flex; gap: 2rem; flex-wrap: wrap; }
+                .card { 
+                    flex: 1; 
+                    min-width: 250px; 
+                    padding: 2rem; 
+                    border-radius: 30px; 
+                    background: #e0e5ec; 
+                    box-shadow: 9px 9px 16px #a3b1c6, 
+                                -9px -9px 16px #ffffff;
+                    transition: 0.3s;
+                    border-top: 3px solid transparent;
+                }
+                /* Accent: Gold Top Border on Hover */
+                .card:hover { 
+                    transform: translateY(-5px); 
+                    border-top: 3px solid #dbb668;
+                }
+                .card h3 { color: #552a12; margin-top: 0; }
+                .card p { color: #552a12; opacity: 0.6; }
+                .footer { text-align: center; margin-top: 4rem; color: #552a12; opacity: 0.4; }
+            `
+        },
+        {
+            name: "2. Porcelain & Gold (Warmer Base)",
+            css: `
+                body { 
+                    /* Slightly warmer gray to match the brown better */
+                    background: #f2f2f2; 
+                    color: #000; 
+                    font-family: 'Segoe UI', sans-serif; 
+                    display: flex; 
+                    justify-content: center; 
+                    padding: 4rem 2rem; 
+                    margin: 0; 
+                }
+                .layout { width: 100%; max-width: 900px; }
+                
+                .header { 
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center; 
+                    margin-bottom: 3rem; 
+                    padding-bottom: 1rem;
+                    border-bottom: 1px solid rgba(0,0,0,0.05);
+                }
+                .logo { 
+                    font-weight: 800; 
+                    /* Accent: Gold Logo */
+                    color: #dbb668; 
+                    font-size: 1.5rem; 
+                }
+                .nav a { 
+                    color: #999; 
+                    text-decoration: none; 
+                    margin-left: 20px; 
+                    font-weight: 600; 
+                    font-size: 0.9rem; 
+                    transition: 0.2s;
+                }
+                .nav a:hover { color: #552a12; }
+
+                .hero { 
+                    padding: 4rem; 
+                    border-radius: 40px; 
+                    background: #f2f2f2; 
+                    text-align: center; 
+                    margin-bottom: 4rem; 
+                    /* Sharper, closer shadows */
+                    box-shadow: 12px 12px 24px #d1d1d1, 
+                                -12px -12px 24px #ffffff;
+                }
+                .headline { 
+                    /* Accent: Brown Headline */
+                    color: #552a12; 
+                    font-size: 3rem; 
+                    margin: 0 0 1rem 0; 
+                    font-weight: 700;
+                }
+                .subhead { color: #666; font-weight: 400; }
+
+                .cta { 
+                    margin-top: 2rem; 
+                    display: inline-block; 
+                    padding: 1rem 3rem; 
+                    border-radius: 12px; 
+                    background: #f2f2f2; 
+                    /* Accent: Gold Text */
+                    color: #dbb668; 
+                    text-decoration: none; 
+                    font-weight: 900; 
+                    box-shadow: 5px 5px 10px #d1d1d1, 
+                                -5px -5px 10px #ffffff;
+                    transition: 0.2s;
+                }
+                .cta:hover { 
+                    color: #552a12; 
+                    box-shadow: inset 5px 5px 10px #d1d1d1, 
+                                inset -5px -5px 10px #ffffff;
+                }
+
+                .grid { display: flex; gap: 2rem; flex-wrap: wrap; }
+                .card { 
+                    flex: 1; 
+                    min-width: 250px; 
+                    padding: 2rem; 
+                    border-radius: 20px; 
+                    background: #f2f2f2; 
+                    box-shadow: 8px 8px 16px #d1d1d1, 
+                                -8px -8px 16px #ffffff;
+                }
+                .card h3 { 
+                    /* Accent: Gold Title */
+                    color: #dbb668; 
+                    margin-top: 0; 
+                }
+                .card p { color: #552a12; font-size: 0.9rem; }
+                .footer { text-align: center; margin-top: 4rem; color: #ccc; }
+            `
+        }
+    
+        ];
+
+        // ... (Existing JS logic below remains the same) ... 
+        const select = document.getElementById('variant-select');
+        const styleTag = document.getElementById('dynamic-style');
+        let currentIndex = 0;
+
+        variants.forEach((v, index) => {
+            let option = document.createElement('option');
+            option.value = index;
+            option.text = v.name;
+            select.appendChild(option);
+        });
+
+        function loadVariant(index) {
+            currentIndex = parseInt(index);
+            styleTag.innerHTML = variants[currentIndex].css;
+            select.value = currentIndex;
+        }
+
+        function nextVariant() {
+            let next = currentIndex + 1;
+            if (next >= variants.length) next = 0;
+            loadVariant(next);
+        }
+
+        function prevVariant() {
+            let prev = currentIndex - 1;
+            if (prev < 0) prev = variants.length - 1;
+            loadVariant(prev);
+        }
+
+        loadVariant(10); // Start showing the new rich variants immediately
+    </script>
+</body>
+</html>

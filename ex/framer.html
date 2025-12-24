@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agency - Framer Motion Variants</title>
+    
+    <style>
+        :root {
+            --gold: #dbb668;
+            --brown: #552a12;
+            --white: #ffffff;
+            --black: #000000;
+            --gray-bg: #e0e5ec; /* Neumorphic Base */
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            background-color: var(--gray-bg);
+            color: var(--brown);
+            overflow-x: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Utility Classes for Styles */
+        .layout { max-width: 1000px; margin: 0 auto; padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4rem; padding: 1.5rem; border-radius: 20px; }
+        .logo { font-weight: 900; font-size: 1.5rem; letter-spacing: -1px; }
+        .nav { display: flex; gap: 1.5rem; }
+        .nav a { text-decoration: none; font-weight: 600; font-size: 0.9rem; position: relative; cursor: pointer; }
+
+        /* HERO */
+        .hero { padding: 4rem 2rem; text-align: center; margin-bottom: 4rem; border-radius: 40px; }
+        .headline { font-size: 3.5rem; font-weight: 800; margin: 0 0 1rem 0; line-height: 1.1; }
+        .subhead { font-size: 1.2rem; opacity: 0.7; max-width: 600px; margin: 0 auto 2rem auto; }
+        .cta { display: inline-block; padding: 1rem 3rem; text-decoration: none; font-weight: 900; border-radius: 50px; cursor: pointer; border: none; font-size: 1rem; }
+
+        /* GRID */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        .card { padding: 2rem; border-radius: 30px; display: flex; flex-direction: column; justify-content: center; min-height: 200px; }
+        .card h3 { font-size: 1.5rem; margin: 0 0 0.5rem 0; font-weight: 700; }
+        .card p { margin: 0; opacity: 0.7; }
+        .footer { text-align: center; margin-top: auto; padding-top: 4rem; opacity: 0.5; font-size: 0.8rem; }
+
+        /* UI Controls */
+        #controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0,0,0,0.1);
+            font-family: sans-serif;
+            width: 200px;
+        }
+        #controls h4 { margin: 0 0 10px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--brown); }
+        #controls select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; outline: none; }
+
+        /* Mobile Fix */
+        @media(max-width: 768px) {
+            .headline { font-size: 2.5rem; }
+            .header { flex-direction: column; gap: 1rem; }
+            .layout { padding: 1rem; }
+        }
+    </style>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/react@18.2.0",
+                "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+                "framer-motion": "https://esm.sh/framer-motion@10.16.4"
+            }
+        }
+    </script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { motion, AnimatePresence } from 'framer-motion';
+
+        // --- 1. CONFIGURATION: 10 VARIANTS --- //
+        
+        const VARIANTS_CONFIG = [
+            {
+                id: 0,
+                name: "1. Skeuomorphic (Classic)",
+                theme: {
+                    bg: "#e0e5ec",
+                    text: "#552a12",
+                    accent: "#dbb668",
+                    cardBg: "#e0e5ec",
+                    shadow: "9px 9px 16px #a3b1c6, -9px -9px 16px #ffffff",
+                    inset: "inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff"
+                },
+                anim: {
+                    container: { visible: { transition: { staggerChildren: 0.1 } } },
+                    item: { 
+                        hidden: { opacity: 0, y: 20 }, 
+                        visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } 
+                    },
+                    hover: { scale: 1.02 }
+                }
+            },
+            {
+                id: 1,
+                name: "2. Dark Gold Luxury",
+                theme: {
+                    bg: "#000000",
+                    text: "#dbb668",
+                    accent: "#ffffff",
+                    cardBg: "#111111",
+                    border: "1px solid #333",
+                    shadow: "0 0 0 transparent"
+                },
+                anim: {
+                    container: { visible: { transition: { staggerChildren: 0.2, delayChildren: 0.3 } } },
+                    item: { 
+                        hidden: { opacity: 0, filter: "blur(10px)" }, 
+                        visible: { opacity: 1, filter: "blur(0px)", transition: { duration: 0.8 } } 
+                    },
+                    hover: { borderColor: "#dbb668", boxShadow: "0 0 20px rgba(219, 182, 104, 0.2)" }
+                }
+            },
+            {
+                id: 2,
+                name: "3. Brown Paper (Slide)",
+                theme: {
+                    bg: "#552a12",
+                    text: "#ffffff",
+                    accent: "#dbb668",
+                    cardBg: "#dbb668",
+                    cardText: "#552a12",
+                    shadow: "10px 10px 0px rgba(0,0,0,0.3)"
+                },
+                anim: {
+                    container: { visible: { transition: { staggerChildren: 0.1 } } },
+                    item: { 
+                        hidden: { x: -100, opacity: 0 }, 
+                        visible: { x: 0, opacity: 1, transition: { type: "spring", bounce: 0.4 } } 
+                    },
+                    hover: { x: 10 }
+                }
+            },
+            {
+                id: 3,
+                name: "4. 3D Flip Cards",
+                theme: {
+                    bg: "#ffffff",
+                    text: "#000000",
+                    accent: "#552a12",
+                    cardBg: "#f4f4f4",
+                    shadow: "0 20px 40px rgba(0,0,0,0.1)"
+                },
+                anim: {
+                    container: { visible: { transition: { staggerChildren: 0.15 } } },
+                    item: { 
+                        hidden: { rotateX: 90, opacity: 0 }, 
+                        visible: { rotateX: 0, opacity: 1, transition: { duration: 0.6 } } 
+                    },
+                    hover: { rotateX: 10, rotateY: 10, perspective: 1000 }
+                }
+            },
+            {
+                id: 4,
+                name: "5. Elastic Pop",
+                theme: {
+                    bg: "#dbb668",
+                    text: "#552a12",
+                    accent: "#ffffff",
+                    cardBg: "#ffffff",
+                    shadow: "0 4px 12px rgba(85,42,18,0.2)"
+                },
+                anim: {
+                    container: { visible: { transition: { staggerChildren: 0.05 } } },
+                    item: { 
+                        hidden: { scale: 0, opacity: 0 }, 
+                        visible: { scale: 1, opacity: 1, transition: { type: "spring", stiffness: 260, damping: 20 } } 
+                    },
+                    hover: { scale: 1.1 }
+                }
+            },
+            {
+                id: 5,
+                name: "6. Staggered Typewriter",
+                theme: {
+                    bg: "#f9f9f9",
+                    text: "#000000",
+                    accent: "#552a12",
+                    cardBg: "transparent",
+                    border: "2px solid #000",
+                    shadow: "5px 5px 0 #dbb668"
+                },
+                anim: {
+                    container: { visible: { transition: { staggerChildren: 0.3 } } },
+                    item: { 
+                        hidden: { opacity: 0, clipPath: "inset(0 100% 0 0)" }, 
+                        visible: { opacity: 1, clipPath: "inset(0 0 0 0)", transition: { ease: "circOut", duration: 1 } } 
+                    },
+                    hover: { y: -5, boxShadow: "10px 10px 0 #552a12" }
+                }
+            },
+            {
+                id: 6,
+                name: "7. Soft Blur (Glass)",
+                theme: {
+                    bg: "#e0e5ec",
+                    text: "#552a12",
+                    accent: "#dbb668",
+                    cardBg: "rgba(255,255,255,0.4)",
+                    backdrop: "blur(20px)",
+                    border: "1px solid rgba(255,255,255,0.5)",
+                    shadow: "0 8px 32px 0 rgba(85,42,18, 0.1)"
+                },
+                anim: {
+                    container: { visible: { transition: { staggerChildren: 0.2 } } },
+                    item: { 
+                        hidden: { opacity: 0, scale: 0.9, filter: "blur(10px)" }, 
+                        visible: { opacity: 1, scale: 1, filter: "blur(0px)", transition: { duration: 0.8 } } 
+                    },
+                    hover: { backgroundColor: "rgba(255,255,255,0.6)" }
+                }
+            },
+            {
+                id: 7,
+                name: "8. Brutalist Reveal",
+                theme: {
+                    bg: "#dbb668",
+                    text: "#000000",
+                    accent: "#552a12",
+                    cardBg: "#000000",
+                    cardText: "#dbb668",
+                    shadow: "none"
+                },
+                anim: {
+                    container: { visible: { transition: { staggerChildren: 0.1 } } },
+                    item: { 
+                        hidden: { y: "100%" }, 
+                        visible: { y: 0, transition: { ease: [0.6, 0.01, -0.05, 0.95], duration: 1 } } // Custom bezier
+                    },
+                    wrapper: { overflow: "hidden" }, // Needed for reveal
+                    hover: { backgroundColor: "#552a12" }
+                }
+            },
+            {
+                id: 8,
+                name: "9. Parallax Scroll Feel",
+                theme: {
+                    bg: "#111",
+                    text: "#fff",
+                    accent: "#dbb668",
+                    cardBg: "#222",
+                    shadow: "0 20px 50px rgba(0,0,0,0.5)"
+                },
+                anim: {
+                    container: { visible: { transition: { delayChildren: 0.2 } } },
+                    item: { 
+                        hidden: { y: 200, opacity: 0 }, 
+                        visible: { y: 0, opacity: 1, transition: { type: "spring", mass: 1, damping: 15 } } 
+                    },
+                    hover: { y: -20, color: "#dbb668" }
+                }
+            },
+            {
+                id: 9,
+                name: "10. Squeeze & Stretch",
+                theme: {
+                    bg: "#ffffff",
+                    text: "#552a12",
+                    accent: "#dbb668",
+                    cardBg: "#f0f0f0",
+                    shadow: "none"
+                },
+                anim: {
+                    container: { visible: { transition: { staggerChildren: 0.1 } } },
+                    item: { 
+                        hidden: { scaleY: 1.5, scaleX: 0.5, opacity: 0 }, 
+                        visible: { scaleY: 1, scaleX: 1, opacity: 1, transition: { type: "spring", mass: 0.5 } } 
+                    },
+                    hover: { scale: 0.95 }
+                }
+            }
+        ];
+
+        // --- 2. COMPONENTS --- //
+
+        const Controls = ({ current, onChange }) => (
+            <div id="controls">
+                <h4>Animation Variant</h4>
+                <select value={current} onChange={(e) => onChange(Number(e.target.value))}>
+                    {VARIANTS_CONFIG.map((v) => (
+                        <option key={v.id} value={v.id}>{v.name}</option>
+                    ))}
+                </select>
+            </div>
+        );
+
+        const App = () => {
+            const [variantId, setVariantId] = useState(0);
+            const active = VARIANTS_CONFIG[variantId];
+            const theme = active.theme;
+
+            // Apply global background color transition
+            useEffect(() => {
+                document.body.style.backgroundColor = theme.bg;
+            }, [theme.bg]);
+
+            // Styles based on current theme
+            const styles = {
+                header: { 
+                    background: theme.bg, 
+                    boxShadow: theme.shadow, 
+                    color: theme.text,
+                    border: theme.border || 'none',
+                    backdropFilter: theme.backdrop || 'none'
+                },
+                logo: { color: theme.text },
+                link: { color: theme.text },
+                hero: { 
+                    color: theme.text,
+                    boxShadow: theme.shadow !== 'none' ? theme.shadow : 'none'
+                },
+                headline: { color: theme.text },
+                subhead: { color: theme.text },
+                cta: { 
+                    backgroundColor: theme.bg, 
+                    color: theme.accent, 
+                    boxShadow: theme.shadow !== 'none' ? theme.shadow : 'none',
+                    border: theme.border || 'none'
+                },
+                card: { 
+                    backgroundColor: theme.cardBg, 
+                    boxShadow: theme.shadow,
+                    color: theme.cardText || theme.text,
+                    border: theme.border || 'none',
+                    backdropFilter: theme.backdrop || 'none'
+                }
+            };
+
+            // Framer Motion Variants
+            const containerVariants = {
+                hidden: { opacity: 0 },
+                visible: { opacity: 1, ...active.anim.container.visible }
+            };
+
+            const itemVariants = active.anim.item;
+
+            // Helper for Brutalist reveal (overflow hidden wrapper)
+            const Wrapper = active.anim.wrapper ? motion.div : React.Fragment;
+            const wrapperProps = active.anim.wrapper ? { style: { overflow: 'hidden' } } : {};
+
+            return (
+                <>
+                    <Controls current={variantId} onChange={setVariantId} />
+
+                    <AnimatePresence mode="wait">
+                        <motion.div 
+                            key={variantId} // Forces re-render animation on switch
+                            className="layout"
+                            initial="hidden"
+                            animate="visible"
+                            exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                            variants={containerVariants}
+                        >
+                            
+                            {/* HEADER */}
+                            <motion.header 
+                                className="header" 
+                                style={styles.header}
+                                variants={itemVariants}
+                            >
+                                <motion.div className="logo" style={styles.logo}>AGENCY.</motion.div>
+                                <nav className="nav">
+                                    {['Work', 'Studio', 'Contact'].map((text, i) => (
+                                        <motion.a 
+                                            key={text} 
+                                            href="#" 
+                                            style={styles.link}
+                                            whileHover={{ color: theme.accent, scale: 1.1 }}
+                                        >
+                                            {text}
+                                        </motion.a>
+                                    ))}
+                                </nav>
+                            </motion.header>
+
+                            {/* HERO */}
+                            <Wrapper {...wrapperProps}>
+                                <motion.main 
+                                    className="hero" 
+                                    style={styles.hero}
+                                    variants={itemVariants}
+                                >
+                                    <Wrapper {...wrapperProps}>
+                                        <motion.h1 className="headline" style={styles.headline} variants={itemVariants}>
+                                            We build digital products.
+                                        </motion.h1>
+                                    </Wrapper>
+                                    
+                                    <Wrapper {...wrapperProps}>
+                                        <motion.p className="subhead" style={styles.subhead} variants={itemVariants}>
+                                            Focused on clarity, utility, and aesthetics.
+                                        </motion.p>
+                                    </Wrapper>
+
+                                    <motion.button 
+                                        className="cta" 
+                                        style={styles.cta}
+                                        variants={itemVariants}
+                                        whileHover={active.anim.hover}
+                                        whileTap={{ scale: 0.95, boxShadow: theme.inset || 'none' }}
+                                    >
+                                        Start a Project
+                                    </motion.button>
+                                </motion.main>
+                            </Wrapper>
+
+                            {/* GRID */}
+                            <motion.section className="grid" variants={containerVariants}>
+                                {[{ title: "Strategy", desc: "Brand positioning" }, 
+                                  { title: "Design", desc: "UI/UX & Art Direction" }, 
+                                  { title: "Development", desc: "Web & Mobile" }].map((card, i) => (
+                                    <Wrapper {...wrapperProps} key={i}>
+                                        <motion.div 
+                                            className="card" 
+                                            style={styles.card}
+                                            variants={itemVariants}
+                                            whileHover={active.anim.hover}
+                                        >
+                                            <h3>{card.title}</h3>
+                                            <p>{card.desc}</p>
+                                        </motion.div>
+                                    </Wrapper>
+                                ))}
+                            </motion.section>
+
+                            <motion.footer 
+                                className="footer" 
+                                variants={itemVariants}
+                                style={{ color: theme.text }}
+                            >
+                                &copy; 2025 Agency.
+                            </motion.footer>
+
+                        </motion.div>
+                    </AnimatePresence>
+                </>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

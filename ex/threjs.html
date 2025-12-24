@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js 10 Animation Suite</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: monospace; }
+        canvas { display: block; }
+        
+        /* UI Overlay */
+        #ui {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            color: white;
+            z-index: 100;
+        }
+        h3 { margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; color: #00d2ff; }
+        .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+        button {
+            background: #222;
+            border: 1px solid #444;
+            color: #ddd;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.2s;
+        }
+        button:hover { background: #00d2ff; color: #000; }
+        button.active { background: #00d2ff; color: #000; font-weight: bold; }
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #666;
+            pointer-events: none;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="ui">
+        <h3>Select Animation</h3>
+        <div class="btn-grid">
+            <button onclick="loadDemo(1)">1. Classic Cube</button>
+            <button onclick="loadDemo(2)">2. Solar Orbit</button>
+            <button onclick="loadDemo(3)">3. Wave Grid</button>
+            <button onclick="loadDemo(4)">4. Star Rain</button>
+            <button onclick="loadDemo(5)">5. Neon Tunnel</button>
+            <button onclick="loadDemo(6)">6. Breathing Blob</button>
+            <button onclick="loadDemo(7)">7. DNA Helix</button>
+            <button onclick="loadDemo(8)">8. Matrix Wall</button>
+            <button onclick="loadDemo(9)">9. Pong Bounce</button>
+            <button onclick="loadDemo(10)">10. Chaos Theory</button>
+        </div>
+    </div>
+    <div id="info">Render Loop Active</div>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- GLOBAL VARIABLES ---
+        let scene, camera, renderer, animationId;
+        let objects = []; // Holds objects for cleanup
+        let updateFunction = null; // The unique update logic for current demo
+
+        // --- INIT BOILERPLATE ---
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Start Animation Loop
+            animate();
+            
+            // Load Default
+            loadDemo(1);
+        }
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            if (updateFunction) updateFunction();
+            renderer.render(scene, camera);
+        }
+
+        // --- CLEANUP SYSTEM ---
+        function clearScene() {
+            // Remove all meshes and clean memory
+            for(let i = scene.children.length - 1; i >= 0; i--) { 
+                let obj = scene.children[i];
+                scene.remove(obj);
+                if (obj.geometry) obj.geometry.dispose();
+                if (obj.material) obj.material.dispose();
+            }
+            objects = [];
+            camera.position.set(0, 0, 5);
+            camera.rotation.set(0, 0, 0);
+            scene.background = new THREE.Color(0x000000);
+            scene.fog = null;
+        }
+
+        // --- DEMO LOADER ---
+        window.loadDemo = function(index) {
+            clearScene();
+            
+            // Update UI buttons
+            document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('button')[index-1].classList.add('active');
+
+            // Switch Logic
+            switch(index) {
+                case 1: demoCube(); break;
+                case 2: demoOrbit(); break;
+                case 3: demoWave(); break;
+                case 4: demoRain(); break;
+                case 5: demoTunnel(); break;
+                case 6: demoBlob(); break;
+                case 7: demoHelix(); break;
+                case 8: demoMatrix(); break;
+                case 9: demoPong(); break;
+                case 10: demoChaos(); break;
+            }
+        };
+
+        // ==========================================
+        // 1. CLASSIC ROTATING CUBE
+        // ==========================================
+        function demoCube() {
+            const geometry = new THREE.BoxGeometry(2, 2, 2);
+            const material = new THREE.MeshNormalMaterial({ wireframe: false });
+            const cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+            // Add lights
+            const light = new THREE.DirectionalLight(0xffffff, 2);
+            light.position.set(2, 2, 5);
+            scene.add(light);
+
+            updateFunction = () => {
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
+            };
+        }
+
+        // ==========================================
+        // 2. SOLAR ORBIT SYSTEM
+        // ==========================================
+        function demoOrbit() {
+            // Sun
+            const sunGeo = new THREE.SphereGeometry(1, 32, 32);
+            const sunMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+            const sun = new THREE.Mesh(sunGeo, sunMat);
+            scene.add(sun);
+
+            // Earth
+            const earthGeo = new THREE.SphereGeometry(0.3, 32, 32);
+            const earthMat = new THREE.MeshNormalMaterial();
+            const earth = new THREE.Mesh(earthGeo, earthMat);
+            scene.add(earth);
+
+            let time = 0;
+
+            updateFunction = () => {
+                time += 0.02;
+                // Trigonometry for circular orbit
+                earth.position.x = Math.cos(time) * 3;
+                earth.position.z = Math.sin(time) * 3;
+                earth.rotation.y += 0.05;
+                sun.rotation.y += 0.005;
+            };
+        }
+
+        // ==========================================
+        // 3. SINE WAVE GRID
+        // ==========================================
+        function demoWave() {
+            camera.position.set(0, 5, 8);
+            camera.lookAt(0, 0, 0);
+
+            const geometry = new THREE.BoxGeometry(0.2, 1, 0.2);
+            const material = new THREE.MeshNormalMaterial();
+            
+            // Create a 10x10 grid of boxes
+            for (let i = 0; i < 15; i++) {
+                for (let j = 0; j < 15; j++) {
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.set(i - 7, 0, j - 7);
+                    scene.add(mesh);
+                    objects.push(mesh); // Store reference
+                }
+            }
+
+            let time = 0;
+            updateFunction = () => {
+                time += 0.1;
+                let idx = 0;
+                for (let i = 0; i < 15; i++) {
+                    for (let j = 0; j < 15; j++) {
+                        const mesh = objects[idx];
+                        // Calculate wave height based on distance from center + time
+                        const dist = Math.sqrt((i-7)**2 + (j-7)**2);
+                        mesh.scale.y = Math.sin(dist * 0.5 + time) * 2 + 3; // Scale between 1 and 5
+                        idx++;
+                    }
+                }
+            };
+        }
+
+        // ==========================================
+        // 4. STAR RAIN (Particles)
+        // ==========================================
+        function demoRain() {
+            scene.background = new THREE.Color(0x050510);
+            const geometry = new THREE.BufferGeometry();
+            const count = 2000;
+            const positions = new Float32Array(count * 3);
+            const velocities = [];
+
+            for(let i = 0; i < count * 3; i+=3) {
+                positions[i] = (Math.random() - 0.5) * 20; // x
+                positions[i+1] = (Math.random() - 0.5) * 20; // y
+                positions[i+2] = (Math.random() - 0.5) * 20; // z
+                velocities.push(0.05 + Math.random() * 0.2); // Falling speed
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const material = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.05 });
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            updateFunction = () => {
+                const pos = geometry.attributes.position.array;
+                for(let i = 1; i < count * 3; i+=3) { // i+1 is Y axis
+                    pos[i] -= velocities[Math.floor(i/3)];
+                    if(pos[i] < -10) {
+                        pos[i] = 10;
+                    }
+                }
+                geometry.attributes.position.needsUpdate = true;
+                particles.rotation.y += 0.002;
+            };
+        }
+
+        // ==========================================
+        // 5. NEON TUNNEL
+        // ==========================================
+        function demoTunnel() {
+            scene.fog = new THREE.FogExp2(0x000000, 0.15);
+            
+            const geometry = new THREE.TorusGeometry(3, 0.05, 16, 100);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff88, wireframe: true });
+
+            // Create 20 rings
+            for(let i = 0; i < 20; i++) {
+                const ring = new THREE.Mesh(geometry, material);
+                ring.position.z = -i * 2;
+                scene.add(ring);
+                objects.push(ring);
+            }
+
+            updateFunction = () => {
+                objects.forEach(ring => {
+                    ring.position.z += 0.05;
+                    ring.rotation.z += 0.01;
+                    if(ring.position.z > 2) {
+                        ring.position.z = -38;
+                    }
+                });
+            };
+        }
+
+        // ==========================================
+        // 6. BREATHING BLOB (Vertex Noise)
+        // ==========================================
+        function demoBlob() {
+            // Using SphereGeometry with high segment count for smoothness
+            const geometry = new THREE.SphereGeometry(2, 64, 64);
+            const material = new THREE.MeshNormalMaterial({ wireframe: true });
+            const blob = new THREE.Mesh(geometry, material);
+            scene.add(blob);
+            
+            // Save original positions to reset reference
+            const originalPositions = geometry.attributes.position.array.slice();
+
+            let time = 0;
+            updateFunction = () => {
+                time += 0.02;
+                const pos = geometry.attributes.position.array;
+                
+                for(let i = 0; i < pos.length; i+=3) {
+                    // Simple noise effect based on sine/cosine
+                    const x = originalPositions[i];
+                    const y = originalPositions[i+1];
+                    const z = originalPositions[i+2];
+                    
+                    // Normalize vector to get direction
+                    const len = Math.sqrt(x*x + y*y + z*z);
+                    const nx = x/len; 
+                    const ny = y/len; 
+                    const nz = z/len;
+
+                    // Pulse amount
+                    const pulse = Math.sin(time * 3 + y * 2) * 0.2 + Math.cos(time * 2 + x * 2) * 0.2;
+                    
+                    pos[i] = x + nx * pulse;
+                    pos[i+1] = y + ny * pulse;
+                    pos[i+2] = z + nz * pulse;
+                }
+                geometry.attributes.position.needsUpdate = true;
+                blob.rotation.y += 0.005;
+            };
+        }
+
+        // ==========================================
+        // 7. DNA HELIX
+        // ==========================================
+        function demoHelix() {
+            camera.position.set(0, 0, 15);
+            const particleCount = 100;
+            const geometry = new THREE.SphereGeometry(0.2, 8, 8);
+            const mat1 = new THREE.MeshBasicMaterial({ color: 0xff0055 });
+            const mat2 = new THREE.MeshBasicMaterial({ color: 0x0055ff });
+
+            for(let i = 0; i < particleCount; i++) {
+                const sphere1 = new THREE.Mesh(geometry, mat1);
+                const sphere2 = new THREE.Mesh(geometry, mat2);
+                
+                // Position logic stored in userData
+                sphere1.userData = { y: (i - particleCount/2) * 0.5, offset: 0 };
+                sphere2.userData = { y: (i - particleCount/2) * 0.5, offset: Math.PI };
+                
+                scene.add(sphere1);
+                scene.add(sphere2);
+                objects.push(sphere1, sphere2);
+            }
+
+            let time = 0;
+            updateFunction = () => {
+                time += 0.05;
+                objects.forEach(obj => {
+                    const angle = obj.userData.y * 0.5 + time + obj.userData.offset;
+                    obj.position.x = Math.sin(angle) * 3;
+                    obj.position.z = Math.cos(angle) * 3;
+                    obj.position.y = obj.userData.y;
+                });
+            };
+        }
+
+        // ==========================================
+        // 8. MATRIX WALL
+        // ==========================================
+        function demoMatrix() {
+            // Using a Group to rotate the whole system
+            const group = new THREE.Group();
+            scene.add(group);
+            
+            const geometry = new THREE.BoxGeometry(0.1, 1, 0.1);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+
+            for(let i = 0; i < 100; i++) {
+                const bar = new THREE.Mesh(geometry, material);
+                bar.position.x = (Math.random() - 0.5) * 10;
+                bar.position.y = (Math.random() - 0.5) * 10;
+                bar.position.z = (Math.random() - 0.5) * 10;
+                bar.scale.y = Math.random() * 3 + 1;
+                group.add(bar);
+            }
+
+            updateFunction = () => {
+                group.rotation.y += 0.02;
+                group.children.forEach(child => {
+                    if (Math.random() > 0.9) {
+                        child.visible = !child.visible; // flicker effect
+                    }
+                });
+            };
+        }
+
+        // ==========================================
+        // 9. PONG BOUNCE
+        // ==========================================
+        function demoPong() {
+            // Create "Room"
+            const roomGeo = new THREE.BoxGeometry(10, 6, 4);
+            const roomMat = new THREE.MeshBasicMaterial({ color: 0x333333, wireframe: true });
+            const room = new THREE.Mesh(roomGeo, roomMat);
+            scene.add(room);
+
+            // Ball
+            const ballGeo = new THREE.SphereGeometry(0.3);
+            const ballMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const ball = new THREE.Mesh(ballGeo, ballMat);
+            scene.add(ball);
+
+            let vel = new THREE.Vector3(0.15, 0.1, 0.08);
+
+            updateFunction = () => {
+                ball.position.add(vel);
+
+                // Bounce Logic
+                if(ball.position.x > 4.5 || ball.position.x < -4.5) vel.x *= -1;
+                if(ball.position.y > 2.5 || ball.position.y < -2.5) vel.y *= -1;
+                if(ball.position.z > 1.5 || ball.position.z < -1.5) vel.z *= -1;
+            };
+        }
+
+        // ==========================================
+        // 10. CHAOS THEORY (Lorenz Attractor)
+        // ==========================================
+        function demoChaos() {
+            camera.position.set(0, 0, 40);
+            
+            // Trail settings
+            const count = 3000;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+
+            // Lorenz variables
+            let x = 0.1, y = 0, z = 0;
+            const a = 10, b = 28, c = 8/3;
+            const dt = 0.01;
+
+            updateFunction = () => {
+                // Calculate next Lorenz point
+                let dx = (a * (y - x)) * dt;
+                let dy = (x * (b - z) - y) * dt;
+                let dz = (x * y - c * z) * dt;
+                x += dx; y += dy; z += dz;
+
+                // Shift array data
+                const pos = geometry.attributes.position.array;
+                for(let i = count * 3 - 1; i > 2; i--) {
+                    pos[i] = pos[i-3];
+                }
+                // Add new point at index 0
+                pos[0] = x;
+                pos[1] = y;
+                pos[2] = z;
+
+                geometry.attributes.position.needsUpdate = true;
+                line.rotation.z += 0.005; // Slowly rotate view
+            };
+        }
+
+        init(); // Start the engine
+    </script>
+</body>
+</html>

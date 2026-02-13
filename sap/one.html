@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMMERSIVE // ATMOSPHERIC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,500&family=Montserrat:wght@300&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; background-color: #101010; color: #e0e0e0; font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
+
+        /* --- 1. THE NOISE OVERLAY --- */
+        .noise {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.05;
+            background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+            filter: contrast(170%) brightness(100%);
+        }
+
+        /* --- 2. HORIZONTAL CONTAINER --- */
+        .scroll-container {
+            /* This will be pinned */
+            width: 400vw; /* 4 screens wide */
+            height: 100vh;
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        .panel {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* --- 3. CONTENT STYLING --- */
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 8vw;
+            font-weight: 300;
+            position: absolute;
+            z-index: 2;
+            mix-blend-mode: exclusion;
+        }
+
+        .img-box {
+            width: 50vw;
+            height: 70vh;
+            overflow: hidden;
+            position: relative;
+            filter: grayscale(40%) sepia(20%); /* Cinematic grade */
+        }
+
+        .img-box img {
+            width: 100%;
+            height: 130%; /* Taller for parallax */
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+        }
+
+        .caption {
+            position: absolute;
+            bottom: 10vh;
+            left: 10vw;
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+
+        /* Intro Section */
+        .panel.intro { background: #141414; }
+        .panel.intro h1 { position: relative; }
+
+    </style>
+</head>
+<body>
+
+    <div class="noise"></div>
+
+    <div class="scroll-container">
+        
+        <section class="panel intro">
+            <h1>The Journey<br>Begins</h1>
+            <div class="caption">Scroll to explore</div>
+        </section>
+
+        <section class="panel">
+            <div class="img-box">
+                <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2000&auto=format&fit=crop" class="parallax-img">
+            </div>
+            <h1>Wilderness</h1>
+        </section>
+
+        <section class="panel">
+            <div class="img-box" style="width: 30vw; height: 80vh;">
+                <img src="https://images.unsplash.com/photo-1500485035595-cbe6f645feb1?q=80&w=2000&auto=format&fit=crop" class="parallax-img">
+            </div>
+            <h1 style="top: 15vh; left: 5vw; font-size: 5vw;">Solitude</h1>
+        </section>
+
+        <section class="panel">
+            <div class="img-box" style="width: 80vw; height: 60vh;">
+                <img src="https://images.unsplash.com/photo-1519681393798-3828fb4090bb?q=80&w=2000&auto=format&fit=crop" class="parallax-img">
+            </div>
+            <h1>Horizon</h1>
+        </section>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 1. HORIZONTAL SCROLL LOGIC
+        // We capture the vertical scroll and translate the container to the left (x: -300vw)
+        const container = document.querySelector(".scroll-container");
+        
+        const scrollTween = gsap.to(container, {
+            xPercent: -100 * (4 - 1), // Move left by (TotalPanels - 1)
+            ease: "none",
+            scrollTrigger: {
+                trigger: container,
+                pin: true,   // Pin the container in place
+                scrub: 1,    // Link animation to scroll bar with 1s lag
+                end: "+=3000" // Scroll duration (3000px of scrolling)
+            }
+        });
+
+        // 2. PARALLAX IMAGES INSIDE THE SCROLL
+        // As the container moves left, we move the images slightly right to create depth
+        gsap.utils.toArray(".parallax-img").forEach(img => {
+            gsap.to(img, {
+                xPercent: 20, // Move image 20% right while container moves left
+                ease: "none",
+                scrollTrigger: {
+                    trigger: img.closest(".panel"),
+                    containerAnimation: scrollTween, // LINK TO THE HORIZONTAL SCROLL
+                    start: "left right", // When panel enters from right
+                    end: "right left",   // When panel leaves to left
+                    scrub: true
+                }
+            });
+        });
+
+        // 3. TEXT FADE IN
+        gsap.utils.toArray("h1").forEach(text => {
+            if (text.closest('.intro')) return; // Skip first one
+            gsap.from(text, {
+                opacity: 0,
+                y: 50,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: text,
+                    containerAnimation: scrollTween,
+                    start: "left center",
+                    toggleActions: "play none none reverse"
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>1900s CRT TV - Three.js</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1a1a1a; /* Dark background */
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Vignette overlay for a cinematic feel */
+        #vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="info">Drag to Rotate • Scroll to Zoom</div>
+    <div id="vignette"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+        // --- SCENE SETUP ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x1a1a1a, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 8);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // --- LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+
+        const spotLight = new THREE.SpotLight(0xffaa55, 100);
+        spotLight.position.set(5, 10, 5);
+        spotLight.angle = Math.PI / 4;
+        spotLight.penumbra = 0.5;
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        // --- MATERIALS ---
+        
+        // Wood Material (Procedural-ish using basic colors and roughness)
+        const woodMaterial = new THREE.MeshStandardMaterial({
+            color: 0x5c4033,
+            roughness: 0.6,
+            metalness: 0.1,
+        });
+
+        // Plastic/Bakelite for knobs
+        const plasticMaterial = new THREE.MeshStandardMaterial({
+            color: 0x222222,
+            roughness: 0.3,
+            metalness: 0.5
+        });
+
+        // --- SHADER FOR SCREEN STATIC ---
+        // This generates the noise and scanlines on the GPU
+        const screenVertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+
+        const screenFragmentShader = `
+            uniform float uTime;
+            varying vec2 vUv;
+
+            // Random number generator
+            float random(vec2 st) {
+                return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+            }
+
+            void main() {
+                // Create animated noise
+                float noise = random(vUv * uTime);
+                
+                // Create scanlines (sine wave based on Y coordinate)
+                float scanline = sin(vUv.y * 500.0) * 0.15;
+                
+                // Vignette for the screen (darker edges)
+                float vignette = smoothstep(1.5, 0.5, length(vUv - 0.5));
+
+                // Combine: Noise + glow + scanline - darken edges
+                vec3 color = vec3(noise + scanline);
+                
+                // Slight blue/phosphor tint
+                color *= vec3(0.9, 0.95, 1.0);
+                
+                gl_FragColor = vec4(color * vignette, 1.0);
+            }
+        `;
+
+        const screenMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 }
+            },
+            vertexShader: screenVertexShader,
+            fragmentShader: screenFragmentShader
+        });
+
+
+        // --- TV MESH ASSEMBLY ---
+        const tvGroup = new THREE.Group();
+
+        // 1. The Cabinet (Main Box)
+        // Using RoundedBox for softer vintage edges
+        const cabinetGeo = new RoundedBoxGeometry(3, 2.2, 2, 8, 0.1);
+        const cabinet = new THREE.Mesh(cabinetGeo, woodMaterial);
+        cabinet.castShadow = true;
+        tvGroup.add(cabinet);
+
+        // 2. The Screen Tube (Curved glass effect)
+        // We intersect a sphere with the box to make it bulge
+        const screenGeo = new THREE.SphereGeometry(1.8, 32, 32, 0, Math.PI * 2, 0, Math.PI * 0.25);
+        const screen = new THREE.Mesh(screenGeo, screenMaterial);
+        screen.rotation.x = -Math.PI / 2; // Orient sphere forward
+        screen.position.set(-0.5, 0, 0.85); // Offset to left (space for knobs) and forward
+        screen.scale.set(0.8, 0.8, 0.4); // Flatten the sphere
+        tvGroup.add(screen);
+
+        // 3. Control Panel Area (Right side)
+        const panelGeo = new THREE.BoxGeometry(0.8, 1.8, 0.1);
+        const panel = new THREE.Mesh(panelGeo, new THREE.MeshStandardMaterial({ color: 0x3d2b1f }));
+        panel.position.set(0.9, 0, 1.01);
+        tvGroup.add(panel);
+
+        // 4. Knobs (Dials)
+        const knobGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.2, 32);
+        
+        const knob1 = new THREE.Mesh(knobGeo, plasticMaterial);
+        knob1.rotation.x = Math.PI / 2;
+        knob1.position.set(0.9, 0.4, 1.1);
+        tvGroup.add(knob1);
+
+        const knob2 = new THREE.Mesh(knobGeo, plasticMaterial);
+        knob2.rotation.x = Math.PI / 2;
+        knob2.position.set(0.9, -0.4, 1.1);
+        tvGroup.add(knob2);
+
+        // 5. Antenna (Rabbit Ears)
+        const antennaBaseGeo = new THREE.SphereGeometry(0.2, 16, 16);
+        const antennaBase = new THREE.Mesh(antennaBaseGeo, plasticMaterial);
+        antennaBase.position.set(0, 1.1, 0);
+        tvGroup.add(antennaBase);
+
+        const antennaRodGeo = new THREE.CylinderGeometry(0.02, 0.02, 2, 8);
+        const antennaMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8, roughness: 0.2 });
+        
+        const antennaL = new THREE.Mesh(antennaRodGeo, antennaMat);
+        antennaL.position.set(-0.5, 1.8, 0);
+        antennaL.rotation.z = Math.PI / 6;
+        tvGroup.add(antennaL);
+
+        const antennaR = new THREE.Mesh(antennaRodGeo, antennaMat);
+        antennaR.position.set(0.5, 1.8, 0);
+        antennaR.rotation.z = -Math.PI / 6;
+        tvGroup.add(antennaR);
+
+        scene.add(tvGroup);
+
+        // --- ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // Update Shader Time for static effect
+            screenMaterial.uniforms.uTime.value = elapsedTime;
+
+            // Subtle floating animation for the TV
+            tvGroup.position.y = Math.sin(elapsedTime * 0.5) * 0.1;
+            tvGroup.rotation.y = Math.sin(elapsedTime * 0.2) * 0.05;
+
+            // Make screen glow pulse slightly
+            screenMaterial.uniforms.uTime.value += Math.random() * 0.1;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Handle Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

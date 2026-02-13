@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Morphing Transition</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #ffffff; font-family: 'Courier New', monospace; }
+        canvas { display: block; cursor: pointer; }
+        #ui {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            color: #888;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 14px;
+        }
+        #ui span { color: #000; font-weight: bold; }
+        #state-indicator { margin-top: 5px; color: #3366ff; }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "gsap": "https://unpkg.com/gsap@3.12.5/index.js"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="ui">
+        Click to Transition
+        <div id="state-indicator">Current: CUBE FRAME</div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import gsap from 'gsap';
+
+        const CONFIG = {
+            thickness: 0.8,
+            color: 0xe0e0e0
+        };
+
+        let scene, camera, renderer;
+        let mainRoot; // Rotates with mouse
+        let barMeshGroup, solidPyramidGroup;
+        let bars = []; // The reusable bars
+        let solidPyramids = []; // The solid meshes
+
+        // States: 0=Cube, 1=Pyramids, 2=Parthenon
+        let currentState = 0; 
+        let isAnimating = false;
+        const stateNames = ["CUBE FRAME", "SOLID PYRAMIDS", "PARTHENON"];
+        
+        // Data containers for bar positions
+        const cubeStateData = [];
+        const parthenonStateData = [];
+
+        const mouse = new THREE.Vector2();
+        const targetRotation = new THREE.Vector2();
+        const currentRotation = new THREE.Vector2();
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+            scene.fog = new THREE.Fog(0xffffff, 20, 150);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 500);
+            camera.position.set(0, 0, 50); // Centered camera
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
+
+            // Lights
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(20, 30, 20);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.set(2048, 2048);
+            scene.add(dirLight);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            const rimLight = new THREE.SpotLight(0xffffff, 0.4);
+            rimLight.position.set(-30, -10, 0);
+            scene.add(rimLight);
+
+            // Material (Shared rough texture)
+            const roughTex = createRoughTexture();
+            const material = new THREE.MeshStandardMaterial({
+                color: CONFIG.color, roughness: 0.9, metalness: 0.1,
+                bumpMap: roughTex, bumpScale: 0.05, side: THREE.DoubleSide
+            });
+
+            mainRoot = new THREE.Group();
+            scene.add(mainRoot);
+            
+            barMeshGroup = new THREE.Group();
+            solidPyramidGroup = new THREE.Group();
+            mainRoot.add(barMeshGroup, solidPyramidGroup);
+
+            // --- 1. CALCULATE BAR DATA STATES ---
+            const cubeDataRaw = getCubeTransforms(12, CONFIG.thickness); // Size 12 cube
+            const parDataRaw = getParthenonTransforms(CONFIG.thickness); // Centered Parthenon
+
+            // Find max bars needed (Parthenon needs around 48)
+            const totalBars = Math.max(cubeDataRaw.length, parDataRaw.length);
+
+            // Create Bars and populate state arrays
+            for(let i=0; i<totalBars; i++) {
+                const geo = new THREE.BoxGeometry(1, 1, 1); 
+                const mesh = new THREE.Mesh(geo, material);
+                mesh.castShadow = true; mesh.receiveShadow = true;
+                barMeshGroup.add(mesh);
+                bars.push(mesh);
+
+                // Map Cube Data (fill extra spots with hidden bars at center)
+                if (i < cubeDataRaw.length) cubeStateData.push(cubeDataRaw[i]);
+                else cubeStateData.push({ pos: new THREE.Vector3(0,0,0), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(0.01, 0.01, 0.01) });
+
+                // Map Parthenon Data
+                if (i < parDataRaw.length) parthenonStateData.push(parDataRaw[i]);
+                else parthenonStateData.push({ pos: new THREE.Vector3(0,0,0), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(0.01, 0.01, 0.01) });
+            }
+
+            // --- 2. CREATE SOLID PYRAMIDS ---
+            buildSolidPyramids(material);
+            solidPyramidGroup.visible = false; // Hide initially
+
+            // --- 3. SET INITIAL STATE (Cube) ---
+            bars.forEach((bar, i) => setTransform(bar, cubeStateData[i]));
+
+            window.addEventListener('resize', onResize);
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('click', nextState);
+
+            animate();
+        }
+
+        // --- TRANSITION ORCHESTRATION ---
+        function nextState() {
+            if(isAnimating) return;
+            isAnimating = true;
+            currentState = (currentState + 1) % 3;
+            document.getElementById('state-indicator').innerText = "Current: " + stateNames[currentState];
+
+            if (currentState === 1) { transitionToSolidPyramids(); } 
+            else if (currentState === 2) { transitionToParthenon(); }
+            else if (currentState === 0) { transitionToCube(); }
+        }
+
+        // TRANSITION 1: Cube Bars -> Solid Pyramids
+        function transitionToSolidPyramids() {
+            const tl = gsap.timeline({ onComplete: () => isAnimating = false });
+            
+            // 1. Bars retract to center and vanish
+            bars.forEach((bar, i) => {
+                tl.to(bar.position, { x:0, y:0, z:0, duration: 0.8, ease: "power2.in" }, 0);
+                tl.to(bar.scale, { x:0.01, y:0.01, z:0.01, duration: 0.8, ease: "power2.in" }, 0);
+            });
+            tl.set(barMeshGroup, { visible: false });
+
+            // 2. Solid Pyramids grow from center
+            tl.set(solidPyramidGroup, { visible: true }, 0.8);
+            solidPyramids.forEach((pyramid, i) => {
+                // Reset to scale 0 before growing
+                pyramid.scale.set(0.01, 0.01, 0.01);
+                tl.to(pyramid.scale, { 
+                    x:1, y:1, z:1, 
+                    duration: 1.2, ease: "back.out(1.5)", delay: i*0.1 
+                }, 0.8);
+            });
+        }
+
+        // TRANSITION 2: Solid Pyramids -> Parthenon Bars
+        function transitionToParthenon() {
+            const tl = gsap.timeline({ onComplete: () => isAnimating = false });
+
+            // 1. Solid Pyramids shrink to center
+            solidPyramids.forEach((pyramid, i) => {
+                tl.to(pyramid.scale, { x:0.01, y:0.01, z:0.01, duration: 0.8, ease: "power2.in", delay: i*0.05 }, 0);
+            });
+            tl.set(solidPyramidGroup, { visible: false });
+
+            // 2. Bars emerge from center to form Parthenon
+            tl.set(barMeshGroup, { visible: true }, 0.8);
+            bars.forEach((bar, i) => {
+                // Start from center
+                bar.position.set(0,0,0);
+                bar.scale.set(0.01,0.01,0.01);
+                const state = parthenonStateData[i];
+                
+                tl.to(bar.position, { x:state.pos.x, y:state.pos.y, z:state.pos.z, duration: 1.2, ease: "power3.out" }, 0.8 + i*0.01);
+                tl.to(bar.rotation, { x:state.rot.x, y:state.rot.y, z:state.rot.z, duration: 1.2, ease: "power3.out" }, 0.8 + i*0.01);
+                tl.to(bar.scale, { x:state.scale.x, y:state.scale.y, z:state.scale.z, duration: 1.2, ease: "power3.out" }, 0.8 + i*0.01);
+            });
+        }
+
+         // TRANSITION 3: Parthenon Bars -> Cube Bars (Pure morph)
+         function transitionToCube() {
+            const tl = gsap.timeline({ onComplete: () => isAnimating = false });
+            // Ensure solids are hidden
+            solidPyramidGroup.visible = false;
+            barMeshGroup.visible = true;
+
+            bars.forEach((bar, i) => {
+                const state = cubeStateData[i];
+                tl.to(bar.position, { x:state.pos.x, y:state.pos.y, z:state.pos.z, duration: 1.5, ease: "power3.inOut" }, i*0.01);
+                tl.to(bar.rotation, { x:state.rot.x, y:state.rot.y, z:state.rot.z, duration: 1.5, ease: "power3.inOut" }, i*0.01);
+                tl.to(bar.scale, { x:state.scale.x, y:state.scale.y, z:state.scale.z, duration: 1.5, ease: "power3.inOut" }, i*0.01);
+            });
+        }
+
+
+        // --- GEOMETRY BUILDERS (CENTERED) ---
+
+        function buildSolidPyramids(mat) {
+            const addPyramid = (base, height, x, z) => {
+                // ConeGeometry with 4 radial segments creates a pyramid.
+                const geo = new THREE.ConeGeometry(base * 0.7, height, 4);
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.castShadow = true; mesh.receiveShadow = true;
+                // Center the pyramid vertically. Center of cone is at height/2.
+                mesh.position.set(x, 0, z); 
+                // Rotate to align faces squarely
+                mesh.rotation.y = Math.PI / 4;
+                solidPyramidGroup.add(mesh);
+                solidPyramids.push(mesh);
+            };
+            // Giza layout, centered around (0,0,0)
+            addPyramid(15, 12, 0, 0);       
+            addPyramid(13, 10, -10, -10);   
+            addPyramid(8, 6, -18, -18);
+        }
+
+        function getCubeTransforms(size, t) {
+            const list = [];
+            const hs = size / 2;
+            const add = (w, h, d, x, y, z) => list.push({ pos: new THREE.Vector3(x,y,z), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(w, h, d) });
+            // Pillars
+            add(t, size, t, -hs, 0, -hs); add(t, size, t, hs, 0, -hs);
+            add(t, size, t, -hs, 0, hs);  add(t, size, t, hs, 0, hs);
+            // Top/Bottom Rings
+            add(size, t, t, 0, hs, -hs); add(size, t, t, 0, hs, hs);
+            add(t, t, size, -hs, hs, 0); add(t, t, size, hs, hs, 0);
+            add(size, t, t, 0, -hs, -hs); add(size, t, t, 0, -hs, hs);
+            add(t, t, size, -hs, -hs, 0); add(t, t, size, hs, -hs, 0);
+            return list;
+        }
+
+        function getParthenonTransforms(t) {
+            const list = [];
+            const w = 20; const d = 28; const h = 9; 
+            // Centering offset: total height is roughly h + peak. Midpoint is half that.
+            const yOffset = -h/2 - 2; 
+
+            // Floor Outline
+            list.push({ pos: new THREE.Vector3(0, yOffset, -d/2), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(w, t, t) });
+            list.push({ pos: new THREE.Vector3(0, yOffset, d/2), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(w, t, t) });
+            list.push({ pos: new THREE.Vector3(-w/2, yOffset, 0), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(t, t, d) });
+            list.push({ pos: new THREE.Vector3(w/2, yOffset, 0), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(t, t, d) });
+
+            // Columns
+            const colY = yOffset + h/2 + t/2;
+            for(let i=0; i<8; i++) { // Front/Back (8 cols)
+                const x = -w/2 + t/2 + i*(w-t)/7;
+                list.push({ pos: new THREE.Vector3(x, colY, d/2 - t/2), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(t, h, t) });
+                list.push({ pos: new THREE.Vector3(x, colY, -d/2 + t/2), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(t, h, t) });
+            }
+            for(let i=1; i<10; i++) { // Sides (10 cols between front/back)
+                const z = -d/2 + t/2 + i*(d-t)/10;
+                list.push({ pos: new THREE.Vector3(-w/2 + t/2, colY, z), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(t, h, t) });
+                list.push({ pos: new THREE.Vector3(w/2 - t/2, colY, z), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(t, h, t) });
+            }
+
+            // Roof / Pediment
+            const roofY = yOffset + h + t;
+            const peakH = 5; const peakY = roofY + peakH/2;
+            const angle = Math.atan2(peakH, w/2); const sideLen = Math.sqrt((w/2)*(w/2) + peakH*peakH);
+            
+            // Base of triangle
+            list.push({ pos: new THREE.Vector3(0, roofY, d/2), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(w, t, t) });
+            list.push({ pos: new THREE.Vector3(0, roofY, -d/2), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(w, t, t) });
+            // Slopes
+            list.push({ pos: new THREE.Vector3(-w/4, peakY, d/2), rot: new THREE.Euler(0,0,-angle), scale: new THREE.Vector3(sideLen, t, t) });
+            list.push({ pos: new THREE.Vector3(w/4, peakY, d/2), rot: new THREE.Euler(0,0,angle), scale: new THREE.Vector3(sideLen, t, t) });
+            list.push({ pos: new THREE.Vector3(-w/4, peakY, -d/2), rot: new THREE.Euler(0,0,-angle), scale: new THREE.Vector3(sideLen, t, t) });
+            list.push({ pos: new THREE.Vector3(w/4, peakY, -d/2), rot: new THREE.Euler(0,0,angle), scale: new THREE.Vector3(sideLen, t, t) });
+            // Ridge
+            list.push({ pos: new THREE.Vector3(0, roofY + peakH, 0), rot: new THREE.Euler(0,0,0), scale: new THREE.Vector3(t, t, d) });
+
+            return list;
+        }
+
+        // --- UTILS ---
+        function setTransform(mesh, state) {
+            mesh.position.copy(state.pos);
+            mesh.rotation.set(state.rot.x, state.rot.y, state.rot.z);
+            mesh.scale.copy(state.scale);
+        }
+
+        function createRoughTexture() {
+            const size = 512; const canvas = document.createElement('canvas');
+            canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#909090'; ctx.fillRect(0, 0, size, size);
+            const imgData = ctx.getImageData(0,0,size,size);
+            for(let i=0; i<imgData.data.length; i+=4) {
+                const g = (Math.random()-0.5)*30;
+                imgData.data[i]+=g; imgData.data[i+1]+=g; imgData.data[i+2]+=g;
+            }
+            ctx.putImageData(imgData,0,0);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping; return tex;
+        }
+
+        function onMouseMove(e) {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        }
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            targetRotation.x = mouse.y * 0.3; targetRotation.y = mouse.x * 0.5;
+            currentRotation.lerp(targetRotation, 0.05);
+            mainRoot.rotation.x = currentRotation.x; mainRoot.rotation.y = currentRotation.y;
+            renderer.render(scene, camera);
+        }
+        init();
+    </script>
+</body>
+</html>

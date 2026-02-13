@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scroll Animated Boba Tea</title>
+    <style>
+        body { margin: 0; overflow-x: hidden; font-family: 'Arial', sans-serif; color: #333; }
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1; background: #fdfbf7; }
+        section { height: 100vh; display: flex; align-items: center; padding: 0 10%; box-sizing: border-box; position: relative; }
+        h1 { font-size: 5rem; margin: 0; z-index: 1; }
+        p { font-size: 1.5rem; max-width: 500px; }
+        .indicator { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);}
+            40% {transform: translateX(-50%) translateY(-20px);}
+            60% {transform: translateX(-50%) translateY(-10px);}
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <section id="page-1">
+        <div>
+            <h1>Fresh Boba.</h1>
+            <p>Now with a dome lid for extra toppings.</p>
+        </div>
+        <div class="indicator">↓ Scroll Down</div>
+    </section>
+
+    <section id="page-2">
+        <div>
+            <h1>Order Now.</h1>
+            <p>Customize your sweetness and ice level.</p>
+        </div>
+    </section>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- SETUP ---
+        const canvas = document.querySelector('#bg-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 15);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight.position.set(5, 10, 7);
+        scene.add(dirLight);
+
+        // --- BOBA OBJECT ---
+        const bobaGroup = new THREE.Group();
+
+        // 1. Cup Material (Shared for Cup and Dome)
+        const plasticMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            transmission: 0.95, // Very clear
+            opacity: 1,
+            metalness: 0,
+            roughness: 0.05, // Smooth
+            ior: 1.5,
+            thickness: 0.1,
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+
+        // 2. The Cup Body
+        const cupGeometry = new THREE.CylinderGeometry(2.5, 2, 6, 32);
+        const cup = new THREE.Mesh(cupGeometry, plasticMaterial);
+        bobaGroup.add(cup);
+
+        // 3. The Milk Tea
+        const teaGeometry = new THREE.CylinderGeometry(2.4, 1.9, 5.5, 32);
+        const teaMaterial = new THREE.MeshStandardMaterial({ color: 0xd2b48c, roughness: 0.4 });
+        const tea = new THREE.Mesh(teaGeometry, teaMaterial);
+        tea.position.y = -0.1; 
+        bobaGroup.add(tea);
+
+        // 4. The Hemisphere Dome Lid (New)
+        // Radius 2.5 (matches cup rim), 32 segments, top half only (0 to PI/2)
+        const domeGeometry = new THREE.SphereGeometry(2.5, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+        const dome = new THREE.Mesh(domeGeometry, plasticMaterial);
+        dome.position.y = 3; // Position exactly at the top of the 6-unit high cup (height/2)
+        bobaGroup.add(dome);
+
+        // 5. The Straw
+        const strawGeometry = new THREE.CylinderGeometry(0.2, 0.2, 10, 16);
+        const strawMaterial = new THREE.MeshStandardMaterial({ color: 0xff6b6b });
+        const straw = new THREE.Mesh(strawGeometry, strawMaterial);
+        straw.position.set(0.5, 2.5, 0); // Moved up slightly to clear the dome
+        straw.rotation.z = -0.2; 
+        bobaGroup.add(straw);
+
+        // 6. Pearls
+        const pearlGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+        const pearlMaterial = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+        for (let i = 0; i < 15; i++) {
+            const pearl = new THREE.Mesh(pearlGeometry, pearlMaterial);
+            const x = (Math.random() - 0.5) * 2.5;
+            const z = (Math.random() - 0.5) * 2.5;
+            const y = -2.5 + (Math.random() * 1.0); 
+            if (Math.sqrt(x*x + z*z) < 1.8) {
+                pearl.position.set(x, y, z);
+                bobaGroup.add(pearl);
+            }
+        }
+
+        scene.add(bobaGroup);
+        bobaGroup.position.set(0, -1, 0);
+
+        // --- SCROLL LOGIC ---
+        function moveCameraOnScroll() {
+            const scrollY = window.scrollY;
+            const height = window.innerHeight;
+            let ratio = Math.min(Math.max(scrollY / height, 0), 1);
+
+            const startX = 2;
+            const endX = 5; 
+            
+            bobaGroup.position.x = startX + (endX - startX) * ratio;
+            bobaGroup.rotation.y = ratio * Math.PI * 2;
+            bobaGroup.rotation.z = ratio * 0.2;
+        }
+
+        window.addEventListener('scroll', moveCameraOnScroll);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            bobaGroup.position.y = -1 + Math.sin(Date.now() * 0.002) * 0.1;
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Monochromatic Vintage Car - Three.js</title>
+    <style>
+        /* Change background to a very light grey to complement the white model */
+        body { margin: 0; overflow: hidden; background-color: #f8f8f8; }
+        canvas { display: block; }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            font-family: monospace;
+            font-size: 14px;
+            color: #999; /* Lighter text for the mono theme */
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="info">Detailed Monochromatic Early Car Model <br/> Left Click to Rotate | Scroll to Zoom</div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- 1. SCENE SETUP ---
+        const scene = new THREE.Scene();
+        // Very light grey/white background and fog for an ethereal look
+        scene.background = new THREE.Color(0xf8f8f8);
+        scene.fog = new THREE.Fog(0xf8f8f8, 15, 60);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(6, 4, 7);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+
+        // --- 2. LIGHTING (Adjusted for white model) ---
+        // Stronger ambient light to ensure white doesn't look dirty grey in shadows
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(10, 25, 15);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.bias = -0.0005;
+        scene.add(dirLight);
+
+        // --- 3. MONOCHROMATIC MATERIALS ---
+        // We distinguish parts by roughness and metalness, not hue.
+
+        // Main body paint: slightly glossy off-white
+        const matPaint = new THREE.MeshStandardMaterial({ color: 0xfcfcfc, roughness: 0.3, metalness: 0.1 });
+        
+        // "Chrome" / Metal accents: highly reflective bright white
+        const matMetal = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, metalness: 0.8 });
+        
+        // Upholstery: Matte, slightly warmer white
+        const matFabric = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.9, metalness: 0.0 });
+        
+        // Tires: Matte light grey (like old white rubber tires)
+        const matTire = new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.8, metalness: 0.0 });
+        
+        // Glass: Transparent white
+        const matGlass = new THREE.MeshPhysicalMaterial({ 
+            color: 0xffffff, transparent: true, opacity: 0.3, roughness: 0.05, transmission: 0.95, side: THREE.DoubleSide
+        });
+
+
+        // --- 4. BUILD THE CAR ---
+        const carGroup = new THREE.Group();
+
+        // --- A. Chassis & Frame Rails ---
+        const railGeo = new THREE.BoxGeometry(4.2, 0.1, 0.15);
+        const railLeft = new THREE.Mesh(railGeo, matMetal);
+        railLeft.position.set(0, 0.6, 0.7);
+        railLeft.castShadow = true;
+        carGroup.add(railLeft);
+        const railRight = railLeft.clone();
+        railRight.position.z = -0.7;
+        carGroup.add(railRight);
+
+        // Crossbeams connecting rails
+        const crossbeamGeo = new THREE.BoxGeometry(0.2, 0.1, 1.55);
+        const cbFront = new THREE.Mesh(crossbeamGeo, matMetal);
+        cbFront.position.set(1.8, 0.6, 0);
+        carGroup.add(cbFront);
+        const cbBack = cbFront.clone();
+        cbBack.position.set(-1.8, 0.6, 0);
+        carGroup.add(cbBack);
+
+
+        // --- B. Engine Block / Hood Area ---
+        const hoodGeo = new THREE.BoxGeometry(1.5, 0.8, 1.1);
+        const hood = new THREE.Mesh(hoodGeo, matPaint);
+        hood.position.set(1.2, 1.15, 0);
+        hood.castShadow = true;
+        carGroup.add(hood);
+
+        // Grill Frame (Metal)
+        const grillFrameGeo = new THREE.BoxGeometry(0.15, 0.9, 1.2);
+        const grillFrame = new THREE.Mesh(grillFrameGeo, matMetal);
+        grillFrame.position.set(1.95, 1.2, 0);
+        grillFrame.castShadow = true;
+        carGroup.add(grillFrame);
+
+        // Grill Inner Mesh (Textured look using thin slats)
+        const slatGeo = new THREE.BoxGeometry(0.02, 0.8, 0.05);
+        for(let i = -5; i <= 5; i++) {
+            const slat = new THREE.Mesh(slatGeo, matMetal);
+            slat.position.set(2.0, 1.2, i * 0.1);
+            carGroup.add(slat);
+        }
+
+        // Radiator Cap Detail
+        const radCapBase = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.1), matMetal);
+        radCapBase.position.set(1.8, 1.6, 0);
+        const radCapTop = new THREE.Mesh(new THREE.SphereGeometry(0.06), matMetal);
+        radCapTop.position.set(1.8, 1.7, 0);
+        carGroup.add(radCapBase, radCapTop);
+
+
+        // --- C. Cabin Area ---
+        const cabinBaseGeo = new THREE.BoxGeometry(1.5, 0.2, 1.5);
+        const cabinBase = new THREE.Mesh(cabinBaseGeo, matPaint);
+        cabinBase.position.set(-0.5, 0.8, 0);
+        cabinBase.castShadow = true;
+        carGroup.add(cabinBase);
+
+        const dashboardGeo = new THREE.BoxGeometry(0.1, 0.8, 1.5);
+        const dashboard = new THREE.Mesh(dashboardGeo, matPaint);
+        dashboard.position.set(0.2, 1.3, 0);
+        dashboard.castShadow = true;
+        carGroup.add(dashboard);
+
+        // Seat Base
+        const seatBaseGeo = new THREE.BoxGeometry(1.2, 0.3, 1.4);
+        const seatBase = new THREE.Mesh(seatBaseGeo, matPaint);
+        seatBase.position.set(-0.6, 1.05, 0);
+        carGroup.add(seatBase);
+
+        // Detailed Seat Cushions (Fabric)
+        const cushionGeo = new THREE.BoxGeometry(1.1, 0.2, 0.65);
+        const cushionL = new THREE.Mesh(cushionGeo, matFabric);
+        cushionL.position.set(-0.6, 1.3, 0.35);
+        cushionL.castShadow = true;
+        carGroup.add(cushionL);
+        const cushionR = cushionL.clone();
+        cushionR.position.z = -0.35;
+        carGroup.add(cushionR);
+
+        // Seat Backrest (Fabric)
+        const backrestGeo = new THREE.BoxGeometry(0.2, 0.7, 1.4);
+        const backrest = new THREE.Mesh(backrestGeo, matFabric);
+        backrest.position.set(-1.25, 1.55, 0);
+        backrest.rotateZ(-0.1); // Slight recline
+        backrest.castShadow = true;
+        carGroup.add(backrest);
+
+
+        // --- D. Fenders & Running Boards (Crucial Detail) ---
+        const runningBoardGeo = new THREE.BoxGeometry(2.0, 0.05, 0.5);
+        const rbLeft = new THREE.Mesh(runningBoardGeo, matPaint);
+        rbLeft.position.set(0, 0.5, 1.1);
+        rbLeft.castShadow = true;
+        rbLeft.receiveShadow = true;
+        carGroup.add(rbLeft);
+        const rbRight = rbLeft.clone();
+        rbRight.position.z = -1.1;
+        carGroup.add(rbRight);
+
+        // Simple angled Fenders 
+        const fenderGeo = new THREE.BoxGeometry(1.4, 0.05, 0.5);
+        
+        // Front Left Fender
+        const flFender = new THREE.Mesh(fenderGeo, matPaint);
+        flFender.position.set(1.5, 0.8, 1.1);
+        flFender.rotation.z = -0.3; // Angle down towards front
+        flFender.castShadow = true;
+        carGroup.add(flFender);
+        // Front Right Fender
+        const frFender = flFender.clone();
+        frFender.position.z = -1.1;
+        carGroup.add(frFender);
+
+        // Rear Left Fender
+        const rlFender = new THREE.Mesh(fenderGeo, matPaint);
+        rlFender.position.set(-1.5, 0.8, 1.1);
+        rlFender.rotation.z = 0.3; // Angle down towards back
+        rlFender.castShadow = true;
+        carGroup.add(rlFender);
+        // Rear Right Fender
+        const rrFender = rlFender.clone();
+        rrFender.position.z = -1.1;
+        carGroup.add(rrFender);
+
+
+        // --- E. Windshield ---
+        const frameGeo = new THREE.BoxGeometry(0.08, 0.9, 1.55);
+        const frame = new THREE.Mesh(frameGeo, matMetal);
+        frame.position.set(0.25, 2.0, 0);
+        frame.rotation.z = -0.1; 
+        frame.castShadow = true;
+        carGroup.add(frame);
+
+        const glassGeo = new THREE.PlaneGeometry(1.4, 0.8);
+        const glass = new THREE.Mesh(glassGeo, matGlass);
+        glass.position.set(0.25, 2.05, 0);
+        glass.rotation.y = Math.PI / 2;
+        glass.rotation.x = -0.1;
+        carGroup.add(glass);
+
+
+        // --- F. Detailed Wheels ---
+        const createDetailedWheel = (x, z) => {
+            const wheelGroup = new THREE.Group();
+            
+            // Tire (Smoother geometry)
+            const tireGeo = new THREE.TorusGeometry(0.6, 0.18, 16, 48);
+            const tire = new THREE.Mesh(tireGeo, matTire);
+            tire.castShadow = true;
+            wheelGroup.add(tire);
+
+            // Rim outer ring
+            const rimRingGeo = new THREE.TorusGeometry(0.45, 0.05, 8, 32);
+            const rimRing = new THREE.Mesh(rimRingGeo, matMetal);
+            wheelGroup.add(rimRing);
+
+            // Central Hubcap
+            const hubGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.2, 16);
+            hubGeo.rotateX(Math.PI / 2);
+            const hub = new THREE.Mesh(hubGeo, matMetal);
+            wheelGroup.add(hub);
+
+            // Spokes (More spokes for detail)
+            const spokeGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.9, 8);
+            spokeGeo.rotateX(Math.PI / 2); // Orient correctly before cloning
+
+            for (let i = 0; i < 8; i++) {
+                const spoke = new THREE.Mesh(spokeGeo, matMetal);
+                spoke.rotation.z = (i / 8) * Math.PI;
+                wheelGroup.add(spoke);
+            }
+
+            wheelGroup.position.set(x, 0.6, z);
+            return wheelGroup;
+        };
+
+        carGroup.add(createDetailedWheel(1.5, 1.2));
+        carGroup.add(createDetailedWheel(1.5, -1.2));
+        carGroup.add(createDetailedWheel(-1.5, 1.2));
+        carGroup.add(createDetailedWheel(-1.5, -1.2));
+
+
+        // --- G. Accessories (Lights & Steering) ---
+        // Headlights
+        const headLightGeo = new THREE.CylinderGeometry(0.18, 0.15, 0.25, 16);
+        headLightGeo.rotateZ(Math.PI / 2);
+        // Use metal for housing, and a glowing white for the lens lens
+        const hlLensMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.8 });
+        
+        const createHeadlight = (zPos) => {
+            const hlGroup = new THREE.Group();
+            const housing = new THREE.Mesh(headLightGeo, matMetal);
+            housing.castShadow = true;
+            hlGroup.add(housing);
+            const lens = new THREE.Mesh(new THREE.CircleGeometry(0.15, 16), hlLensMat);
+            lens.position.set(0.13, 0, 0);
+            lens.rotation.y = Math.PI / 2;
+            hlGroup.add(lens);
+            hlGroup.position.set(1.9, 1.3, zPos);
+            return hlGroup;
+        }
+        carGroup.add(createHeadlight(0.65));
+        carGroup.add(createHeadlight(-0.65));
+
+        // Steering Wheel
+        const steerGeo = new THREE.TorusGeometry(0.22, 0.04, 8, 24);
+        const steer = new THREE.Mesh(steerGeo, matFabric); // Use fabric mat for grip look
+        steer.position.set(-0.1, 1.8, 0.3);
+        steer.rotation.x = -0.5;
+        steer.rotation.y = -0.2;
+        steer.castShadow = true;
+        carGroup.add(steer);
+        
+        // Steering Column
+        const columnGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.7);
+        columnGeo.rotateX(Math.PI / 2);
+        const column = new THREE.Mesh(columnGeo, matMetal);
+        column.position.set(0.1, 1.55, 0.3);
+        column.rotation.z = 0.7;
+        carGroup.add(column);
+
+
+        scene.add(carGroup);
+
+        // --- 5. ENVIRONMENT ---
+        // Ground Plane (Very light grey)
+        const planeGeo = new THREE.PlaneGeometry(100, 100);
+        const planeMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.8 });
+        const plane = new THREE.Mesh(planeGeo, planeMat);
+        plane.rotation.x = -Math.PI / 2;
+        plane.receiveShadow = true;
+        scene.add(plane);
+
+        // Grid Helper (Made subtle grey)
+        const gridHelper = new THREE.GridHelper(100, 50, 0xcccccc, 0xdddddd);
+        scene.add(gridHelper);
+
+        // --- 6. CONTROLS & ANIMATION ---
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2 - 0.05; // Prevent going under ground
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+    </script>
+</body>
+</html>

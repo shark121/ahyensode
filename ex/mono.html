@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Brutalist | #552a12 & #dbb668</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: #dbb668; 
+            color: #552a12;
+            font-family: 'Courier New', Courier, monospace; /* Monospaced for brutalist feel */
+            padding: 2rem;
+            border: 20px solid #552a12; /* Thick heavy border */
+            min-height: 100vh;
+        }
+
+        /* FLOATING NAV */
+        .corners {
+            position: fixed;
+            z-index: 100;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .top-left { top: 3rem; left: 3rem; }
+        .top-right { top: 3rem; right: 3rem; }
+        .btm-left { bottom: 3rem; left: 3rem; }
+        .btm-right { bottom: 3rem; right: 3rem; }
+
+        /* HERO TEXT */
+        .giant-text {
+            font-size: 12vw; /* Scales with viewport width */
+            line-height: 0.8;
+            font-weight: 900;
+            text-transform: uppercase;
+            word-break: break-all;
+            margin-top: 4rem;
+            mix-blend-mode: multiply; /* Blends text with background */
+        }
+
+        .marquee {
+            background: #552a12;
+            color: #dbb668;
+            padding: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            margin: 4rem -2rem; /* Pulls outside padding */
+            font-size: 2rem;
+        }
+
+        .image-stack {
+            display: flex;
+            gap: 2rem;
+            margin-top: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .brutal-img {
+            width: 300px;
+            height: 400px;
+            background: #552a12;
+            position: relative;
+        }
+
+        .brutal-img::after {
+            content: "FIGURE";
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            background: #fff;
+            color: #000;
+            padding: 0.5rem;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="corners top-left">Studio.</div>
+    <div class="corners top-right"><a href="#" style="color:#552a12">Menu</a></div>
+    <div class="corners btm-left">2025</div>
+    <div class="corners btm-right">Scroll ↓</div>
+
+    <h1 class="giant-text">
+        MONO<br>CHROME<br>DIGITAL
+    </h1>
+
+    <div class="marquee">
+        /// BREAKING THE GRID /// DESIGN IN BROWN & GOLD /// PURE STRUCTURE ///
+    </div>
+
+    <div class="image-stack">
+        <div class="brutal-img"></div>
+        <div style="max-width: 400px; align-self: center;">
+            <p style="font-size: 1.5rem; font-weight: bold;">MANIFESTO 01.</p>
+            <p>We reject standard layouts. We use heavy contrast. We prioritize raw data over decoration.</p>
+        </div>
+        <div class="brutal-img" style="border-radius: 50%;"></div>
+    </div>
+
+</body>
+</html>

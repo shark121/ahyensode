@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Franky Hung - Creative Developer Recreation</title>
+    <style>
+        /* --- FONTS --- */
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500&family=Playfair+Display:ital,wght@1,400&family=Roboto+Mono:wght@400&display=swap');
+
+        /* --- GLOBAL STYLES --- */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            color: #fff;
+            font-family: 'Roboto Mono', monospace;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- CANVAS CONTAINER --- */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* --- UI OVERLAY --- */
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none; /* Let clicks pass through to 3D */
+            box-sizing: border-box;
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        /* --- TYPOGRAPHY & LAYOUT --- */
+        .header-text {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #ccc;
+        }
+        
+        .name { 
+            font-weight: bold; 
+            color: #fff; 
+            text-transform: uppercase; 
+            font-size: 12px; 
+            letter-spacing: 1px;
+        }
+        
+        .link { 
+            color: #fff; 
+            text-decoration: underline; 
+            pointer-events: auto; 
+            cursor: pointer; 
+        }
+        
+        .nav-right { 
+            text-align: right; 
+        }
+        
+        .nav-right div { 
+            pointer-events: auto; 
+            cursor: pointer; 
+            transition: opacity 0.3s; 
+        }
+        
+        .nav-right div:hover { opacity: 0.6; }
+
+        /* Middle Section (Hero) */
+        .middle-section {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 2%;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .hero-title {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .hero-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 9vw;
+            line-height: 0.8;
+            margin: 0;
+            color: #fff;
+            margin-left: -0.5vw;
+        }
+
+        .hero-title h2 {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 500;
+            font-size: 9vw;
+            line-height: 0.9;
+            margin: 0;
+            text-transform: uppercase;
+            color: #fff;
+            letter-spacing: -2px;
+        }
+
+        /* Bio Block */
+        .bio-block {
+            width: 320px;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #bbb;
+            text-align: left;
+            margin-right: 2%;
+            z-index: 2;
+        }
+        .bio-block strong { color: #fff; font-weight: bold; }
+
+        /* Footer */
+        .footer {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .socials { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 4px; 
+            pointer-events: auto; 
+            margin-left: 20%; 
+        }
+        
+        .socials a { color: #888; text-decoration: none; transition: color 0.3s; }
+        .socials a:hover { color: #fff; }
+
+        .time-loc { line-height: 1.4; }
+        .copyright { text-align: right; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .ui-layer { padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+            .middle-section { flex-direction: column; align-items: flex-start; justify-content: center; gap: 20px; }
+            .bio-block { width: 100%; margin-top: 20px; }
+            .header-text { display: none; } 
+            .header-text:first-child { display: block; }
+            .socials { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div class="ui-layer">
+        <div class="header-text">
+            <div class="name">Franky Hung</div>
+        </div>
+        <div class="header-text">
+            Available for freelance:<br>
+            <span class="link">franky@arkon.digital</span>
+        </div>
+        <div class="header-text">
+            Figma Designs<br>
+            React, Three.js, Gsap<br>
+            Django, Wordpress<br>
+            Android, iOS
+        </div>
+        <div class="header-text nav-right">
+            <div>Home &divonx;</div>
+            <div>Projects</div>
+            <div>Services</div>
+        </div>
+
+        <div class="middle-section">
+            <div class="hero-title">
+                <h1>Creative</h1>
+                <h2>DEVELOPER.</h2>
+            </div>
+            <div style="flex-grow:1"></div> 
+            <div class="bio-block">
+                Hi! I'm Franky Hung, a Hong Kong-based<br>
+                <strong>creative web developer and web designer.</strong>
+                <br><br>
+                I started as a backend developer 10 years ago but my passion lies in <strong>creating cool, 3D experiences</strong> on the frontend, so I founded Arkon Digital in pursuit of my goal.
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="time-loc">
+                Local time<br>
+                HKT <span id="clock">1:14 a.m.</span>
+            </div>
+            <div class="socials">
+                <a href="#">Dribbble</a>
+                <a href="#">Instagram</a>
+                <a href="#">Github</a>
+                <a href="#">Blog</a>
+            </div>
+            <div style="flex-grow:1"></div>
+            <div class="copyright">
+                &copy; 2024<br>
+                ARKON DIGITAL
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://esm.sh/three@0.160.0';
+        import { RoomEnvironment } from 'https://esm.sh/three@0.160.0/examples/jsm/environments/RoomEnvironment.js';
+
+        // --- 1. SETUP ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.03); // Black fog for fading
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0.5, 9); // Initial Camera Position
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+        container.appendChild(renderer.domElement);
+
+        // --- 2. ENVIRONMENT ---
+        // Physical materials need an environment to reflect. We use a PMREM generator.
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+
+
+        // --- 3. LIGHTING ---
+        // Ambient
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        scene.add(ambientLight);
+
+        // Top Cool Spotlight (Blue)
+        const spotLight = new THREE.SpotLight(0x00aaff, 100);
+        spotLight.position.set(-5, 10, 5);
+        spotLight.angle = Math.PI / 6;
+        spotLight.penumbra = 1;
+        scene.add(spotLight);
+
+        // Rim Light (Purple/Pink)
+        const rimLight = new THREE.PointLight(0xff00ff, 20);
+        rimLight.position.set(5, 0, 0);
+        scene.add(rimLight);
+
+
+        // --- 4. THE SPHERE (PHYSICAL MATERIAL) ---
+        // Instead of a custom shader, we use MeshPhysicalMaterial with Iridescence
+        
+        // Create a simple procedural texture for bumpiness/swirl
+        function createNoiseTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#808080'; // Neutral grey
+            ctx.fillRect(0,0,512,512);
+            
+            // Draw random noise
+            for(let i=0; i<5000; i++) {
+                const x = Math.random() * 512;
+                const y = Math.random() * 512;
+                const v = Math.random() * 50;
+                ctx.fillStyle = `rgb(${128+v},${128+v},${128+v})`;
+                ctx.beginPath(); 
+                ctx.arc(x,y, Math.random()*20, 0, Math.PI*2); 
+                ctx.fill();
+            }
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            return tex;
+        }
+
+        const bumpMap = createNoiseTexture();
+
+        const sphereMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,           // Base color
+            metalness: 0.1,            // Slightly metallic
+            roughness: 0.1,            // Very smooth
+            transmission: 0.6,         // Semi-transparent (glass-like)
+            thickness: 1.0,            // Volume thickness
+            clearcoat: 1.0,            // Wet look layer
+            clearcoatRoughness: 0.1,
+            iridescence: 1.0,          // The rainbow effect!
+            iridescenceIOR: 1.3,       // Index of Refraction for iridescence
+            iridescenceThicknessRange: [100, 400], // Nanometers (controls color range)
+            bumpMap: bumpMap,          // Adds the wavy texture
+            bumpScale: 0.02
+        });
+
+        const sphereGeo = new THREE.SphereGeometry(1.6, 128, 128);
+        const sphere = new THREE.Mesh(sphereGeo, sphereMaterial);
+        sphere.position.y = 1.0;
+        scene.add(sphere);
+
+
+        // --- 5. THE GROUND ---
+        const groundMaterial = new THREE.MeshStandardMaterial({
+            color: 0x050505,
+            roughness: 0.4,
+            metalness: 0.8,
+            bumpMap: bumpMap, // Reuse texture
+            bumpScale: 0.05
+        });
+
+        const groundGeo = new THREE.PlaneGeometry(50, 50, 64, 64);
+        const ground = new THREE.Mesh(groundGeo, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -2;
+        scene.add(ground);
+
+
+        // --- 6. ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth - 0.5) * 2;
+            mouseY = (event.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        function animate() {
+            const time = clock.getElapsedTime();
+
+            // Rotate Sphere
+            sphere.rotation.y = time * 0.2;
+            sphere.rotation.z = Math.sin(time * 0.1) * 0.1;
+
+            // Move lights slightly for dynamic reflection
+            rimLight.position.x = 5 + Math.sin(time * 0.5) * 2;
+            rimLight.color.setHSL(Math.sin(time * 0.1) * 0.5 + 0.5, 1, 0.5); // Shift color slightly
+
+            // Parallax Camera
+            camera.position.x += (mouseX - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY + 1.5 - camera.position.y) * 0.05;
+            camera.lookAt(0, 0, 0);
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Resize Handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Clock
+        setInterval(() => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: 'numeric', 
+                minute:'2-digit', 
+                hour12: true
+            }).toLowerCase();
+            const clockEl = document.getElementById('clock');
+            if(clockEl) clockEl.innerText = timeString;
+        }, 1000);
+
+    </script>
+</body>
+</html>

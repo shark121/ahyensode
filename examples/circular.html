@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>White Background - Real Images</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #ffffff; /* White Background */
+            overflow: hidden;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+
+        /* --- FROSTED "A" FOR LIGHT MODE --- */
+        .glass-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50; 
+            pointer-events: none; 
+        }
+
+        .frosted-text {
+            width: 300px;
+            height: 300px;
+            
+            /* 1. Darker tint for visibility on white background */
+            background: rgba(0, 0, 0, 0.08); 
+            
+            /* 2. Blur Logic */
+            backdrop-filter: blur(12px) brightness(100%);
+            -webkit-backdrop-filter: blur(12px) brightness(100%);
+
+            /* 3. Masking to create the "A" shape */
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='85' fill='black'%3EA%3C/text%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='85' fill='black'%3EA%3C/text%3E%3C/svg%3E");
+            
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+
+            /* 4. Drop Shadow to separate the A from the white background */
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.2));
+        }
+        /* ----------------------------------- */
+
+        #instruction {
+            position: absolute;
+            top: 65%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(0, 0, 0, 0.4); /* Dark text for white bg */
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            opacity: 0; 
+            transition: opacity 1.5s;
+            text-align: center;
+            width: 100%;
+            z-index: 60;
+        }
+
+        #loader {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            color: rgba(0,0,0,0.2); /* Dark text */
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 60;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <div class="frosted-text"></div>
+    </div>
+
+    <div id="instruction">Sequence Complete<br><br>Scroll to Zoom & Spin</div>
+    <div id="loader">Three.js Image Sequence</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+    <script>
+        // --- CONFIGURATION ---
+        const IMAGE_COUNT = 20;
+        const CARD_WIDTH = 120;
+        const CARD_HEIGHT = 160;
+        const SPACING = 25; 
+        const CIRCLE_RADIUS = 850;
+
+        // Interaction
+        const HOVER_RADIUS = 300; 
+        const HOVER_PUSH = 200; 
+        const TILT_FACTOR = 0.05;
+
+        // Camera / Scroll
+        const CAM_START_Z = 2500;
+        const CAM_START_Y = 0;
+        const CAM_ZOOM_Z = 800; 
+        const CAM_ZOOM_Y = CIRCLE_RADIUS; 
+        const SCROLL_ZOOM_THRESHOLD = 1500; 
+        const SCROLL_SPEED = 2.0;
+
+        let camera, scene, renderer;
+        let raycaster, mouse;
+        let carouselGroup, invisiblePlane;
+        
+        let currentLayout = 'intro'; 
+        let scrollPos = 0;       
+        let scrollCurrent = 0;   
+        let isInteractive = false; 
+
+        const objects = [];
+        const targets = { masonry: [], line: [], circle: [] };
+
+        init();
+        animate();
+
+        function init() {
+            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.z = CAM_START_Z;
+            camera.position.y = CAM_START_Y;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff); // SET WHITE BACKGROUND
+
+            carouselGroup = new THREE.Group();
+            scene.add(carouselGroup);
+
+            const planeGeo = new THREE.PlaneGeometry(10000, 10000);
+            const planeMat = new THREE.MeshBasicMaterial({ visible: false });
+            invisiblePlane = new THREE.Mesh(planeGeo, planeMat);
+            carouselGroup.add(invisiblePlane);
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2(0, 0);
+
+            // --- LOAD TEXTURES ---
+            const geometry = new THREE.PlaneGeometry(CARD_WIDTH, CARD_HEIGHT);
+            const loader = new THREE.TextureLoader();
+            // Allow cross-origin for picsum
+            loader.setCrossOrigin('anonymous');
+
+            for (let i = 0; i < IMAGE_COUNT; i++) {
+                // Load a unique image for each card
+                // We add a 'random' query param to ensure unique images
+                const texture = loader.load(`https://picsum.photos/200/300?random=${i}`);
+                
+                const material = new THREE.MeshBasicMaterial({ 
+                    map: texture, // Use the texture map
+                    side: THREE.DoubleSide
+                });
+
+                const object = new THREE.Mesh(geometry, material);
+                
+                object.userData = { 
+                    id: i, 
+                    baseAngle: (i / IMAGE_COUNT) * Math.PI * 2 + (Math.PI/2)
+                };
+
+                object.position.set(
+                    Math.random() * 4000 - 2000,
+                    Math.random() * 4000 - 2000,
+                    Math.random() * 4000 - 2000
+                );
+                object.rotation.set(
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI,
+                    0
+                );
+                
+                carouselGroup.add(object);
+                objects.push(object);
+            }
+
+            // A. Masonry Target
+            const cols = 8;
+            const masonryWidth = (cols * CARD_WIDTH) + ((cols - 1) * SPACING);
+            const masonryHeight = (Math.ceil(IMAGE_COUNT/cols) * CARD_HEIGHT) + ((Math.ceil(IMAGE_COUNT/cols)-1) * SPACING);
+
+            for (let i = 0; i < objects.length; i++) {
+                const object = new THREE.Object3D();
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+                let x = (col * (CARD_WIDTH + SPACING)) - (masonryWidth / 2);
+                let y = - ((row * (CARD_HEIGHT + SPACING)) - (masonryHeight / 2));
+                if (row % 2 !== 0) x += (CARD_WIDTH + SPACING) / 2;
+                object.position.set(x, y, 0);
+                object.rotation.set(0, 0, 0);
+                targets.masonry.push(object);
+            }
+
+            // B. Line Target
+            const lineWidth = (IMAGE_COUNT * CARD_WIDTH) + ((IMAGE_COUNT - 1) * SPACING);
+            for (let i = 0; i < objects.length; i++) {
+                const object = new THREE.Object3D();
+                object.position.set((i * (CARD_WIDTH + SPACING)) - (lineWidth / 2), 0, 0);
+                object.rotation.set(0, 0, 0);
+                targets.line.push(object);
+            }
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            window.addEventListener('resize', onWindowResize, false);
+            window.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('wheel', onWheel, { passive: false });
+
+            runSequence();
+        }
+
+        function runSequence() {
+            // 1. Masonry
+            currentLayout = 'masonry';
+            transform(targets.masonry, 2000);
+
+            // 2. Line
+            setTimeout(() => {
+                currentLayout = 'line';
+                transform(targets.line, 2000);
+            }, 3000);
+
+            // 3. Circle
+            setTimeout(() => {
+                currentLayout = 'circle';
+                isInteractive = true; 
+                showInstruction();
+            }, 6000);
+        }
+
+        function onWheel(event) {
+            if (isInteractive && currentLayout === 'circle') {
+                event.preventDefault(); 
+                scrollPos += event.deltaY * SCROLL_SPEED;
+                if (scrollPos < 0) scrollPos = 0; 
+            }
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            TWEEN.update();
+
+            scrollCurrent += (scrollPos - scrollCurrent) * 0.08;
+
+            if (currentLayout === 'circle') {
+                const targetRotX = isInteractive ? -mouse.y * TILT_FACTOR : 0; 
+                const targetRotY = isInteractive ? mouse.x * TILT_FACTOR : 0; 
+
+                carouselGroup.rotation.x += (targetRotX - carouselGroup.rotation.x) * 0.05;
+                carouselGroup.rotation.y += (targetRotY - carouselGroup.rotation.y) * 0.05;
+
+                let zoomProgress = Math.min(scrollCurrent / SCROLL_ZOOM_THRESHOLD, 1);
+                camera.position.y = THREE.MathUtils.lerp(CAM_START_Y, CAM_ZOOM_Y, zoomProgress);
+                camera.position.z = THREE.MathUtils.lerp(CAM_START_Z, CAM_ZOOM_Z, zoomProgress);
+
+                let rotationProgress = Math.max(0, scrollCurrent - SCROLL_ZOOM_THRESHOLD);
+                let angleOffset = rotationProgress * 0.002;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObject(invisiblePlane);
+                let localHoverPoint = null;
+                if (intersects.length > 0) {
+                    localHoverPoint = carouselGroup.worldToLocal(intersects[0].point.clone());
+                }
+
+                for (let i = 0; i < objects.length; i++) {
+                    const obj = objects[i];
+                    const theta = obj.userData.baseAngle + angleOffset;
+
+                    const xBase = CIRCLE_RADIUS * Math.cos(theta);
+                    const yBase = CIRCLE_RADIUS * Math.sin(theta);
+
+                    let extraX = 0;
+                    let extraY = 0;
+
+                    if (localHoverPoint && isInteractive) {
+                        const dx = localHoverPoint.x - xBase;
+                        const dy = localHoverPoint.y - yBase;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+
+                        if (dist < HOVER_RADIUS) {
+                            const ratio = 1 - (dist / HOVER_RADIUS);
+                            const protrusion = ratio * ratio * HOVER_PUSH;
+                            extraX = Math.cos(theta) * protrusion;
+                            extraY = Math.sin(theta) * protrusion;
+                        }
+                    }
+
+                    const targetX = xBase + extraX;
+                    const targetY = yBase + extraY;
+
+                    obj.position.x += (targetX - obj.position.x) * 0.08;
+                    obj.position.y += (targetY - obj.position.y) * 0.08;
+                    obj.position.z += (0 - obj.position.z) * 0.08;
+
+                    const targetRotZ = theta + (Math.PI / 2);
+                    obj.rotation.z += (targetRotZ - obj.rotation.z) * 0.08;
+                    obj.rotation.x += (0 - obj.rotation.x) * 0.08;
+                    obj.rotation.y += (0 - obj.rotation.y) * 0.08;
+                }
+            } 
+            else {
+                carouselGroup.rotation.x += (0 - carouselGroup.rotation.x) * 0.05;
+                carouselGroup.rotation.y += (0 - carouselGroup.rotation.y) * 0.05;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function transform(targets, duration) {
+            TWEEN.removeAll();
+            for (let i = 0; i < objects.length; i++) {
+                const object = objects[i];
+                const target = targets[i];
+
+                new TWEEN.Tween(object.position)
+                    .to({ x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration)
+                    .easing(TWEEN.Easing.Exponential.InOut)
+                    .start();
+
+                new TWEEN.Tween(object.rotation)
+                    .to({ x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration)
+                    .easing(TWEEN.Easing.Exponential.InOut)
+                    .start();
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function showInstruction() {
+            document.getElementById('instruction').style.opacity = 1;
+        }
+
+    </script>
+</body>
+</html>

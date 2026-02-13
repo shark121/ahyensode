@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pink & Violet Liquidity Blob</title>
+    <style>
+        /* Peach Background preserved */
+        body { margin: 0; overflow: hidden; background-color: #ffcda5; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+            "simplex-noise": "https://unpkg.com/simplex-noise@4.0.1/dist/esm/simplex-noise.js"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { createNoise3D } from 'simplex-noise';
+
+    // --- Scene Setup ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#ffcda5'); 
+
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.z = 5;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2; 
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // --- Environment (Reflections preserved) ---
+    const envScene = new THREE.Scene();
+    const light1 = new THREE.PointLight(0xff00ff, 200); light1.position.set(10, 10, 10); envScene.add(light1); 
+    const light2 = new THREE.PointLight(0x0000ff, 200); light2.position.set(-10, -10, 10); envScene.add(light2); 
+    const light3 = new THREE.PointLight(0x8800ff, 150); light3.position.set(0, 15, -5); envScene.add(light3); 
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmremGenerator.fromScene(envScene).texture; 
+
+    // Visible lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 10, 7);
+    scene.add(dirLight);
+
+    // --- Color Palette Setup ---
+    const colorPink = new THREE.Color(0xff55aa);   // Bright Pink
+    const colorViolet = new THREE.Color(0x7700ff); // Deep Violet
+    // We need a separate noise generator for colors so they don't perfectly match the bumps
+    const colorNoise3D = createNoise3D(); 
+
+    // --- Geometry with Color Attribute ---
+    const detail = 50; 
+    const geometry = new THREE.IcosahedronGeometry(1.5, detail);
+    geometry.userData.originalPositions = geometry.attributes.position.array.slice();
+
+    // **NEW: Add a color attribute to the geometry**
+    const count = geometry.attributes.position.count;
+    // 3 RGB values per vertex
+    const colors = new Float32Array(count * 3); 
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+
+    // --- Material with Vertex Colors Enabled ---
+    const material = new THREE.MeshPhysicalMaterial({
+        // color: 0xffffff,   // REMOVED solid base color
+        vertexColors: true,   // ENABLE vertex coloring
+        
+        metalness: 0.1,       // Keep low metalness so colors show through bright
+        roughness: 0.15,
+        envMapIntensity: 1.2, 
+
+        // Iridescence layers on top of the pink/violet colors
+        iridescence: 1.0,         
+        iridescenceIOR: 1.6,      
+        iridescenceThicknessRange: [100, 400],
+        
+        clearcoat: 1.0,
+    });
+
+    const blob = new THREE.Mesh(geometry, material);
+    scene.add(blob);
+
+    // --- Animation Logic ---
+    const movementNoise3D = createNoise3D(); // Rename for clarity
+    const clock = new THREE.Clock();
+    
+    // Movement settings
+    const moveScale = 0.5;    
+    const moveSpeed = 0.3;    
+    const moveIntensity = 0.6; 
+
+    // Color settings (differ slightly from movement for organic look)
+    const colorScale = 0.4;
+    const colorSpeed = 0.2;
+
+    function animateBlob(time) {
+        const positions = geometry.attributes.position;
+        const colorsAttr = geometry.attributes.color; // Access color data
+        const originalPositions = geometry.userData.originalPositions;
+        
+        for (let i = 0; i < positions.count; i++) {
+            const px = originalPositions[i * 3];
+            const py = originalPositions[i * 3 + 1];
+            const pz = originalPositions[i * 3 + 2];
+
+            // 1. CALCULATE MOVEMENT DISPLACEMENT
+            const moveNoiseVal = movementNoise3D(
+                px * moveScale + time * moveSpeed,
+                py * moveScale + time * moveSpeed,
+                pz * moveScale + time * moveSpeed
+            );
+            const normal = new THREE.Vector3(px, py, pz).normalize();
+            const displacement = moveIntensity * moveNoiseVal;
+            
+            positions.array[i * 3]     = px + normal.x * displacement;
+            positions.array[i * 3 + 1] = py + normal.y * displacement;
+            positions.array[i * 3 + 2] = pz + normal.z * displacement;
+
+            // 2. CALCULATE VERTEX COLOR
+            // Get noise value for color at this position
+            let colorNoiseVal = colorNoise3D(
+                px * colorScale + time * colorSpeed,
+                py * colorScale + time * colorSpeed,
+                pz * colorScale + time * colorSpeed
+            );
+            // Normalize noise from range [-1, 1] to [0, 1] for mixing
+            const mixFactor = (colorNoiseVal + 1) / 2;
+
+            // Mix Pink and Violet based on noise factor
+            // We clone pink first so we don't modify the original palette object
+            const finalColor = colorPink.clone().lerp(colorViolet, mixFactor);
+
+            // Set the RGB values for this vertex
+            colorsAttr.setXYZ(i, finalColor.r, finalColor.g, finalColor.b);
+        }
+
+        positions.needsUpdate = true;
+        colorsAttr.needsUpdate = true; // Tell Three.js colors changed
+        geometry.computeVertexNormals();
+    }
+
+    // --- Render Loop ---
+    function animate() {
+        requestAnimationFrame(animate);
+        const elapsedTime = clock.getElapsedTime();
+        animateBlob(elapsedTime);
+        blob.rotation.y = elapsedTime * 0.05;
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+</script>
+</body>
+</html>

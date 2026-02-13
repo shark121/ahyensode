@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyclops Club - Eye & Smile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #F9F8F6;
+            --text-color: #0d0d0d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            font-family: 'Inter', sans-serif; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow-x: hidden; 
+        }
+
+        /* --- HEADER --- */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; }
+        .logo-left { font-weight: 900; font-size: 0.8rem; line-height: 1; text-transform: uppercase; }
+        .logo-left span { display: block; font-size: 1.5rem; letter-spacing: -2px; }
+        .logo-center { font-weight: 900; font-size: 1.5rem; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+        .oval-border { border: 2px solid black; border-radius: 50px; padding: 5px 20px; }
+        .header-icons { display: flex; gap: 15px; }
+        .icon-btn { width: 45px; height: 45px; border: 1.5px solid black; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; transition: background 0.2s; }
+        .icon-btn:hover { background: #000; color: #fff; }
+        .filled-btn { background: #000; color: #fff; }
+
+        /* --- MAIN HERO SECTION --- */
+        main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 5%; text-align: center; z-index: 1; position: relative; }
+        .hero-text { font-size: clamp(2rem, 5vw, 4.5rem); font-weight: 900; line-height: 1.1; text-transform: uppercase; max-width: 1400px; letter-spacing: -1px; }
+        
+        .inline-icon { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin: 0 5px; }
+        .icon-square { border: 3px solid black; border-radius: 4px; width: 1em; height: 1em; font-size: 0.8em; padding-left: 2px; }
+        .icon-circle-half { width: 1em; height: 1em; background: linear-gradient(135deg, black 50%, transparent 50%); border-radius: 50%; border: 2px solid black; }
+        
+        /* 3D Eye Container */
+        #eye-container {
+            display: inline-block;
+            width: 1.2em; 
+            height: 1.2em;
+            vertical-align: middle;
+            position: relative;
+            top: 5px; 
+        }
+        canvas { display: block; outline: none; }
+
+        /* --- ANIMATED SMILEY FACE CSS --- */
+        .smile-container {
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        .smile-svg {
+            width: 100%;
+            height: 100%;
+            stroke: black;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* The Mouth Path */
+        .smile-mouth {
+            /* We transition the 'd' path attribute. Supported in modern browsers. */
+            transition: d 0.3s ease;
+        }
+
+        /* Hover State */
+        .smile-container:hover .smile-svg {
+            transform: scale(1.2) rotate(10deg); /* slight pop and tilt */
+        }
+        
+        /* Neutral Mouth: d="M 8 15 Q 12 15 16 15" (Flat-ish)
+           Happy Mouth:   d="M 6 14 Q 12 21 18 14" (Deep Curve)
+        */
+        .smile-container:hover .smile-mouth {
+            /* Changing the SVG path data via CSS */
+            d: path("M 6 14 Q 12 21 18 14");
+        }
+        /* ------------------------------- */
+
+        .long-arrow { font-weight: 300; font-size: 1.2em; }
+        .pixel-heart { font-size: 0.9em; }
+        .film-icon { font-size: 0.9em; }
+        .file-icon { border: 3px solid black; border-radius: 5px; padding: 2px 5px; font-size: 0.5em; font-weight: 900; position: relative; top: -5px; }
+
+        .subtext { margin-top: 30px; font-size: 1rem; font-weight: 500; text-transform: uppercase; color: #333; max-width: 500px; line-height: 1.4; }
+        .cta-button { margin-top: 30px; background-color: #000; color: #fff; padding: 15px 35px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: transform 0.2s; }
+        .cta-button:hover { transform: scale(1.05); }
+
+        .footer-links { position: absolute; bottom: 40px; left: 40px; display: flex; gap: 20px; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
+        .footer-links a { text-decoration: none; color: black; }
+        .star-decor { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 2rem; }
+        .black-box { position: fixed; bottom: 0; right: 0; width: 250px; height: 300px; background-color: #000; display: flex; justify-content: center; align-items: center; color: white; z-index: 10; }
+        .box-logo { font-weight: 900; text-transform: uppercase; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+        .red-cc { color: red; font-size: 1.2rem; letter-spacing: -2px; margin-right: 5px; }
+
+        @media (max-width: 768px) { .hero-text { font-size: 2rem; } header { padding: 20px; } .black-box { display: none; } .footer-links { bottom: 20px; left: 20px; } .logo-center { font-size: 1.2rem; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-left"><span>CC</span>Cyclops Club</div>
+        <div class="logo-center"><span class="oval-border">CYCLOPS</span><span>CLUB</span></div>
+        <div class="header-icons">
+            <div class="icon-btn filled-btn"><i class="fa-regular fa-envelope"></i></div>
+            <div class="icon-btn"><i class="fa-solid fa-bars"></i></div>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero-text">
+            Video <span class="inline-icon icon-square"><i class="fa-solid fa-pause"></i></span> Production <span class="inline-icon icon-circle-half"></span><br>
+            & Editing 
+            
+            <div id="eye-container"></div>
+            
+            <span class="inline-icon long-arrow">&longrightarrow;</span> To Scale<br>
+            <span class="inline-icon pixel-heart"><i class="fa-solid fa-heart"></i></span> Your <span class="inline-icon film-icon"><i class="fa-solid fa-film"></i></span> Multimedia <span class="inline-icon file-icon">MOV</span><br>
+            Content. 
+            
+            <span class="inline-icon smile-container">
+                <svg class="smile-svg" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="8" cy="9" r="1.5" fill="black" stroke="none"></circle>
+                    <circle cx="16" cy="9" r="1.5" fill="black" stroke="none"></circle>
+                    <path class="smile-mouth" d="M 8 15 Q 12 16 16 15"></path>
+                </svg>
+            </span>
+            
+            <span class="inline-icon">*</span>
+        </div>
+
+        <div class="subtext">Dedicated on-call video support<br>to help every production</div>
+        <a href="#" class="cta-button"><span>&rarr;</span> Talk To a Specialist</a>
+        <div class="star-decor"><i class="fa-solid fa-star-of-life"></i></div>
+    </main>
+
+    <div class="footer-links"><a href="#">IG</a><a href="#">LI</a><a href="#">Vimeo</a></div>
+    <div class="black-box">
+        <div class="box-logo"><span class="red-cc">CC</span> CYCLOPS CLUB</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // --- 3D EYE CODE (Same as before) ---
+        const container = document.getElementById('eye-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+        camera.position.z = 2;
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        const eyeGroup = new THREE.Group();
+        scene.add(eyeGroup);
+
+        const scleraGeo = new THREE.SphereGeometry(0.85, 32, 32);
+        const scleraMat = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100 });
+        const sclera = new THREE.Mesh(scleraGeo, scleraMat);
+        eyeGroup.add(sclera);
+
+        const irisGeo = new THREE.CircleGeometry(0.35, 32);
+        const irisMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
+        const iris = new THREE.Mesh(irisGeo, irisMat);
+        iris.position.z = 0.86;
+        eyeGroup.add(iris);
+
+        const pupilGeo = new THREE.CircleGeometry(0.18, 32);
+        const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const pupil = new THREE.Mesh(pupilGeo, pupilMat);
+        pupil.position.z = 0.87;
+        eyeGroup.add(pupil);
+
+        const shineGeo = new THREE.CircleGeometry(0.08, 16);
+        const shineMat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.8, transparent: true });
+        const shine = new THREE.Mesh(shineGeo, shineMat);
+        shine.position.set(0.15, 0.15, 0.88);
+        eyeGroup.add(shine);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        dirLight.position.set(2, 2, 5);
+        scene.add(dirLight);
+
+        const mouse = new THREE.Vector2();
+        document.addEventListener('mousemove', (event) => {
+            const rect = container.getBoundingClientRect();
+            const eyeCenterX = rect.left + rect.width / 2;
+            const eyeCenterY = rect.top + rect.height / 2;
+            const x = (event.clientX - eyeCenterX) / window.innerWidth;
+            const y = (event.clientY - eyeCenterY) / window.innerHeight;
+            mouse.x = x * 4; 
+            mouse.y = y * 4;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const targetX = mouse.y; 
+            const targetY = mouse.x; 
+            eyeGroup.rotation.x += (targetX - eyeGroup.rotation.x) * 0.1;
+            eyeGroup.rotation.y += (targetY - eyeGroup.rotation.y) * 0.1;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            renderer.setSize(width, height);
+        });
+    </script>
+</body>
+</html>

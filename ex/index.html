@@ -7,10 +7,15 @@
     <style>
       body {
         margin: 0;
-        overflow: hidden;
+        overflow-x: hidden;
       }
       canvas {
         display: block;
+      }
+
+      #scene {
+        width: 100vw;
+        min-height: 120vh;
       }
     </style>
   </head>
@@ -24,6 +29,7 @@
         }
       }
     </script>
+
     <script type="module">
       import * as THREE from "three";
 
@@ -40,19 +46,36 @@
 
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
 
-      // 2. Add Lighting
-      const ambientLight = new THREE.AmbientLight(0x404040);
+      // renderer.domElement.style.display= "100px";
+      console.log(renderer.domElement.style.display);
+      document.body.querySelector("div#scene").appendChild(renderer.domElement);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff);
       scene.add(ambientLight);
 
       const pointLight = new THREE.PointLight(0xffffff, 1, 100);
       pointLight.position.set(5, 5, 5);
       scene.add(pointLight);
 
-      const capsuleMaterial = new THREE.MeshBasicMaterial({
-        color: 0x000,
-        wireframe: true,
+      const textureLoader = new THREE.TextureLoader();
+
+      textureLoader.setCrossOrigin("anonymous");
+
+      const texture = textureLoader.load(
+        "https://threejs.org/examples/textures/brick_diffuse.jpg"
+      );
+
+      texture.wrapS = THREE.RepeatWrapping; 
+      texture.wrapT = THREE.RepeatWrapping;
+
+      texture.repeat.set(1, 100);
+
+      const capsuleMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        map: texture,
+        roughness: 0.5,
+        metalness: 0.1,
       });
 
       function createCapsule(radius, length) {
@@ -77,7 +100,7 @@
       crossBar.position.set(0, 3, 0);
       crossBar.rotation.z = Math.PI / 2; // Make it horizontal
       aGroup.add(crossBar);
-
+      aGroup.position.y = -0.5;
       // Add the complete "A" group to the scene
       scene.add(aGroup);
 
@@ -86,7 +109,7 @@
       function animate() {
         requestAnimationFrame(animate);
 
-        crossBar.rotation.y += 0.01;
+        // crossBar.rotation.y += 0.001;
 
         renderer.render(scene, camera);
       }
@@ -101,5 +124,6 @@
       // Start the animation
       animate();
     </script>
+    <div id="scene"></div>
   </body>
 </html>

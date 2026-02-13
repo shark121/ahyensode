@@ -1,0 +1,354 @@
+/* --- BASE STYLES --- */
+:root {
+    /* Default Fonts */
+    --font-heading: 'Cinzel', serif;
+    --font-body: 'Lato', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    transition: all 0.5s ease;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem 5%;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+.links a {
+    color: var(--text);
+    text-decoration: none;
+    margin-left: 2rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+.hero {
+    padding: 8rem 5%;
+    border-bottom: 1px solid var(--border);
+}
+
+h1 {
+    font-family: var(--font-heading);
+    font-size: 5rem;
+    line-height: 0.9;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+}
+
+p {
+    font-size: 1.2rem;
+    max-width: 500px;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.btn {
+    padding: 1rem 3rem;
+    background: var(--accent);
+    color: var(--btn-text);
+    border: 1px solid var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: transparent;
+    color: var(--accent);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 5%;
+}
+
+.card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+}
+
+.card-img {
+    height: 250px;
+    background-color: var(--secondary); /* Placeholder for image */
+    opacity: 0.8;
+}
+
+.card-txt {
+    padding: 1.5rem;
+}
+
+.card-txt h3 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+.card-txt span {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+}
+
+/* --- THE 10 VARIATIONS (Paste these into style.css) --- */
+
+/* 1. THE CLASSIC LUXURY (Dark Mode) */
+/* Deep brown background, Gold text. Very high-end feel. */
+.theme-1 {
+    --bg: #552a12;
+    --text: #dbb668;
+    --primary: #dbb668;
+    --secondary: #3e1e0d;
+    --accent: #dbb668;
+    --btn-text: #552a12;
+    --border: rgba(219, 182, 104, 0.2);
+    --card-bg: #552a12;
+}
+
+/* 2. THE PARCHMENT (Light Mode) */
+/* Gold background, Brown text. Feels like an old manuscript. */
+.theme-2 {
+    --bg: #dbb668;
+    --text: #552a12;
+    --primary: #552a12;
+    --secondary: #cfa855;
+    --accent: #552a12;
+    --btn-text: #dbb668;
+    --border: rgba(85, 42, 18, 0.2);
+    --card-bg: #dbb668;
+}
+
+/* 3. THE GALLERY (Clean / White) */
+/* White background, Brown text, Gold accents. Modern and airy. */
+.theme-3 {
+    --bg: #ffffff;
+    --text: #552a12;
+    --primary: #552a12;
+    --secondary: #dbb668;
+    --accent: #dbb668;
+    --btn-text: #ffffff;
+    --border: #f0f0f0;
+    --card-bg: #ffffff;
+}
+
+/* 4. THE NOIR (Total Black) */
+/* Black background, Gold text, Brown accents. Cinematic. */
+.theme-4 {
+    --bg: #000000;
+    --text: #dbb668;
+    --primary: #dbb668;
+    --secondary: #552a12;
+    --accent: #552a12;
+    --btn-text: #dbb668;
+    --border: #333;
+    --card-bg: #0a0a0a;
+}
+
+/* 5. THE TWO-TONE CARD */
+/* Brown Background, Gold Cards. A strong blocked layout. */
+.theme-5 {
+    --bg: #552a12;
+    --text: #dbb668;
+    --primary: #dbb668;
+    --secondary: #3e1e0d;
+    --accent: #ffffff;
+    --btn-text: #552a12;
+    --border: transparent;
+    --card-bg: #dbb668; /* Gold Cards */
+}
+/* Special override for Theme 5 text inside cards */
+.theme-5 .card-txt h3, .theme-5 .card-txt span {
+    color: #552a12 !important;
+}
+
+/* 6. THE OUTLINE (Wireframe) */
+/* Dark Brown BG, Hollow Gold Borders, Transparent fills. */
+.theme-6 {
+    --bg: #552a12;
+    --text: #dbb668;
+    --primary: #dbb668;
+    --secondary: transparent;
+    --accent: transparent;
+    --btn-text: #dbb668;
+    --border: #dbb668; /* Strong borders */
+    --card-bg: transparent;
+}
+
+/* 7. THE BRUTALIST */
+/* Gold Background, Thick Brown Borders, Hard edges. */
+.theme-7 {
+    --bg: #dbb668;
+    --text: #552a12;
+    --primary: #552a12;
+    --secondary: #552a12;
+    --accent: #552a12;
+    --btn-text: #dbb668;
+    --border: #552a12;
+    --card-bg: #dbb668;
+}
+.theme-7 .card, .theme-7 .btn { border-width: 2px; }
+
+/* 8. THE GRADIENT */
+/* A smooth transition between the two colors. */
+.theme-8 {
+    --bg: linear-gradient(135deg, #552a12 0%, #3a1a0a 100%);
+    --text: #fff;
+    --primary: #dbb668;
+    --secondary: #dbb668;
+    --accent: #dbb668;
+    --btn-text: #552a12;
+    --border: rgba(255,255,255,0.1);
+    --card-bg: rgba(255,255,255,0.05);
+}
+
+/* 9. THE INVERTED HEADER */
+/* White body, Brown Header, Gold Text. */
+.theme-9 {
+    --bg: #f4f4f4;
+    --text: #333;
+    --primary: #552a12;
+    --secondary: #dbb668;
+    --accent: #552a12;
+    --btn-text: #fff;
+    --border: #ddd;
+    --card-bg: #fff;
+}
+/* Special overrides for Theme 9 Header */
+.theme-9 .hero, .theme-9 nav {
+    background-color: #552a12;
+}
+.theme-9 nav a, .theme-9 .hero h1, .theme-9 .hero p {
+    color: #dbb668;
+}
+
+/* 10. THE SOFT SEPIA */
+/* A washed out version using opacity for a vintage photo look. */
+.theme-10 {
+    --bg: #e6e0d4; /* Very light version of the Brown/Gold mix */
+    --text: #552a12;
+    --primary: #552a12;
+    --secondary: #dbb668;
+    --accent: #dbb668;
+    --btn-text: #fff;
+    --border: #d1c7b7;
+    --card-bg: #fff;
+}
+
+/* --- SHARED BASE SETUP --- */
+:root {
+    --brown: #552a12;
+    --gold: #dbb668;
+    --font-heavy: 'Archivo Black', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    /* Defaults - overruled by variations */
+    background-color: var(--brown);
+    color: var(--gold);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Fixed Corner Nav */
+.corner {
+    position: fixed;
+    z-index: 100;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+    mix-blend-mode: difference; /* Ensures visibility */
+    color: var(--gold);
+}
+.top-left { top: 1.5rem; left: 1.5rem; }
+.top-right { top: 1.5rem; right: 1.5rem; }
+.btm-left { bottom: 1.5rem; left: 1.5rem; }
+.btm-right { bottom: 1.5rem; right: 1.5rem; }
+
+.container {
+    padding: 4rem 2rem;
+}
+
+/* Basic Utility Classes that variations will manipulate */
+.mega-type {
+    font-family: var(--font-heavy);
+    text-transform: uppercase;
+    line-height: 0.85;
+}
+
+.sub-type {
+    font-size: 1.2rem;
+    margin-top: 2rem;
+}
+
+.content-block {
+    margin-top: 5rem;
+    border: 2px solid var(--gold);
+    padding: 2rem;
+}
+
+.content-block h2 {
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    font-family: var(--font-heavy);
+}
+
+ul { padding-left: 2rem; }
+
+.marquee-strip {
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 1rem 0;
+    margin-top: 5rem;
+    font-weight: bold;
+    font-size: 1.5rem;
+    border-top: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+}
+
+/* Simple marquee animation shared by many variations */
+.marquee-strip span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 15s linear infinite;
+}
+@keyframes marquee {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-100%, 0); }
+}
+
+/* =========================================
+   PASTE ONE VARIATION BLOCK BELOW THIS LINE
+   ========================================= */

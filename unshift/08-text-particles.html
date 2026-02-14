@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ahyensode — Particle Text</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            background: #060606;
+            color: #f0ece2;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0
+        }
+
+        .ui {
+            position: relative;
+            z-index: 1;
+            pointer-events: none
+        }
+
+        .ui * {
+            pointer-events: auto
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 50px;
+            z-index: 10
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.2rem
+        }
+
+        .logo span {
+            color: #f43f5e
+        }
+
+        .nav-r a {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(240, 236, 226, .5);
+            text-decoration: none;
+            margin-left: 30px
+        }
+
+        .bottom-info {
+            position: fixed;
+            bottom: 50px;
+            left: 50px;
+            z-index: 5;
+            pointer-events: none
+        }
+
+        .bottom-tag {
+            font-size: .55rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: rgba(240, 236, 226, .25);
+            margin-bottom: 10px
+        }
+
+        .bottom-desc {
+            font-size: .85rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, .35);
+            max-width: 380px;
+            line-height: 1.7
+        }
+
+        .scroll-area {
+            position: relative;
+            z-index: 3;
+            margin-top: 100vh
+        }
+
+        .sec {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 60px
+        }
+
+        .sec-inner {
+            max-width: 650px;
+            text-align: center
+        }
+
+        .sec-num {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #f43f5e;
+            margin-bottom: 16px
+        }
+
+        .sec-title {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 16px
+        }
+
+        .sec-text {
+            font-size: .95rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, .5);
+            line-height: 1.8
+        }
+
+        .foot {
+            padding: 50px;
+            display: flex;
+            justify-content: space-between;
+            font-size: .65rem;
+            color: rgba(240, 236, 226, .2);
+            border-top: 1px solid rgba(240, 236, 226, .06)
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui">
+        <nav class="nav">
+            <div class="logo">AHYENSODE<span>.</span></div>
+            <div class="nav-r"><a href="#">Work</a><a href="#">About</a><a href="#">Contact</a></div>
+        </nav>
+        <div class="bottom-info">
+            <div class="bottom-tag">Move your cursor to disperse</div>
+            <p class="bottom-desc">Each particle returns to form — just as every brand finds its identity through our
+                creative process.</p>
+        </div>
+        <div class="scroll-area">
+            <div class="sec">
+                <div class="sec-inner">
+                    <div class="sec-num">01 — To Mark</div>
+                    <h2 class="sec-title">Distinct & Lasting Impressions</h2>
+                    <p class="sec-text">"Ahyensode" from the Ashanti Twi language means "to mark." We make brands stand
+                        out with identities that resonate deeply with their audiences.</p>
+                </div>
+            </div>
+            <div class="sec">
+                <div class="sec-inner">
+                    <div class="sec-num">02 — To Choose</div>
+                    <h2 class="sec-title">A Call To Action</h2>
+                    <p class="sec-text">The select icon encourages businesses to choose Ahyensode. We commit to
+                        delivering services that elevate brands to the pedestal of success.</p>
+                </div>
+            </div>
+            <div class="sec">
+                <div class="sec-inner">
+                    <div class="sec-num">03 — To Create</div>
+                    <h2 class="sec-title">We Create With Purpose</h2>
+                    <p class="sec-text">With our pentool we create, design, visually direct, enhance, and provide
+                        essential solutions for brands seeking to transcend the ordinary.</p>
+                </div>
+            </div>
+        </div>
+        <div class="foot"><span>© 2026 Ahyensode</span><span>hello@ahyensode.com</span></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, .1, 100); camera.position.z = 10;
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setClearColor(0x060606);
+        document.body.prepend(renderer.domElement);
+
+        const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        document.addEventListener('mousemove', e => { mouse.tx = (e.clientX / innerWidth) * 2 - 1; mouse.ty = -(e.clientY / innerHeight) * 2 + 1 });
+
+        // Generate text positions using canvas
+        function getTextPositions(text, count) {
+            const c = document.createElement('canvas'); c.width = 512; c.height = 128;
+            const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.font = 'bold 80px Outfit, sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, 256, 64);
+            const data = ctx.getImageData(0, 0, 512, 128).data; const positions = [];
+            for (let i = 0; i < count; i++) {
+                let x, y; let found = false; let attempts = 0;
+                while (!found && attempts < 1000) {
+                    x = Math.floor(Math.random() * 512); y = Math.floor(Math.random() * 128);
+                    if (data[(y * 512 + x) * 4 + 3] > 128) { found = true } attempts++
+                }
+                if (found) { positions.push([(x - 256) / 30, (64 - y) / 30, 0]) }
+                else { positions.push([(Math.random() - .5) * 15, (Math.random() - .5) * 4, 0]) }
+            }
+            return positions
+        }
+
+        const count = 3000; const targets = getTextPositions('AHYENSODE', count);
+        const geo = new THREE.BufferGeometry();
+        const pos = new Float32Array(count * 3); const origPos = new Float32Array(count * 3);
+        const vel = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) {
+            pos[i * 3] = (Math.random() - .5) * 20; pos[i * 3 + 1] = (Math.random() - .5) * 10; pos[i * 3 + 2] = (Math.random() - .5) * 5;
+            origPos[i * 3] = targets[i][0]; origPos[i * 3 + 1] = targets[i][1]; origPos[i * 3 + 2] = targets[i][2]
+        }
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+        const mat = new THREE.PointsMaterial({ color: 0xf43f5e, size: .04, transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false });
+        const points = new THREE.Points(geo, mat); scene.add(points);
+
+        // Background particles
+        const bgC = 200, bgG = new THREE.BufferGeometry(), bgP = new Float32Array(bgC * 3);
+        for (let i = 0; i < bgC; i++) { bgP[i * 3] = (Math.random() - .5) * 25; bgP[i * 3 + 1] = (Math.random() - .5) * 15; bgP[i * 3 + 2] = (Math.random() - .5) * 15 }
+        bgG.setAttribute('position', new THREE.BufferAttribute(bgP, 3));
+        scene.add(new THREE.Points(bgG, new THREE.PointsMaterial({ color: 0xffffff, size: .01, transparent: true, opacity: .2 })));
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate); const t = clock.getElapsedTime();
+            mouse.x += (mouse.tx - mouse.x) * .04; mouse.y += (mouse.ty - mouse.y) * .04;
+
+            const p = geo.attributes.position.array;
+            const mouseWorld = new THREE.Vector3(mouse.x * 8, mouse.y * 5, 0);
+            for (let i = 0; i < count; i++) {
+                const i3 = i * 3;
+                // Attract to target
+                const dx = origPos[i3] - p[i3]; const dy = origPos[i3 + 1] - p[i3 + 1]; const dz = origPos[i3 + 2] - p[i3 + 2];
+                vel[i3] += dx * .02; vel[i3 + 1] += dy * .02; vel[i3 + 2] += dz * .02;
+                // Repel from mouse
+                const mx = p[i3] - mouseWorld.x; const my = p[i3 + 1] - mouseWorld.y; const mz = p[i3 + 2] - mouseWorld.z;
+                const md = Math.sqrt(mx * mx + my * my + mz * mz);
+                if (md < 2) { const force = ((2 - md) / 2) * 0.3; vel[i3] += mx / md * force; vel[i3 + 1] += my / md * force; vel[i3 + 2] += mz / md * force }
+                // Apply velocity with damping
+                vel[i3] *= .92; vel[i3 + 1] *= .92; vel[i3 + 2] *= .92;
+                p[i3] += vel[i3]; p[i3 + 1] += vel[i3 + 1]; p[i3 + 2] += vel[i3 + 2]
+            }
+            geo.attributes.position.needsUpdate = true;
+
+            camera.position.x = mouse.x * .8; camera.position.y = mouse.y * .5; camera.lookAt(0, 0, 0);
+            renderer.render(scene, camera)
+        } animate();
+
+        addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight) });
+    </script>
+</body>
+
+</html>

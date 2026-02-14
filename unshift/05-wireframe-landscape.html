@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ahyensode — Wireframe Landscape</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0014;
+            color: #f0ece2;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .ui {
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .ui * {
+            pointer-events: auto;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 50px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .logo span {
+            color: #e040fb;
+        }
+
+        .nav-r {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-r a {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(240, 236, 226, 0.5);
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .hero-center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .hero-pre {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: rgba(224, 64, 251, 0.6);
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 9vw, 8rem);
+            font-weight: 800;
+            letter-spacing: -4px;
+            line-height: 0.95;
+            text-transform: uppercase;
+        }
+
+        .hero-title .glow {
+            color: #e040fb;
+            text-shadow: 0 0 40px rgba(224, 64, 251, 0.5);
+        }
+
+        .hero-sub {
+            margin-top: 24px;
+            font-size: 0.85rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, 0.35);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+        }
+
+        .hud {
+            position: fixed;
+            bottom: 30px;
+            left: 50px;
+            z-index: 5;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(224, 64, 251, 0.4);
+            letter-spacing: 2px;
+            pointer-events: none;
+        }
+
+        .hud-line {
+            margin-bottom: 4px;
+        }
+
+        .scroll-panels {
+            position: relative;
+            z-index: 3;
+            margin-top: 100vh;
+        }
+
+        .sp {
+            min-height: 100vh;
+            padding: 120px 80px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(224, 64, 251, 0.1);
+        }
+
+        .sp:nth-child(even) {
+            justify-content: flex-end;
+        }
+
+        .sp-inner {
+            max-width: 500px;
+        }
+
+        .sp-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            color: #e040fb;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .sp-title {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .sp-text {
+            font-size: 0.9rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, 0.45);
+            line-height: 1.8;
+        }
+
+        .foot {
+            padding: 60px 50px;
+            border-top: 1px solid rgba(224, 64, 251, 0.1);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: rgba(240, 236, 226, 0.25);
+            font-family: 'Space Mono', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .sp {
+                padding: 80px 30px;
+            }
+
+            .hud {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui">
+        <nav class="nav">
+            <div class="logo">AHYENSODE<span>.</span></div>
+            <div class="nav-r">
+                <a href="#">Work</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </div>
+        </nav>
+
+        <div class="hero-center">
+            <div class="hero-pre">Creative Agency // Est. 2024</div>
+            <h1 class="hero-title">
+                <div>TO <span class="glow">MARK</span></div>
+                <div>THE FUTURE</div>
+            </h1>
+            <p class="hero-sub">We ride the digital horizon, crafting brands that transcend the ordinary.</p>
+        </div>
+
+        <div class="hud">
+            <div class="hud-line">SYS:AHYENSODE_V2.0</div>
+            <div class="hud-line">STATUS: CREATING</div>
+            <div class="hud-line" id="hud-coords">CURSOR: 0.00, 0.00</div>
+        </div>
+
+        <div class="scroll-panels">
+            <div class="sp">
+                <div class="sp-inner">
+                    <div class="sp-tag">001 // To Mark</div>
+                    <h2 class="sp-title">Leaving Digital Footprints</h2>
+                    <p class="sp-text">"Ahyensode" from Ghana's Ashanti Twi language means "to mark." We embody this
+                        mission — leaving a distinct and lasting impression on every brand we touch.</p>
+                </div>
+            </div>
+            <div class="sp">
+                <div class="sp-inner">
+                    <div class="sp-tag">002 // To Choose</div>
+                    <h2 class="sp-title">The Select Icon</h2>
+                    <p class="sp-text">Our symbol calls businesses to action — choose Ahyensode as your creative
+                        partner. We elevate brands to the pedestal of success in their industries.</p>
+                </div>
+            </div>
+            <div class="sp">
+                <div class="sp-inner">
+                    <div class="sp-tag">003 // To Create</div>
+                    <h2 class="sp-title">Pentool Pioneers</h2>
+                    <p class="sp-text">With our pentool we create, design, visually direct, enhance, and provide. It is
+                        our instrument for delivering essential creative solutions to forward-thinking brands.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="foot">
+            <span>© 2026 AHYENSODE</span>
+            <span>HELLO@AHYENSODE.COM</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x0a0014, 5, 30);
+
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 2, 5);
+        camera.lookAt(0, 1, -10);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x0a0014);
+        document.body.prepend(renderer.domElement);
+
+        const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        const hudCoords = document.getElementById('hud-coords');
+        document.addEventListener('mousemove', (e) => {
+            mouse.tx = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.ty = -(e.clientY / window.innerHeight) * 2 + 1;
+            hudCoords.textContent = `CURSOR: ${mouse.tx.toFixed(2)}, ${mouse.ty.toFixed(2)}`;
+        });
+
+        // Wireframe terrain
+        const terrainW = 40, terrainD = 60, segW = 80, segD = 120;
+        const terrainGeo = new THREE.PlaneGeometry(terrainW, terrainD, segW, segD);
+        terrainGeo.rotateX(-Math.PI / 2);
+
+        const positions = terrainGeo.attributes.position.array;
+        const origY = new Float32Array(positions.length / 3);
+
+        for (let i = 0; i < positions.length / 3; i++) {
+            const x = positions[i * 3];
+            const z = positions[i * 3 + 2];
+            const height = Math.sin(x * 0.3) * Math.cos(z * 0.2) * 1.5
+                + Math.sin(x * 0.7 + z * 0.5) * 0.8;
+            positions[i * 3 + 1] = height;
+            origY[i] = height;
+        }
+
+        const terrainMat = new THREE.MeshBasicMaterial({
+            color: 0xe040fb,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.25,
+        });
+        const terrain = new THREE.Mesh(terrainGeo, terrainMat);
+        terrain.position.z = -15;
+        scene.add(terrain);
+
+        // Grid floor
+        const gridHelper = new THREE.GridHelper(40, 40, 0x2a0040, 0x150025);
+        gridHelper.position.y = -0.5;
+        scene.add(gridHelper);
+
+        // Sun/orb
+        const sunGeo = new THREE.SphereGeometry(1.5, 32, 32);
+        const sunMat = new THREE.MeshBasicMaterial({
+            color: 0xe040fb,
+            transparent: true,
+            opacity: 0.3,
+        });
+        const sun = new THREE.Mesh(sunGeo, sunMat);
+        sun.position.set(0, 4, -20);
+        scene.add(sun);
+
+        // Sun rings
+        for (let i = 0; i < 3; i++) {
+            const ringGeo = new THREE.RingGeometry(2 + i * 1.2, 2.05 + i * 1.2, 64);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: 0xe040fb, transparent: true, opacity: 0.15 - i * 0.04,
+                side: THREE.DoubleSide,
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.position.copy(sun.position);
+            scene.add(ring);
+        }
+
+        // Stars
+        const starCount = 400;
+        const starGeo = new THREE.BufferGeometry();
+        const starPos = new Float32Array(starCount * 3);
+        for (let i = 0; i < starCount; i++) {
+            starPos[i * 3] = (Math.random() - 0.5) * 40;
+            starPos[i * 3 + 1] = Math.random() * 15 + 2;
+            starPos[i * 3 + 2] = (Math.random() - 0.5) * 40 - 10;
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.03, transparent: true, opacity: 0.5 });
+        scene.add(new THREE.Points(starGeo, starMat));
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            mouse.x += (mouse.tx - mouse.x) * 0.04;
+            mouse.y += (mouse.ty - mouse.y) * 0.04;
+
+            // Animate terrain
+            const p = terrainGeo.attributes.position.array;
+            for (let i = 0; i < p.length / 3; i++) {
+                const x = p[i * 3];
+                const z = p[i * 3 + 2];
+                p[i * 3 + 1] = origY[i] + Math.sin(x * 0.5 + t * 0.5) * 0.3
+                    + Math.cos(z * 0.3 + t * 0.3) * 0.2;
+            }
+            terrainGeo.attributes.position.needsUpdate = true;
+
+            // Camera follow mouse
+            camera.position.x = mouse.x * 3;
+            camera.position.y = 2 + mouse.y * 1.5;
+            camera.lookAt(0, 1, -10);
+
+            // Move terrain forward
+            terrain.position.z = -15 + (t * 0.5 % 1) * 0.5;
+
+            sun.scale.setScalar(1 + Math.sin(t) * 0.05);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>

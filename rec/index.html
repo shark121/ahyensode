@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GUNSHIFT — Front-End Developer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F0F0F0;
+            color: #333;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            cursor: default;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        canvas#main-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        /* ── Background concentric circles ── */
+        .bg-circles {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.08;
+        }
+
+        .bg-circles .ring {
+            position: absolute;
+            border: 1px solid #999;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ── UI Overlay ── */
+        .ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ui-overlay * {
+            pointer-events: auto;
+        }
+
+        .top-left {
+            position: absolute;
+            top: 36px;
+            left: 44px;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: 2px;
+            text-transform: lowercase;
+            color: #444;
+        }
+
+        .role {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .top-right {
+            position: absolute;
+            top: 40px;
+            right: 44px;
+        }
+
+        .top-right a {
+            font-size: 0.6rem;
+            text-transform: lowercase;
+            letter-spacing: 3px;
+            color: #888;
+            text-decoration: none;
+            margin-left: 28px;
+            transition: color 0.3s;
+        }
+
+        .top-right a:hover {
+            color: #333;
+        }
+
+        /* ── Stage indicator ── */
+        .stage-label {
+            position: fixed;
+            bottom: 36px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: #bbb;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s;
+        }
+
+        .stage-label.visible {
+            opacity: 1;
+        }
+
+        /* ── Progress dots ── */
+        .progress-dots {
+            position: fixed;
+            bottom: 36px;
+            right: 44px;
+            z-index: 10;
+            display: flex;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .progress-dots .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ccc;
+            transition: background 0.4s, transform 0.4s;
+        }
+
+        .progress-dots .dot.active {
+            background: #555;
+            transform: scale(1.4);
+        }
+
+        /* ── Interaction hint ── */
+        .hint {
+            position: fixed;
+            bottom: 36px;
+            left: 44px;
+            z-index: 10;
+            font-size: 0.48rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #bbb;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background concentric circles -->
+    <div class="bg-circles" id="bgCircles"></div>
+
+    <!-- UI overlay -->
+    <div class="ui-overlay">
+        <div class="top-left">
+            <div class="logo">hift</div>
+            <div class="role">front-end developer</div>
+        </div>
+        <div class="top-right">
+            <a href="#">top</a>
+            <a href="#">works</a>
+            <a href="#">about</a>
+        </div>
+    </div>
+
+    <!-- Stage label -->
+    <div class="stage-label" id="stageLabel"></div>
+
+    <!-- Progress dots -->
+    <div class="progress-dots" id="progressDots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <!-- Hint -->
+    <div class="hint" id="hint">move cursor to interact</div>
+
+    <!-- Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+        // ═══════════════════════════════════════════
+        //  CONFIGURATION
+        // ═══════════════════════════════════════════
+        const PARTICLE_COUNT = 4000;
+        const TRANSITION_DURATION = 2.5;
+        const HOLD_DURATION = 4;
+
+        // ═══════════════════════════════════════════
+        //  CONCENTRIC CIRCLES BACKGROUND
+        // ═══════════════════════════════════════════
+        (function createCircles() {
+            const container = document.getElementById('bgCircles');
+            const sizes = [120, 220, 340, 480, 640, 820, 1020];
+            sizes.forEach(s => {
+                const ring = document.createElement('div');
+                ring.className = 'ring';
+                ring.style.width = s + 'px';
+                ring.style.height = s + 'px';
+                container.appendChild(ring);
+            });
+            // Slow drift animation
+            gsap.to(container, {
+                rotation: 360,
+                duration: 120,
+                repeat: -1,
+                ease: 'none'
+            });
+            gsap.to(container, {
+                x: 20, y: 15,
+                duration: 8,
+                yoyo: true,
+                repeat: -1,
+                ease: 'sine.inOut'
+            });
+        })();
+
+        // ═══════════════════════════════════════════
+        //  THREE.JS SETUP
+        // ═══════════════════════════════════════════
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 200);
+        camera.position.z = 14;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0); // transparent to show bg
+        renderer.domElement.id = 'main-canvas';
+        document.body.prepend(renderer.domElement);
+
+        // ── Render targets for post-processing ──
+        const rtA = new THREE.WebGLRenderTarget(innerWidth * Math.min(devicePixelRatio, 2), innerHeight * Math.min(devicePixelRatio, 2));
+
+        // ── Post-processing scene (chromatic aberration) ──
+        const ppScene = new THREE.Scene();
+        const ppCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const ppMat = new THREE.ShaderMaterial({
+            uniforms: {
+                tDiffuse: { value: null },
+                uIntensity: { value: 0.0 },
+                uTime: { value: 0.0 }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D tDiffuse;
+                uniform float uIntensity;
+                uniform float uTime;
+                varying vec2 vUv;
+                void main() {
+                    vec2 dir = vUv - vec2(0.5);
+                    float dist = length(dir);
+                    float offset = uIntensity * (0.008 + 0.004 * sin(uTime * 8.0));
+                    float r = texture2D(tDiffuse, vUv + dir * offset).r;
+                    float g = texture2D(tDiffuse, vUv).g;
+                    float b = texture2D(tDiffuse, vUv - dir * offset).b;
+                    float a = texture2D(tDiffuse, vUv).a;
+                    // Scanline / static noise
+                    float noise = fract(sin(dot(vUv * uTime * 0.1, vec2(12.9898, 78.233))) * 43758.5453);
+                    float scanline = 1.0 - 0.04 * uIntensity * sin(vUv.y * 800.0 + uTime * 10.0);
+                    gl_FragColor = vec4(r * scanline, g * scanline, b * scanline, a) + vec4(noise * 0.015 * uIntensity);
+                }
+            `,
+            transparent: true
+        });
+        const ppQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), ppMat);
+        ppScene.add(ppQuad);
+
+        // ═══════════════════════════════════════════
+        //  MOSAIC TILE TEXTURE (square with gap border)
+        // ═══════════════════════════════════════════
+        function createNoiseSprite() {
+            const size = 64;
+            const gap = 3; // pixel border gap for mosaic look
+            const c = document.createElement('canvas');
+            c.width = size; c.height = size;
+            const ctx = c.getContext('2d');
+            const imgData = ctx.createImageData(size, size);
+            for (let i = 0; i < imgData.data.length; i += 4) {
+                const px = (i / 4) % size;
+                const py = Math.floor((i / 4) / size);
+                // Square tile with gap border (mosaic grout)
+                const inTile = px >= gap && px < size - gap && py >= gap && py < size - gap;
+                if (inTile) {
+                    const v = Math.random() * 50 + 80; // noisy greyscale
+                    imgData.data[i] = v;
+                    imgData.data[i + 1] = v;
+                    imgData.data[i + 2] = v;
+                    imgData.data[i + 3] = 240;
+                } else {
+                    imgData.data[i] = 0;
+                    imgData.data[i + 1] = 0;
+                    imgData.data[i + 2] = 0;
+                    imgData.data[i + 3] = 0;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            const tex = new THREE.CanvasTexture(c);
+            tex.needsUpdate = true;
+            return tex;
+        }
+
+        const spriteTex = createNoiseSprite();
+
+        // ═══════════════════════════════════════════
+        //  PARTICLE MATERIAL (custom shader)
+        // ═══════════════════════════════════════════
+        const particleMat = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 },
+                uSprite: { value: spriteTex },
+                uSize: { value: 48.0 * Math.min(devicePixelRatio, 2) }
+            },
+            vertexShader: `
+                attribute float aGrey;
+                varying float vGrey;
+                uniform float uSize;
+                uniform float uTime;
+                void main() {
+                    vGrey = aGrey;
+                    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+                    gl_PointSize = uSize * (1.0 / -mv.z);
+                    gl_Position = projectionMatrix * mv;
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D uSprite;
+                uniform float uTime;
+                varying float vGrey;
+                void main() {
+                    vec4 sprite = texture2D(uSprite, gl_PointCoord);
+                    if (sprite.a < 0.05) discard;
+                    float grey = vGrey;
+                    // Subtle flicker
+                    grey += sin(uTime * 3.0 + gl_PointCoord.x * 20.0) * 0.02;
+                    gl_FragColor = vec4(vec3(grey), sprite.a * 0.85);
+                }
+            `,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.NormalBlending
+        });
+
+        // ═══════════════════════════════════════════
+        //  PARTICLE GEOMETRY
+        // ═══════════════════════════════════════════
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(PARTICLE_COUNT * 3);
+        const velocities = new Float32Array(PARTICLE_COUNT * 3);
+        const greys = new Float32Array(PARTICLE_COUNT);
+
+        // Morph system: lerp between prevTargets and nextTargets
+        const prevTargets = new Float32Array(PARTICLE_COUNT * 3);
+        const nextTargets = new Float32Array(PARTICLE_COUNT * 3);
+        const targetPositions = new Float32Array(PARTICLE_COUNT * 3);
+        // Per-particle random delay offsets for staggered morphing
+        const staggerOffsets = new Float32Array(PARTICLE_COUNT);
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            staggerOffsets[i] = Math.random();
+        }
+
+        // Initialize to random cloud
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 16;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+            greys[i] = Math.random() * 0.35 + 0.25; // 0.25 - 0.60 greyscale
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('aGrey', new THREE.BufferAttribute(greys, 1));
+
+        const particles = new THREE.Points(geometry, particleMat);
+        scene.add(particles);
+
+        // ═══════════════════════════════════════════
+        //  MOUSE TRACKING
+        // ═══════════════════════════════════════════
+        const mouse = { x: 0, y: 0, sx: 0, sy: 0 }; // sx/sy = smoothed
+        document.addEventListener('mousemove', e => {
+            mouse.x = (e.clientX / innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+        });
+
+        // ═══════════════════════════════════════════
+        //  SHAPE GENERATORS (mosaic grid on surfaces)
+        // ═══════════════════════════════════════════
+
+        // 0 — Random cloud
+        function generateCloud(count) {
+            const arr = [];
+            for (let i = 0; i < count; i++) {
+                arr.push(
+                    (Math.random() - 0.5) * 14,
+                    (Math.random() - 0.5) * 9,
+                    (Math.random() - 0.5) * 7
+                );
+            }
+            return new Float32Array(arr);
+        }
+
+        // 1 — Text "GUNSHIFT"
+        function generateText(text, count) {
+            const c = document.createElement('canvas');
+            c.width = 1024; c.height = 256;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 140px Outfit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 512, 128);
+            const data = ctx.getImageData(0, 0, 1024, 256).data;
+            const arr = [];
+            for (let i = 0; i < count; i++) {
+                let found = false, x, y, attempts = 0;
+                while (!found && attempts < 2000) {
+                    x = Math.floor(Math.random() * 1024);
+                    y = Math.floor(Math.random() * 256);
+                    if (data[(y * 1024 + x) * 4 + 3] > 128) found = true;
+                    attempts++;
+                }
+                if (found) {
+                    arr.push(
+                        (x - 512) / 55,
+                        (128 - y) / 55,
+                        (Math.random() - 0.5) * 0.3
+                    );
+                } else {
+                    arr.push(
+                        (Math.random() - 0.5) * 12,
+                        (Math.random() - 0.5) * 4,
+                        (Math.random() - 0.5) * 0.3
+                    );
+                }
+            }
+            return new Float32Array(arr);
+        }
+
+        // 2 — Hollow Cube (mosaic tiles on 6 faces)
+        function generateHollowCube(count, size) {
+            size = size || 5;
+            const half = size / 2;
+            const perFace = Math.ceil(count / 6);
+            const side = Math.ceil(Math.sqrt(perFace));
+            const step = size / side;
+            const arr = [];
+            const faces = [
+                (u, v) => [half, u, v],    // +X
+                (u, v) => [-half, u, v],    // -X
+                (u, v) => [u, half, v],    // +Y
+                (u, v) => [u, -half, v],    // -Y
+                (u, v) => [u, v, half],    // +Z
+                (u, v) => [u, v, -half]     // -Z
+            ];
+            for (let f = 0; f < 6; f++) {
+                for (let r = 0; r < side; r++) {
+                    for (let c = 0; c < side; c++) {
+                        if (arr.length >= count * 3) break;
+                        const u = (c / side - 0.5) * size + step * 0.5;
+                        const v = (r / side - 0.5) * size + step * 0.5;
+                        const p = faces[f](u, v);
+                        arr.push(p[0], p[1], p[2]);
+                    }
+                }
+            }
+            while (arr.length < count * 3) {
+                const f = Math.floor(Math.random() * 6);
+                const u = (Math.random() - 0.5) * size;
+                const v = (Math.random() - 0.5) * size;
+                const p = faces[f](u, v);
+                arr.push(p[0], p[1], p[2]);
+            }
+            return new Float32Array(arr.slice(0, count * 3));
+        }
+
+        // 3 — Sphere (mosaic tiles via UV grid)
+        function generateSphere(count, radius) {
+            radius = radius || 4;
+            const side = Math.ceil(Math.sqrt(count));
+            const arr = [];
+            for (let i = 0; i < count; i++) {
+                const row = Math.floor(i / side);
+                const col = i % side;
+                const theta = ((col + 0.5) / side) * Math.PI * 2;
+                const phi = ((row + 0.5) / side) * Math.PI;
+                const r = radius;
+                arr.push(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.cos(phi),
+                    r * Math.sin(phi) * Math.sin(theta)
+                );
+            }
+            return new Float32Array(arr);
+        }
+
+        // 4 — Menger Sponge (level 2, mosaic on surfaces)
+        function generateMenger(count, size) {
+            size = size || 5;
+            function isMenger(x, y, z, level) {
+                if (level === 0) return true;
+                const third = 1 / 3;
+                const cx = Math.floor(x / third);
+                const cy = Math.floor(y / third);
+                const cz = Math.floor(z / third);
+                let centerCount = 0;
+                if (cx === 1) centerCount++;
+                if (cy === 1) centerCount++;
+                if (cz === 1) centerCount++;
+                if (centerCount >= 2) return false;
+                return isMenger((x / third) - cx, (y / third) - cy, (z / third) - cz, level - 1);
+            }
+            // Place on surfaces of Menger sub-cubes
+            const res = 20; // grid resolution per axis
+            const arr = [];
+            const step = 1.0 / res;
+            for (let ix = 0; ix < res && arr.length < count * 3; ix++) {
+                for (let iy = 0; iy < res && arr.length < count * 3; iy++) {
+                    for (let iz = 0; iz < res && arr.length < count * 3; iz++) {
+                        const cx = (ix + 0.5) * step;
+                        const cy = (iy + 0.5) * step;
+                        const cz = (iz + 0.5) * step;
+                        if (isMenger(cx, cy, cz, 2)) {
+                            // Check if any neighbor is NOT Menger (surface voxel)
+                            let isSurface = false;
+                            const dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+                            for (const d of dirs) {
+                                const nx = cx + d[0] * step;
+                                const ny = cy + d[1] * step;
+                                const nz = cz + d[2] * step;
+                                if (nx < 0 || nx > 1 || ny < 0 || ny > 1 || nz < 0 || nz > 1 || !isMenger(nx, ny, nz, 2)) {
+                                    isSurface = true; break;
+                                }
+                            }
+                            if (isSurface) {
+                                arr.push((cx - 0.5) * size, (cy - 0.5) * size, (cz - 0.5) * size);
+                            }
+                        }
+                    }
+                }
+            }
+            // Fill remaining
+            let fi = 0;
+            while (arr.length < count * 3) {
+                arr.push(arr[fi % arr.length] + (Math.random() - 0.5) * 0.1,
+                    arr[(fi + 1) % arr.length] + (Math.random() - 0.5) * 0.1,
+                    arr[(fi + 2) % arr.length] + (Math.random() - 0.5) * 0.1);
+                fi += 3;
+            }
+            return new Float32Array(arr.slice(0, count * 3));
+        }
+
+        // 5 — Flat grid (mosaic floor)
+        function generateGrid(count, size) {
+            size = size || 10;
+            const side = Math.ceil(Math.sqrt(count));
+            const spacing = size / side;
+            const arr = [];
+            for (let i = 0; i < count; i++) {
+                const row = Math.floor(i / side);
+                const col = i % side;
+                arr.push((col - side / 2) * spacing + spacing * 0.5,
+                    (row - side / 2) * spacing + spacing * 0.5,
+                    0);
+            }
+            return new Float32Array(arr);
+        }
+
+        // ═══════════════════════════════════════════
+        //  WIREFRAME MESHES (physical frames)
+        // ═══════════════════════════════════════════
+        const wireframeMat = new THREE.LineBasicMaterial({
+            color: 0x666666, transparent: true, opacity: 0, linewidth: 1
+        });
+
+        function makeEdges(geo, parent) {
+            const edges = new THREE.EdgesGeometry(geo);
+            const mat = wireframeMat.clone();
+            const line = new THREE.LineSegments(edges, mat);
+            line.visible = false;
+            (parent || scene).add(line);
+            return line;
+        }
+
+        const wireframes = [
+            null, // cloud — no wireframe
+            null, // text — no wireframe
+            makeEdges(new THREE.BoxGeometry(5, 5, 5)),          // cube
+            makeEdges(new THREE.IcosahedronGeometry(4, 1)),      // sphere
+            makeEdges(new THREE.BoxGeometry(5, 5, 5)),          // Menger outer box
+            makeEdges(new THREE.PlaneGeometry(10, 10, 8, 8))    // grid
+        ];
+
+        // Menger inner sub-cubes in a group
+        const mengerGroup = new THREE.Group();
+        mengerGroup.visible = false;
+        scene.add(mengerGroup);
+        const mengerInnerMats = [];
+        const mSub = 5 / 3;
+        for (let mx = 0; mx < 3; mx++) {
+            for (let my = 0; my < 3; my++) {
+                for (let mz = 0; mz < 3; mz++) {
+                    let cc = 0;
+                    if (mx === 1) cc++; if (my === 1) cc++; if (mz === 1) cc++;
+                    if (cc >= 2) continue;
+                    const box = makeEdges(new THREE.BoxGeometry(mSub * 0.95, mSub * 0.95, mSub * 0.95), mengerGroup);
+                    box.position.set((mx - 1) * mSub, (my - 1) * mSub, (mz - 1) * mSub);
+                    box.visible = true; // visibility controlled by group
+                    mengerInnerMats.push(box.material);
+                }
+            }
+        }
+
+        let activeWireframe = null;
+
+        function showWireframe(index) {
+            // Hide all wireframes
+            wireframes.forEach(w => { if (w) { w.visible = false; w.material.opacity = 0; } });
+            mengerGroup.visible = false;
+            mengerInnerMats.forEach(m => m.opacity = 0);
+
+            if (index >= 2) {
+                const w = wireframes[index];
+                if (w) {
+                    w.visible = true;
+                    gsap.to(w.material, { opacity: 0.45, duration: 1.2, ease: 'power2.out' });
+                }
+                if (index === 4) {
+                    mengerGroup.visible = true;
+                    mengerInnerMats.forEach(m => {
+                        gsap.to(m, { opacity: 0.3, duration: 1.2, ease: 'power2.out' });
+                    });
+                }
+            }
+            activeWireframe = index;
+        }
+
+        // ═══════════════════════════════════════════
+        //  PRE-COMPUTE ALL SHAPES
+        // ═══════════════════════════════════════════
+        const shapes = [
+            { data: generateCloud(PARTICLE_COUNT), label: 'drift', name: 'Cloud' },
+            { data: generateText('GUNSHIFT', PARTICLE_COUNT), label: 'gunshift', name: 'Text' },
+            { data: generateHollowCube(PARTICLE_COUNT), label: 'structure', name: 'Cube' },
+            { data: generateSphere(PARTICLE_COUNT), label: 'organic', name: 'Sphere' },
+            { data: generateMenger(PARTICLE_COUNT), label: 'fractal', name: 'Menger' },
+            { data: generateGrid(PARTICLE_COUNT), label: 'interface', name: 'Grid' }
+        ];
+
+        // Initialize targets to cloud
+        prevTargets.set(shapes[0].data);
+        nextTargets.set(shapes[0].data);
+        targetPositions.set(shapes[0].data);
+
+        let currentShape = 0;
+        let isTransitioning = false;
+        let glitchIntensity = { value: 0 };
+        let morphProgress = { value: 1.0 }; // 1 = fully at nextTargets
+
+        // ═══════════════════════════════════════════
+        //  TRANSITION SYSTEM
+        // ═══════════════════════════════════════════
+        const stageLabel = document.getElementById('stageLabel');
+        const dots = document.querySelectorAll('.progress-dots .dot');
+        const hint = document.getElementById('hint');
+
+        function setActiveDot(index) {
+            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+        }
+
+        function showStageLabel(text) {
+            stageLabel.textContent = text;
+            stageLabel.classList.add('visible');
+            gsap.delayedCall(2, () => stageLabel.classList.remove('visible'));
+        }
+
+        // Easing helper for staggered per-particle lerp
+        function easeInOut(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+
+        function updateTargetsFromMorph() {
+            const p = morphProgress.value;
+            const staggerRange = 0.35; // how much stagger to apply
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const i3 = i * 3;
+                // Per-particle staggered progress
+                const offset = staggerOffsets[i] * staggerRange;
+                const localP = Math.max(0, Math.min(1, (p - offset) / (1.0 - staggerRange)));
+                const ep = easeInOut(localP);
+                targetPositions[i3] = prevTargets[i3] + (nextTargets[i3] - prevTargets[i3]) * ep;
+                targetPositions[i3 + 1] = prevTargets[i3 + 1] + (nextTargets[i3 + 1] - prevTargets[i3 + 1]) * ep;
+                targetPositions[i3 + 2] = prevTargets[i3 + 2] + (nextTargets[i3 + 2] - prevTargets[i3 + 2]) * ep;
+            }
+        }
+
+        function transitionToShape(index) {
+            if (isTransitioning || index === currentShape) return;
+            isTransitioning = true;
+            currentShape = index;
+
+            const shape = shapes[index];
+            setActiveDot(index);
+            showStageLabel(shape.label);
+
+            // Chromatic aberration burst on text reveal
+            if (index === 1) {
+                gsap.to(glitchIntensity, {
+                    value: 1.0, duration: 0.3, yoyo: true, repeat: 5, ease: 'power2.inOut',
+                    onComplete: () => gsap.to(glitchIntensity, { value: 0, duration: 0.8 })
+                });
+            } else {
+                gsap.to(glitchIntensity, { value: 0, duration: 0.5 });
+            }
+
+            // Show/hide wireframe
+            showWireframe(index);
+
+            // Set up morph: snapshot current targets as prev, new shape as next
+            prevTargets.set(targetPositions);
+            nextTargets.set(shape.data);
+            morphProgress.value = 0;
+
+            gsap.to(morphProgress, {
+                value: 1.0,
+                duration: TRANSITION_DURATION,
+                ease: 'power2.inOut',
+                onUpdate: updateTargetsFromMorph,
+                onComplete: () => { isTransitioning = false; }
+            });
+        }
+
+        // ═══════════════════════════════════════════
+        //  AUTO SEQUENCE
+        // ═══════════════════════════════════════════
+
+        // Start after a brief idle
+        gsap.delayedCall(2.0, () => {
+            // First transition: cloud to text
+            transitionToShape(1);
+            gsap.delayedCall(TRANSITION_DURATION + HOLD_DURATION, () => {
+                // Then run the rest of the sequence
+                let idx = 2;
+                function nextShape() {
+                    if (idx >= shapes.length) idx = 0;
+                    transitionToShape(idx);
+                    idx++;
+                    gsap.delayedCall(TRANSITION_DURATION + HOLD_DURATION, nextShape);
+                }
+                nextShape();
+            });
+        });
+
+        // Hide hint after first interaction
+        document.addEventListener('mousemove', function hideHint() {
+            gsap.to(hint, { opacity: 0, duration: 1 });
+            document.removeEventListener('mousemove', hideHint);
+        }, { once: true });
+
+        // ═══════════════════════════════════════════
+        //  ROTATION
+        // ═══════════════════════════════════════════
+        let autoRotation = { x: 0, y: 0 };
+
+        // ═══════════════════════════════════════════
+        //  ANIMATION LOOP
+        // ═══════════════════════════════════════════
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            // Smooth mouse
+            mouse.sx += (mouse.x - mouse.sx) * 0.04;
+            mouse.sy += (mouse.y - mouse.sy) * 0.04;
+
+            // Auto rotation
+            autoRotation.y += 0.003;
+            autoRotation.x = Math.sin(t * 0.15) * 0.15;
+
+            // Mouse world position (for interaction)
+            const mouseWorld = new THREE.Vector3(
+                mouse.sx * 8,
+                mouse.sy * 5,
+                0
+            );
+
+            // Physics update
+            const posArr = geometry.attributes.position.array;
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const i3 = i * 3;
+
+                // Spring toward target
+                const dx = targetPositions[i3] - posArr[i3];
+                const dy = targetPositions[i3 + 1] - posArr[i3 + 1];
+                const dz = targetPositions[i3 + 2] - posArr[i3 + 2];
+
+                velocities[i3] += dx * 0.025;
+                velocities[i3 + 1] += dy * 0.025;
+                velocities[i3 + 2] += dz * 0.025;
+
+                // Mouse repulsion/attraction
+                const mx = posArr[i3] - mouseWorld.x;
+                const my = posArr[i3 + 1] - mouseWorld.y;
+                const mz = posArr[i3 + 2] - mouseWorld.z;
+                const md = Math.sqrt(mx * mx + my * my + mz * mz);
+
+                if (md < 3.0) {
+                    // Repel when close, attract when shape is "text" 
+                    const force = ((3.0 - md) / 3.0) * 0.15;
+                    if (currentShape === 1 && md > 1.5) {
+                        // Attract toward mouse (magnetic attractor for text state)
+                        velocities[i3] -= mx / md * force * 0.3;
+                        velocities[i3 + 1] -= my / md * force * 0.3;
+                        velocities[i3 + 2] -= mz / md * force * 0.3;
+                    } else {
+                        // Repel
+                        velocities[i3] += mx / md * force;
+                        velocities[i3 + 1] += my / md * force;
+                        velocities[i3 + 2] += mz / md * force;
+                    }
+                }
+
+                // Idle drift (subtle noise)
+                if (currentShape === 0) {
+                    velocities[i3] += Math.sin(t * 0.5 + i * 0.01) * 0.002;
+                    velocities[i3 + 1] += Math.cos(t * 0.3 + i * 0.02) * 0.002;
+                    velocities[i3 + 2] += Math.sin(t * 0.7 + i * 0.005) * 0.001;
+                }
+
+                // Damping
+                velocities[i3] *= 0.90;
+                velocities[i3 + 1] *= 0.90;
+                velocities[i3 + 2] *= 0.90;
+
+                // Apply
+                posArr[i3] += velocities[i3];
+                posArr[i3 + 1] += velocities[i3 + 1];
+                posArr[i3 + 2] += velocities[i3 + 2];
+            }
+            geometry.attributes.position.needsUpdate = true;
+
+            // Update shader uniforms
+            particleMat.uniforms.uTime.value = t;
+
+            // Camera + rotation
+            const rotY = autoRotation.y + mouse.sx * 0.5;
+            const rotX = autoRotation.x + mouse.sy * 0.3;
+            particles.rotation.y = rotY;
+            particles.rotation.x = rotX;
+
+            // Sync wireframe rotation with particles
+            wireframes.forEach(w => {
+                if (w && w.visible) { w.rotation.y = rotY; w.rotation.x = rotX; }
+            });
+            mengerGroup.rotation.y = rotY;
+            mengerGroup.rotation.x = rotX;
+
+            camera.position.x = mouse.sx * 1.2;
+            camera.position.y = mouse.sy * 0.8;
+            camera.lookAt(0, 0, 0);
+
+            // ── Render with post-processing ──
+            ppMat.uniforms.uIntensity.value = glitchIntensity.value;
+            ppMat.uniforms.uTime.value = t;
+
+            if (glitchIntensity.value > 0.01) {
+                // Render scene to texture, then apply chromatic aberration
+                renderer.setRenderTarget(rtA);
+                renderer.render(scene, camera);
+                renderer.setRenderTarget(null);
+                ppMat.uniforms.tDiffuse.value = rtA.texture;
+                renderer.render(ppScene, ppCamera);
+            } else {
+                renderer.render(scene, camera);
+            }
+        }
+        animate();
+
+        // ═══════════════════════════════════════════
+        //  RESIZE
+        // ═══════════════════════════════════════════
+        window.addEventListener('resize', () => {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+            const pr = Math.min(devicePixelRatio, 2);
+            rtA.setSize(innerWidth * pr, innerHeight * pr);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ahyensode — Cube Mosaic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            background: #080810;
+            color: #f0ece2;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0
+        }
+
+        .ui {
+            position: relative;
+            z-index: 1;
+            pointer-events: none
+        }
+
+        .ui * {
+            pointer-events: auto
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 50px;
+            z-index: 10
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.2rem
+        }
+
+        .logo span {
+            color: #0ea5e9
+        }
+
+        .nav-r a {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(240, 236, 226, .5);
+            text-decoration: none;
+            margin-left: 30px
+        }
+
+        .center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+            pointer-events: none;
+            width: 90%
+        }
+
+        .center-tag {
+            font-size: .55rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: rgba(240, 236, 226, .25);
+            margin-bottom: 20px
+        }
+
+        .center-h {
+            font-size: clamp(2.5rem, 7vw, 6rem);
+            font-weight: 800;
+            letter-spacing: -3px;
+            line-height: 1.05
+        }
+
+        .center-h span {
+            color: #0ea5e9
+        }
+
+        .center-sub {
+            margin-top: 20px;
+            font-size: .9rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, .35);
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7
+        }
+
+        .scroll-area {
+            position: relative;
+            z-index: 3;
+            margin-top: 100vh
+        }
+
+        .pnl {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 60px
+        }
+
+        .pnl-inner {
+            max-width: 650px;
+            text-align: center
+        }
+
+        .pnl-tag {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #0ea5e9;
+            margin-bottom: 16px
+        }
+
+        .pnl-title {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 16px
+        }
+
+        .pnl-text {
+            font-size: .95rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, .5);
+            line-height: 1.8
+        }
+
+        .foot {
+            padding: 50px;
+            display: flex;
+            justify-content: space-between;
+            font-size: .65rem;
+            color: rgba(240, 236, 226, .2);
+            border-top: 1px solid rgba(240, 236, 226, .06)
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui">
+        <nav class="nav">
+            <div class="logo">AHYENSODE<span>.</span></div>
+            <div class="nav-r"><a href="#">Work</a><a href="#">About</a><a href="#">Contact</a></div>
+        </nav>
+        <div class="center">
+            <div class="center-tag">Creative Design Agency</div>
+            <h1 class="center-h">Building brands<br><span>block</span> by block.</h1>
+            <p class="center-sub">Every great brand is constructed from countless decisions, each one carefully placed.
+                Move your cursor to create waves of change.</p>
+        </div>
+        <div class="scroll-area">
+            <div class="pnl">
+                <div class="pnl-inner">
+                    <div class="pnl-tag">01 — To Mark</div>
+                    <h2 class="pnl-title">Marking Excellence</h2>
+                    <p class="pnl-text">"Ahyensode" from Ghana's Ashanti Twi means "to mark." We craft identities that
+                        resonate deeply and set brands apart from competitors.</p>
+                </div>
+            </div>
+            <div class="pnl">
+                <div class="pnl-inner">
+                    <div class="pnl-tag">02 — To Choose</div>
+                    <h2 class="pnl-title">Choose Your Builder</h2>
+                    <p class="pnl-text">The select icon encourages businesses to choose Ahyensode — we commit to
+                        delivering top-notch services that elevate brands to success.</p>
+                </div>
+            </div>
+            <div class="pnl">
+                <div class="pnl-inner">
+                    <div class="pnl-tag">03 — To Create</div>
+                    <h2 class="pnl-title">Constructing With Purpose</h2>
+                    <p class="pnl-text">With our pentool we create, design, visually direct, enhance, and provide.
+                        Essential solutions for brands seeking to transcend the ordinary.</p>
+                </div>
+            </div>
+        </div>
+        <div class="foot"><span>© 2026 Ahyensode</span><span>hello@ahyensode.com</span></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x080810, .04);
+        const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, .1, 100); camera.position.set(0, 0, 15);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setClearColor(0x080810);
+        document.body.prepend(renderer.domElement);
+
+        const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        document.addEventListener('mousemove', e => { mouse.tx = (e.clientX / innerWidth) * 2 - 1; mouse.ty = -(e.clientY / innerHeight) * 2 + 1 });
+
+        // Grid of cubes
+        const cubes = []; const rows = 12, cols = 16; const spacing = 1.1;
+        const baseGeo = new THREE.BoxGeometry(.8, .8, .8);
+        const colors = [0x0ea5e9, 0x38bdf8, 0x0284c7, 0x075985, 0x0c4a6e];
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const mat = new THREE.MeshBasicMaterial({
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    transparent: true, opacity: .15, wireframe: Math.random() > .6
+                });
+                const cube = new THREE.Mesh(baseGeo, mat);
+                const x = (c - cols / 2) * spacing; const y = (r - rows / 2) * spacing;
+                cube.position.set(x, y, 0);
+                cube.userData = { origX: x, origY: y, origZ: 0, phase: Math.random() * Math.PI * 2 };
+                scene.add(cube); cubes.push(cube)
+            }
+        }
+
+        // Ambient light particles
+        const pc = 150, pg = new THREE.BufferGeometry(), pp = new Float32Array(pc * 3);
+        for (let i = 0; i < pc; i++) { pp[i * 3] = (Math.random() - .5) * 25; pp[i * 3 + 1] = (Math.random() - .5) * 20; pp[i * 3 + 2] = (Math.random() - .5) * 10 }
+        pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+        scene.add(new THREE.Points(pg, new THREE.PointsMaterial({ color: 0x0ea5e9, size: .02, transparent: true, opacity: .3 })));
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate); const t = clock.getElapsedTime();
+            mouse.x += (mouse.tx - mouse.x) * .05; mouse.y += (mouse.ty - mouse.y) * .05;
+
+            const mouseWorld = new THREE.Vector3(mouse.x * cols * spacing / 2, mouse.y * rows * spacing / 2, 0);
+
+            cubes.forEach(cube => {
+                const d = cube.userData;
+                const dx = cube.position.x - mouseWorld.x; const dy = cube.position.y - mouseWorld.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const maxDist = 5;
+                // Wave ripple from mouse
+                const wave = dist < maxDist ? Math.sin((dist - t * 3) * 2) * ((maxDist - dist) / maxDist) * 2 : 0;
+                cube.position.z = wave;
+                // Color intensity based on proximity
+                const intensity = dist < maxDist ? (maxDist - dist) / maxDist : 0;
+                cube.material.opacity = .15 + intensity * .6;
+                // Rotation
+                cube.rotation.x = wave * .2 + Math.sin(t * .5 + d.phase) * .1;
+                cube.rotation.y = wave * .15 + Math.cos(t * .4 + d.phase) * .1;
+            });
+
+            camera.position.x = mouse.x * 3; camera.position.y = mouse.y * 2; camera.lookAt(0, 0, 0);
+            renderer.render(scene, camera)
+        } animate();
+
+        addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight) });
+    </script>
+</body>
+
+</html>

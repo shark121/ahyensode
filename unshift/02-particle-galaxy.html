@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ahyensode — Particle Galaxy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #f0ece2;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .ui {
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .ui * {
+            pointer-events: auto;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 50px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: #a78bfa;
+        }
+
+        .menu {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            color: rgba(240, 236, 226, 0.6);
+        }
+
+        .center-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .tagline {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: rgba(240, 236, 226, 0.3);
+            margin-bottom: 24px;
+        }
+
+        .main-title {
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 800;
+            letter-spacing: -4px;
+            line-height: 1;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #a78bfa 0%, #c8ff00 50%, #f0ece2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            margin-top: 24px;
+            font-size: 1rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, 0.4);
+            max-width: 460px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+        }
+
+        .brand-pillars {
+            position: fixed;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .pillar {
+            text-align: center;
+        }
+
+        .pillar-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .pillar-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: rgba(240, 236, 226, 0.35);
+        }
+
+        .scroll-content {
+            position: relative;
+            z-index: 3;
+            margin-top: 100vh;
+        }
+
+        .panel {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 80px;
+        }
+
+        .panel-inner {
+            max-width: 600px;
+        }
+
+        .panel-num {
+            font-size: 5rem;
+            font-weight: 800;
+            color: rgba(167, 139, 250, 0.15);
+            line-height: 1;
+            margin-bottom: -10px;
+        }
+
+        .panel-title {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .panel-text {
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, 0.5);
+            line-height: 1.8;
+        }
+
+        .panel:nth-child(even) .panel-inner {
+            margin-left: auto;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui">
+        <nav class="nav">
+            <div class="logo">AHYENSODE<span>.</span></div>
+            <div class="menu">Menu</div>
+        </nav>
+
+        <div class="center-content">
+            <div class="tagline">Creative Design Agency</div>
+            <h1 class="main-title">Ahyensode</h1>
+            <p class="subtitle">To mark. To choose. To create. We craft identities that resonate deeply and set brands
+                apart.</p>
+        </div>
+
+        <div class="brand-pillars">
+            <div class="pillar">
+                <div class="pillar-icon">✦</div>
+                <div class="pillar-label">To Mark</div>
+            </div>
+            <div class="pillar">
+                <div class="pillar-icon">◎</div>
+                <div class="pillar-label">To Choose</div>
+            </div>
+            <div class="pillar">
+                <div class="pillar-icon">✎</div>
+                <div class="pillar-label">To Create</div>
+            </div>
+        </div>
+
+        <div class="scroll-content">
+            <div class="panel">
+                <div class="panel-inner">
+                    <div class="panel-num">01</div>
+                    <h2 class="panel-title">To Mark — Leave Your Impression</h2>
+                    <p class="panel-text">Originating from Ghana's Ashanti Twi language, "Ahyensode" means "to mark." We
+                        make brands stand out, crafting identities that resonate deeply with their audiences and set
+                        them apart from competitors.</p>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-inner">
+                    <div class="panel-num">02</div>
+                    <h2 class="panel-title">To Choose — A Call To Action</h2>
+                    <p class="panel-text">The select icon encourages businesses to choose Ahyensode as their creative
+                        partner. We deliver services that elevate brands, placing them prominently on the pedestal of
+                        success.</p>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-inner">
+                    <div class="panel-num">03</div>
+                    <h2 class="panel-title">To Create — The Pentool Is Our Means</h2>
+                    <p class="panel-text">With our pentool we create, we design, we visually direct, we enhance, we
+                        provide. The pentool is our means of providing essential solutions to brands that seek
+                        excellence.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 3;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000);
+        document.body.prepend(renderer.domElement);
+
+        const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        document.addEventListener('mousemove', (e) => {
+            mouse.tx = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.ty = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Galaxy particles
+        const count = 12000;
+        const geo = new THREE.BufferGeometry();
+        const pos = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+        const sizes = new Float32Array(count);
+
+        const colorInside = new THREE.Color('#a78bfa');
+        const colorOutside = new THREE.Color('#0ea5e9');
+
+        for (let i = 0; i < count; i++) {
+            const i3 = i * 3;
+            const radius = Math.random() * 5;
+            const branch = (i % 3) / 3 * Math.PI * 2;
+            const spin = radius * 1.5;
+            const randomness = 0.3;
+
+            const rx = (Math.random() - 0.5) * randomness * radius;
+            const ry = (Math.random() - 0.5) * randomness * radius;
+            const rz = (Math.random() - 0.5) * randomness * radius;
+
+            pos[i3] = Math.cos(branch + spin) * radius + rx;
+            pos[i3 + 1] = ry;
+            pos[i3 + 2] = Math.sin(branch + spin) * radius + rz;
+
+            const mixedColor = colorInside.clone();
+            mixedColor.lerp(colorOutside, radius / 5);
+            colors[i3] = mixedColor.r;
+            colors[i3 + 1] = mixedColor.g;
+            colors[i3 + 2] = mixedColor.b;
+
+            sizes[i] = Math.random() * 2;
+        }
+
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const mat = new THREE.PointsMaterial({
+            size: 0.02,
+            sizeAttenuation: true,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+        });
+
+        const galaxy = new THREE.Points(geo, mat);
+        scene.add(galaxy);
+
+        // Core glow
+        const coreGeo = new THREE.SphereGeometry(0.15, 16, 16);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0xa78bfa, transparent: true, opacity: 0.6 });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        scene.add(core);
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            mouse.x += (mouse.tx - mouse.x) * 0.03;
+            mouse.y += (mouse.ty - mouse.y) * 0.03;
+
+            galaxy.rotation.y = t * 0.08;
+            galaxy.rotation.x = mouse.y * 0.3;
+
+            camera.position.x = mouse.x * 1.5;
+            camera.position.y = mouse.y * 1;
+            camera.lookAt(0, 0, 0);
+
+            core.scale.setScalar(1 + Math.sin(t * 2) * 0.2);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>

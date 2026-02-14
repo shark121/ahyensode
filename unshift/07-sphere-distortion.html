@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ahyensode — Blob Mixer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #050510;
+            color: #f0ece2;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        /* Scroll spacer — 5 sections */
+        .scroll-spacer {
+            height: 500vh;
+            position: relative;
+            z-index: -1;
+        }
+
+        /* Fixed UI overlay */
+        .blob-label {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .blob-name {
+            font-size: clamp(1.8rem, 4vw, 3.2rem);
+            font-weight: 800;
+            letter-spacing: -2px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: none;
+        }
+
+        .blob-sub {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-top: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: none;
+        }
+
+        /* Dot nav */
+        .dot-nav {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(240, 236, 226, 0.3);
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .dot.active {
+            border-color: #fff;
+            background: #fff;
+            transform: scale(1.3);
+        }
+
+        .dot::after {
+            content: attr(data-label);
+            position: absolute;
+            right: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            white-space: nowrap;
+            color: rgba(240, 236, 226, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .dot:hover::after {
+            opacity: 1;
+        }
+
+        /* Counter */
+        .counter {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            z-index: 10;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: rgba(240, 236, 226, 0.3);
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .dot-nav {
+                right: 16px;
+            }
+
+            .dot::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="scroll-spacer"></div>
+
+    <!-- Blob label -->
+    <div class="blob-label">
+        <div class="blob-name" id="blobName">Tidal</div>
+        <div class="blob-sub" id="blobSub">Scroll to explore</div>
+    </div>
+
+    <!-- Counter -->
+    <div class="counter" id="counter">01 / 05</div>
+
+    <!-- Dot navigation -->
+    <div class="dot-nav" id="dotNav">
+        <div class="dot active" data-index="0" data-label="Tidal"></div>
+        <div class="dot" data-index="1" data-label="Magma"></div>
+        <div class="dot" data-index="2" data-label="Frost"></div>
+        <div class="dot" data-index="3" data-label="Solar"></div>
+        <div class="dot" data-index="4" data-label="Void"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+        // ============ BLOB PRESETS ============
+        const blobs = [
+            {
+                name: 'Tidal',
+                sub: 'Oceanic distortion',
+                c1: [0.08, 0.72, 0.65],   // teal
+                c2: [0.05, 0.30, 0.50],   // deep blue
+                c3: [0.90, 0.95, 0.92],   // seafoam white
+                bg: [0.01, 0.10, 0.09],   // dark teal
+                noiseScale: 2.0,
+                noiseSpeed: 0.3,
+                noiseAmp: 0.35,
+                detailScale: 4.0,
+                detailAmp: 0.15,
+                geometry: 'sphere',
+                segments: 256,
+                size: 1.3,
+            },
+            {
+                name: 'Magma',
+                sub: 'Liquid pour',
+                c1: [0.85, 0.12, 0.05],   // deep red liquid
+                c2: [0.15, 0.12, 0.14],   // dark matte sphere
+                c3: [1.0, 0.40, 0.10],    // hot amber highlight
+                bg: [0.06, 0.03, 0.02],   // dark warm
+                noiseScale: 0.5,
+                noiseSpeed: 0.02,
+                noiseAmp: 0.0,
+                detailScale: 1.0,
+                detailAmp: 0.0,
+                geometry: 'sphere',
+                segments: 256,
+                size: 1.4,
+                liquidPour: true,
+            },
+            {
+                name: 'Frost',
+                sub: 'Crystalline surface',
+                c1: [0.55, 0.75, 0.95],   // ice blue
+                c2: [0.20, 0.30, 0.60],   // dark indigo
+                c3: [0.92, 0.95, 1.0],    // frost white
+                bg: [0.02, 0.04, 0.10],   // dark navy blue
+                noiseScale: 3.5,
+                noiseSpeed: 0.15,
+                noiseAmp: 0.20,
+                detailScale: 7.0,
+                detailAmp: 0.10,
+                geometry: 'icosahedron',
+                segments: 80,
+                size: 1.3,
+            },
+            {
+                name: 'Solar',
+                sub: 'Radiant energy',
+                c1: [0.95, 0.75, 0.10],   // golden
+                c2: [0.90, 0.30, 0.10],   // deep orange
+                c3: [1.0, 1.0, 0.90],     // bright white
+                bg: [0.10, 0.06, 0.01],   // dark amber
+                noiseScale: 1.8,
+                noiseSpeed: 0.7,
+                noiseAmp: 0.45,
+                detailScale: 5.0,
+                detailAmp: 0.20,
+                geometry: 'sphere',
+                segments: 220,
+                size: 1.5,
+            },
+            {
+                name: 'Void',
+                sub: 'Dark matter',
+                c1: [0.50, 0.20, 0.80],   // deep violet
+                c2: [0.10, 0.05, 0.25],   // near-black purple
+                c3: [0.80, 0.60, 1.0],    // light lavender
+                bg: [0.05, 0.02, 0.10],   // dark purple
+                noiseScale: 2.5,
+                noiseSpeed: 0.2,
+                noiseAmp: 0.60,
+                detailScale: 2.0,
+                detailAmp: 0.30,
+                geometry: 'dodecahedron',
+                segments: 60,
+                size: 1.35,
+            },
+        ];
+
+        // ============ THREE.JS ============
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+        camera.position.z = 4;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.setClearColor(new THREE.Color(...blobs[0].bg));
+        document.body.prepend(renderer.domElement);
+
+        const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        document.addEventListener('mousemove', e => {
+            mouse.tx = (e.clientX / innerWidth) * 2 - 1;
+            mouse.ty = -(e.clientY / innerHeight) * 2 + 1;
+        });
+
+        // Vertex shader with configurable uniforms
+        const vertexShader = `
+            uniform float uTime;
+            uniform float uMx;
+            uniform float uMy;
+            uniform float uNoiseScale;
+            uniform float uNoiseSpeed;
+            uniform float uNoiseAmp;
+            uniform float uDetailScale;
+            uniform float uDetailAmp;
+            uniform float uLiquidPour;
+            varying vec3 vNormal;
+            varying float vDisp;
+            varying vec3 vPosition;
+            varying vec3 vObjPosition;
+
+            vec3 mod289(vec3 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
+            vec4 mod289(vec4 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
+            vec4 permute(vec4 x){ return mod289(((x * 34.0) + 1.0) * x); }
+            vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314 * r; }
+
+            float snoise(vec3 v){
+                const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+                const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+                vec3 i = floor(v + dot(v, C.yyy));
+                vec3 x0 = v - i + dot(i, C.xxx);
+                vec3 g = step(x0.yzx, x0.xyz);
+                vec3 l = 1.0 - g;
+                vec3 i1 = min(g.xyz, l.zxy);
+                vec3 i2 = max(g.xyz, l.zxy);
+                vec3 x1 = x0 - i1 + C.xxx;
+                vec3 x2 = x0 - i2 + C.yyy;
+                vec3 x3 = x0 - D.yyy;
+                i = mod289(i);
+                vec4 p = permute(permute(permute(
+                    i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                  + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                  + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+                float n_ = 0.142857142857;
+                vec3 ns = n_ * D.wyz - D.xzx;
+                vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                vec4 x_ = floor(j * ns.z);
+                vec4 y_ = floor(j - 7.0 * x_);
+                vec4 x = x_ * ns.x + ns.yyyy;
+                vec4 y = y_ * ns.x + ns.yyyy;
+                vec4 h = 1.0 - abs(x) - abs(y);
+                vec4 b0 = vec4(x.xy, y.xy);
+                vec4 b1 = vec4(x.zw, y.zw);
+                vec4 s0 = floor(b0) * 2.0 + 1.0;
+                vec4 s1 = floor(b1) * 2.0 + 1.0;
+                vec4 sh = -step(h, vec4(0.0));
+                vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+                vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+                vec3 p0 = vec3(a0.xy, h.x);
+                vec3 p1 = vec3(a0.zw, h.y);
+                vec3 p2 = vec3(a1.xy, h.z);
+                vec3 p3 = vec3(a1.zw, h.w);
+                vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+                p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+                vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                m = m * m;
+                return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+            }
+
+            void main(){
+                vNormal = normal;
+                vPosition = position;
+                vObjPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+                float mouseInfluence = 1.0 + length(vec2(uMx, uMy)) * 0.5;
+                // When liquidPour is active, keep sphere solid (no displacement)
+                float ampMod = mix(1.0, 0.0, uLiquidPour);
+                float n = snoise(position * uNoiseScale + uTime * uNoiseSpeed + vec3(uMx, uMy, 0.0) * 0.3) * uNoiseAmp * mouseInfluence * ampMod;
+                n += snoise(position * uDetailScale + uTime * uNoiseSpeed * 1.5) * uDetailAmp * ampMod;
+                vDisp = n;
+                vec3 pos = position + normal * n;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform float uTime;
+            uniform vec3 uColor1;
+            uniform vec3 uColor2;
+            uniform vec3 uColor3;
+            uniform float uLiquidPour;
+            varying vec3 vNormal;
+            varying float vDisp;
+            varying vec3 vPosition;
+            varying vec3 vObjPosition;
+
+            // Simplex noise for fragment shader liquid patterns
+            vec3 mod289f(vec3 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
+            vec4 mod289f(vec4 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
+            vec4 permutef(vec4 x){ return mod289f(((x * 34.0) + 1.0) * x); }
+            vec4 taylorInvSqrtf(vec4 r){ return 1.79284291400159 - 0.85373472095314 * r; }
+            float snoise(vec3 v){
+                const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+                const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+                vec3 i = floor(v + dot(v, C.yyy));
+                vec3 x0 = v - i + dot(i, C.xxx);
+                vec3 g = step(x0.yzx, x0.xyz);
+                vec3 l = 1.0 - g;
+                vec3 i1 = min(g.xyz, l.zxy);
+                vec3 i2 = max(g.xyz, l.zxy);
+                vec3 x1 = x0 - i1 + C.xxx;
+                vec3 x2 = x0 - i2 + C.yyy;
+                vec3 x3 = x0 - D.yyy;
+                i = mod289f(i);
+                vec4 p = permutef(permutef(permutef(
+                    i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                  + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                  + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+                float n_ = 0.142857142857;
+                vec3 ns = n_ * D.wyz - D.xzx;
+                vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                vec4 x_ = floor(j * ns.z);
+                vec4 y_ = floor(j - 7.0 * x_);
+                vec4 x = x_ * ns.x + ns.yyyy;
+                vec4 y = y_ * ns.x + ns.yyyy;
+                vec4 h = 1.0 - abs(x) - abs(y);
+                vec4 b0 = vec4(x.xy, y.xy);
+                vec4 b1 = vec4(x.zw, y.zw);
+                vec4 s0 = floor(b0) * 2.0 + 1.0;
+                vec4 s1 = floor(b1) * 2.0 + 1.0;
+                vec4 sh = -step(h, vec4(0.0));
+                vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+                vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+                vec3 p0 = vec3(a0.xy, h.x);
+                vec3 p1 = vec3(a0.zw, h.y);
+                vec3 p2 = vec3(a1.xy, h.z);
+                vec3 p3 = vec3(a1.zw, h.w);
+                vec4 norm = taylorInvSqrtf(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+                p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+                vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                m = m * m;
+                return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+            }
+
+            void main(){
+                float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.0);
+
+                // ====== STANDARD BLOB LOOK ======
+                vec3 stdCol = mix(uColor1, uColor2, fresnel);
+                stdCol = mix(stdCol, uColor3, smoothstep(-0.2, 0.4, vDisp));
+                stdCol += 0.03 * sin(vPosition * 10.0 + uTime);
+
+                // ====== LIQUID POUR LOOK ======
+                // Normalize position on sphere surface
+                vec3 nPos = normalize(vPosition);
+                float yCoord = nPos.y; // -1 bottom, +1 top
+
+                // Matte dark sphere base
+                vec3 sphereBase = uColor2 + fresnel * 0.08;
+
+                // Create flowing liquid from top
+                // Main flow: large slow drips
+                float flowTime = uTime * 0.12;
+                float flow1 = snoise(vec3(nPos.x * 2.0, nPos.z * 2.0, flowTime));
+                float flow2 = snoise(vec3(nPos.x * 4.0 + 1.7, nPos.z * 4.0 + 0.3, flowTime * 1.3));
+                float flow3 = snoise(vec3(nPos.x * 6.0 - 2.1, nPos.z * 6.0 + 1.5, flowTime * 0.8));
+
+                // Liquid coverage: more at top, drips down with noise-shaped edges
+                // The liquid "level" — how far down it has poured
+                float pourLevel = 0.2; // liquid starts covering from y > this base
+                float liquidEdge = yCoord + flow1 * 0.35 + flow2 * 0.15 + flow3 * 0.08;
+
+                // Sharp-ish threshold for liquid vs dry sphere (viscous, thick liquid)
+                float liquidMask = smoothstep(pourLevel - 0.08, pourLevel + 0.04, liquidEdge);
+
+                // Drip trails going further down
+                float drip1 = snoise(vec3(nPos.x * 8.0, yCoord * 3.0 - flowTime * 2.0, nPos.z * 8.0));
+                float drip2 = snoise(vec3(nPos.x * 12.0 + 5.0, yCoord * 4.0 - flowTime * 1.5, nPos.z * 12.0 + 3.0));
+                float dripMask = smoothstep(0.3, 0.6, drip1) * smoothstep(-0.5, 0.1, yCoord);
+                dripMask += smoothstep(0.4, 0.7, drip2) * smoothstep(-0.8, -0.1, yCoord) * 0.5;
+
+                // Combine: main pour coverage + drip trails
+                float totalLiquid = clamp(liquidMask + dripMask * 0.6, 0.0, 1.0);
+
+                // Liquid color: glossy, colored
+                vec3 liquidColor = uColor1;
+                // Add subtle variation across the liquid surface
+                liquidColor += uColor3 * 0.2 * snoise(nPos * 5.0 + flowTime * 0.5);
+                // Glossy fresnel edge on liquid
+                float liquidFresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 3.0);
+                liquidColor += uColor3 * liquidFresnel * 0.5;
+                // Bright edge highlight at liquid boundary
+                float edgeGlow = smoothstep(0.02, 0.0, abs(totalLiquid - 0.5)) * 0.6;
+                liquidColor += uColor3 * edgeGlow;
+
+                // Mix sphere base with liquid
+                vec3 pourCol = mix(sphereBase, liquidColor, totalLiquid);
+
+                // ====== BLEND BETWEEN MODES ======
+                vec3 col = mix(stdCol, pourCol, uLiquidPour);
+                gl_FragColor = vec4(col, 1.0);
+            }
+        `;
+
+        // Create geometry based on type
+        function createGeo(preset) {
+            switch (preset.geometry) {
+                case 'icosahedron':
+                    return new THREE.IcosahedronGeometry(preset.size, preset.segments);
+                case 'dodecahedron':
+                    return new THREE.DodecahedronGeometry(preset.size, preset.segments);
+                default:
+                    return new THREE.SphereGeometry(preset.size, preset.segments, preset.segments);
+            }
+        }
+
+        // Uniforms object
+        const uniforms = {
+            uTime: { value: 0 },
+            uMx: { value: 0 },
+            uMy: { value: 0 },
+            uNoiseScale: { value: blobs[0].noiseScale },
+            uNoiseSpeed: { value: blobs[0].noiseSpeed },
+            uNoiseAmp: { value: blobs[0].noiseAmp },
+            uDetailScale: { value: blobs[0].detailScale },
+            uDetailAmp: { value: blobs[0].detailAmp },
+            uColor1: { value: new THREE.Vector3(...blobs[0].c1) },
+            uColor2: { value: new THREE.Vector3(...blobs[0].c2) },
+            uColor3: { value: new THREE.Vector3(...blobs[0].c3) },
+            uLiquidPour: { value: 0.0 },
+        };
+
+        const material = new THREE.ShaderMaterial({
+            vertexShader,
+            fragmentShader,
+            uniforms,
+        });
+
+        let currentGeo = createGeo(blobs[0]);
+        const blob = new THREE.Mesh(currentGeo, material);
+        scene.add(blob);
+
+        // Ambient particles
+        const pc = 200;
+        const pg = new THREE.BufferGeometry();
+        const pp = new Float32Array(pc * 3);
+        const pColors = new Float32Array(pc * 3);
+        for (let i = 0; i < pc; i++) {
+            pp[i * 3] = (Math.random() - 0.5) * 12;
+            pp[i * 3 + 1] = (Math.random() - 0.5) * 12;
+            pp[i * 3 + 2] = (Math.random() - 0.5) * 12;
+            pColors[i * 3] = blobs[0].c1[0];
+            pColors[i * 3 + 1] = blobs[0].c1[1];
+            pColors[i * 3 + 2] = blobs[0].c1[2];
+        }
+        pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+        pg.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
+        const particleMat = new THREE.PointsMaterial({
+            size: 0.015, transparent: true, opacity: 0.4,
+            vertexColors: true, blending: THREE.AdditiveBlending, depthWrite: false,
+        });
+        const particles = new THREE.Points(pg, particleMat);
+        scene.add(particles);
+
+        // ============ UI ELEMENTS ============
+        const blobNameEl = document.getElementById('blobName');
+        const blobSubEl = document.getElementById('blobSub');
+        const counterEl = document.getElementById('counter');
+        const dots = document.querySelectorAll('.dot');
+
+        let currentIndex = 0;
+        let prevIndex = 0;
+        const bgColor = new THREE.Color(...blobs[0].bg);
+
+        // ============ TRANSITION FUNCTION ============
+        function transitionTo(index, duration = 1.8) {
+            if (index === currentIndex && blob.geometry) return;
+            const direction = index > currentIndex ? 1 : -1; // 1 = scrolling down, -1 = up
+            prevIndex = currentIndex;
+            currentIndex = index;
+            const preset = blobs[index];
+            const slideDistance = 5; // world units to slide
+
+            // Animate label out, then in
+            gsap.to(blobNameEl, {
+                opacity: 0, y: -30 * direction, duration: 0.5, ease: 'sine.in',
+                onComplete: () => {
+                    blobNameEl.textContent = preset.name;
+                    blobNameEl.style.color = `rgb(${Math.round(preset.c1[0] * 255)},${Math.round(preset.c1[1] * 255)},${Math.round(preset.c1[2] * 255)})`;
+                    gsap.fromTo(blobNameEl,
+                        { opacity: 0, y: 30 * direction },
+                        { opacity: 1, y: 0, duration: 0.7, ease: 'sine.out', delay: 0.3 }
+                    );
+                }
+            });
+            gsap.to(blobSubEl, {
+                opacity: 0, y: -15 * direction, duration: 0.5, ease: 'sine.in',
+                onComplete: () => {
+                    blobSubEl.textContent = preset.sub;
+                    blobSubEl.style.color = `rgba(${Math.round(preset.c3[0] * 255)},${Math.round(preset.c3[1] * 255)},${Math.round(preset.c3[2] * 255)},0.4)`;
+                    gsap.fromTo(blobSubEl,
+                        { opacity: 0, y: 15 * direction },
+                        { opacity: 1, y: 0, duration: 0.7, ease: 'sine.out', delay: 0.4 }
+                    );
+                }
+            });
+
+            // Update counter
+            counterEl.textContent = `0${index + 1} / 05`;
+
+            // Update dots
+            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+
+            // Slide blob off-screen, swap geometry, slide new one in
+            const tl = gsap.timeline();
+            tl.to(blob.position, {
+                y: -slideDistance * direction,
+                duration: 0.7,
+                ease: 'sine.in',
+                onComplete: () => {
+                    blob.geometry.dispose();
+                    blob.geometry = createGeo(preset);
+                    blob.position.y = slideDistance * direction; // place on opposite side
+                }
+            });
+            tl.to(blob.position, {
+                y: 0,
+                duration: 0.9,
+                ease: 'sine.out',
+            });
+
+            // Animate noise/shader uniforms
+            gsap.to(uniforms.uNoiseScale, { value: preset.noiseScale, duration: duration, ease: 'sine.inOut' });
+            gsap.to(uniforms.uNoiseSpeed, { value: preset.noiseSpeed, duration: duration, ease: 'sine.inOut' });
+            gsap.to(uniforms.uNoiseAmp, { value: preset.noiseAmp, duration: duration, ease: 'sine.inOut' });
+            gsap.to(uniforms.uDetailScale, { value: preset.detailScale, duration: duration, ease: 'sine.inOut' });
+            gsap.to(uniforms.uDetailAmp, { value: preset.detailAmp, duration: duration, ease: 'sine.inOut' });
+
+            // Animate liquid pour mode
+            gsap.to(uniforms.uLiquidPour, { value: preset.liquidPour ? 1.0 : 0.0, duration: duration, ease: 'sine.inOut' });
+
+            // Animate colors
+            gsap.to(uniforms.uColor1.value, { x: preset.c1[0], y: preset.c1[1], z: preset.c1[2], duration: duration, ease: 'sine.inOut' });
+            gsap.to(uniforms.uColor2.value, { x: preset.c2[0], y: preset.c2[1], z: preset.c2[2], duration: duration, ease: 'sine.inOut' });
+            gsap.to(uniforms.uColor3.value, { x: preset.c3[0], y: preset.c3[1], z: preset.c3[2], duration: duration, ease: 'sine.inOut' });
+
+            // Animate background
+            gsap.to(bgColor, {
+                r: preset.bg[0], g: preset.bg[1], b: preset.bg[2],
+                duration: duration, ease: 'sine.inOut',
+            });
+
+            // Animate particle colors
+            const targetColor = new THREE.Color(...preset.c1);
+            const colArr = pg.attributes.color.array;
+            gsap.to({}, {
+                duration: duration,
+                onUpdate: function () {
+                    const progress = this.progress();
+                    for (let i = 0; i < pc; i++) {
+                        colArr[i * 3] += (targetColor.r - colArr[i * 3]) * 0.05;
+                        colArr[i * 3 + 1] += (targetColor.g - colArr[i * 3 + 1]) * 0.05;
+                        colArr[i * 3 + 2] += (targetColor.b - colArr[i * 3 + 2]) * 0.05;
+                    }
+                    pg.attributes.color.needsUpdate = true;
+                }
+            });
+        }
+
+        // ============ GSAP SCROLL ============
+        ScrollTrigger.create({
+            trigger: '.scroll-spacer',
+            start: 'top top',
+            end: 'bottom bottom',
+            snap: {
+                snapTo: [0, 0.25, 0.5, 0.75, 1],
+                duration: { min: 0.8, max: 1.4 },
+                delay: 0.1,
+                ease: 'sine.inOut',
+            },
+            onUpdate: (self) => {
+                const progress = self.progress;
+                const newIndex = Math.min(4, Math.round(progress * 4));
+                if (newIndex !== currentIndex) {
+                    transitionTo(newIndex);
+                }
+            }
+        });
+
+        // Dot nav click
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const idx = parseInt(dot.getAttribute('data-index'));
+                const targetScroll = (idx / 4) * (document.querySelector('.scroll-spacer').scrollHeight - innerHeight);
+                gsap.to(window, { scrollTo: targetScroll, duration: 1, ease: 'power2.inOut' });
+            });
+        });
+
+        // ============ INITIAL LABEL REVEAL ============
+        gsap.to(blobNameEl, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 0.5 });
+        gsap.to(blobSubEl, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 0.7 });
+        blobNameEl.style.color = `rgb(${Math.round(blobs[0].c1[0] * 255)},${Math.round(blobs[0].c1[1] * 255)},${Math.round(blobs[0].c1[2] * 255)})`;
+        blobSubEl.style.color = `rgba(${Math.round(blobs[0].c3[0] * 255)},${Math.round(blobs[0].c3[1] * 255)},${Math.round(blobs[0].c3[2] * 255)},0.4)`;
+
+        // ============ RENDER LOOP ============
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            mouse.x += (mouse.tx - mouse.x) * 0.04;
+            mouse.y += (mouse.ty - mouse.y) * 0.04;
+
+            uniforms.uTime.value = t;
+            uniforms.uMx.value = mouse.x;
+            uniforms.uMy.value = mouse.y;
+
+            blob.rotation.y = t * 0.1;
+            blob.rotation.x = t * 0.05;
+
+            // Mouse parallax camera
+            camera.position.x = mouse.x * 1.2;
+            camera.position.y = mouse.y * 0.8;
+            camera.lookAt(0, 0, 0);
+
+            // Update bg
+            renderer.setClearColor(bgColor);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        addEventListener('resize', () => {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+        });
+    </script>
+</body>
+
+</html>

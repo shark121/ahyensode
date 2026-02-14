@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ahyensode — Ribbon Flow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            background: #060612;
+            color: #f0ece2;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0
+        }
+
+        .ui {
+            position: relative;
+            z-index: 1;
+            pointer-events: none
+        }
+
+        .ui * {
+            pointer-events: auto
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 50px;
+            z-index: 10
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.2rem
+        }
+
+        .logo span {
+            color: #8b5cf6
+        }
+
+        .nav-r a {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(240, 236, 226, .5);
+            text-decoration: none;
+            margin-left: 30px
+        }
+
+        .center {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+            pointer-events: none;
+            width: 90%
+        }
+
+        .center-tag {
+            font-size: .55rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: rgba(240, 236, 226, .25);
+            margin-bottom: 20px
+        }
+
+        .center-h {
+            font-size: clamp(2.5rem, 7vw, 6rem);
+            font-weight: 800;
+            letter-spacing: -3px;
+            line-height: 1.05
+        }
+
+        .center-h em {
+            font-style: italic;
+            font-weight: 300;
+            color: #8b5cf6
+        }
+
+        .center-sub {
+            margin-top: 20px;
+            font-size: .9rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, .35);
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7
+        }
+
+        .scroll-area {
+            position: relative;
+            z-index: 3;
+            margin-top: 100vh
+        }
+
+        .pnl {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 100px 80px
+        }
+
+        .pnl:nth-child(even) {
+            justify-content: flex-end
+        }
+
+        .pnl-inner {
+            max-width: 500px
+        }
+
+        .pnl-tag {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #8b5cf6;
+            margin-bottom: 16px
+        }
+
+        .pnl-title {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 16px
+        }
+
+        .pnl-text {
+            font-size: .95rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, .5);
+            line-height: 1.8
+        }
+
+        .foot {
+            padding: 50px;
+            display: flex;
+            justify-content: space-between;
+            font-size: .65rem;
+            color: rgba(240, 236, 226, .2);
+            border-top: 1px solid rgba(240, 236, 226, .06)
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui">
+        <nav class="nav">
+            <div class="logo">AHYENSODE<span>.</span></div>
+            <div class="nav-r"><a href="#">Work</a><a href="#">About</a><a href="#">Contact</a></div>
+        </nav>
+        <div class="center">
+            <div class="center-tag">Creative Design Agency</div>
+            <h1 class="center-h">Design that <em>flows</em><br>with purpose.</h1>
+            <p class="center-sub">Like ribbons in motion, our creative process weaves through every challenge with
+                elegance and intention.</p>
+        </div>
+        <div class="scroll-area">
+            <div class="pnl">
+                <div class="pnl-inner">
+                    <div class="pnl-tag">01 — To Mark</div>
+                    <h2 class="pnl-title">The Mark Of Distinction</h2>
+                    <p class="pnl-text">"Ahyensode" from Ghana's Ashanti Twi means "to mark." We leave distinct and
+                        lasting impressions on brands, crafting identities that resonate deeply with audiences.</p>
+                </div>
+            </div>
+            <div class="pnl">
+                <div class="pnl-inner">
+                    <div class="pnl-tag">02 — To Choose</div>
+                    <h2 class="pnl-title">Choose Your Creative Partner</h2>
+                    <p class="pnl-text">Our select icon calls businesses to action — choose Ahyensode. We deliver
+                        services that elevate brands to the pedestal of success.</p>
+                </div>
+            </div>
+            <div class="pnl">
+                <div class="pnl-inner">
+                    <div class="pnl-tag">03 — To Create</div>
+                    <h2 class="pnl-title">Creation Through The Pentool</h2>
+                    <p class="pnl-text">With our pentool we create, design, visually direct, enhance, and provide
+                        essential solutions for brands that seek to stand out.</p>
+                </div>
+            </div>
+        </div>
+        <div class="foot"><span>© 2026 Ahyensode</span><span>hello@ahyensode.com</span></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, .1, 100); camera.position.z = 6;
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        document.body.prepend(renderer.domElement);
+
+        const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        document.addEventListener('mousemove', e => { mouse.tx = (e.clientX / innerWidth) * 2 - 1; mouse.ty = -(e.clientY / innerHeight) * 2 + 1 });
+
+        // Create ribbons as animated tube geometries
+        const ribbons = [];
+        const ribbonColors = [0x8b5cf6, 0x6366f1, 0xa78bfa, 0xc084fc, 0x7c3aed];
+
+        function createRibbon(color, yOff, zOff, ampX, ampY, speedMul) {
+            const group = new THREE.Group();
+            const segments = 100; const pts = [];
+            for (let i = 0; i < segments; i++) {
+                const t = i / (segments - 1); const x = (t - .5) * 16;
+                const y = Math.sin(t * Math.PI * 2) * ampY + yOff;
+                const z = Math.cos(t * Math.PI * 1.5) * 1 + zOff;
+                pts.push(new THREE.Vector3(x, y, z))
+            }
+            const curve = new THREE.CatmullRomCurve3(pts);
+            const tubeGeo = new THREE.TubeGeometry(curve, segments, 0.08, 8, false);
+            const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: .5, wireframe: false });
+            const mesh = new THREE.Mesh(tubeGeo, tubeMat);
+            // wireframe overlay
+            const wireGeo = new THREE.TubeGeometry(curve, segments, 0.09, 8, false);
+            const wireMat = new THREE.MeshBasicMaterial({ color, wireframe: true, transparent: true, opacity: .15 });
+            const wire = new THREE.Mesh(wireGeo, wireMat);
+            group.add(mesh); group.add(wire); scene.add(group);
+            return { group, segments, ampX, ampY, yOff, zOff, speedMul, mesh, wire, curve }
+        }
+
+        ribbons.push(createRibbon(0x8b5cf6, 0, -1, 1.5, 1.2, 1));
+        ribbons.push(createRibbon(0x6366f1, 1, 0, 1, 0.8, .7));
+        ribbons.push(createRibbon(0xa78bfa, -1.2, .5, 2, 1.5, 1.2));
+        ribbons.push(createRibbon(0xc084fc, .5, 1, 1.2, .6, .9));
+        ribbons.push(createRibbon(0x7c3aed, -0.5, -1.5, 1.8, 1, .8));
+
+        // Background particles
+        const pc = 200, pg = new THREE.BufferGeometry(), pp = new Float32Array(pc * 3);
+        for (let i = 0; i < pc; i++) { pp[i * 3] = (Math.random() - .5) * 20; pp[i * 3 + 1] = (Math.random() - .5) * 10; pp[i * 3 + 2] = (Math.random() - .5) * 10 }
+        pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+        scene.add(new THREE.Points(pg, new THREE.PointsMaterial({ color: 0x8b5cf6, size: .015, transparent: true, opacity: .3 })));
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate); const t = clock.getElapsedTime();
+            mouse.x += (mouse.tx - mouse.x) * .04; mouse.y += (mouse.ty - mouse.y) * .04;
+
+            // Regenerate ribbon curves
+            ribbons.forEach((r, ri) => {
+                const segs = r.segments; const pts = [];
+                for (let i = 0; i < segs; i++) {
+                    const s = i / (segs - 1); const x = (s - .5) * 16;
+                    const y = Math.sin(s * Math.PI * 2 + t * r.speedMul) * r.ampY + r.yOff + mouse.y * .5;
+                    const z = Math.cos(s * Math.PI * 1.5 + t * r.speedMul * .7) * 1 + r.zOff + mouse.x * .3;
+                    pts.push(new THREE.Vector3(x, y, z))
+                }
+                const curve = new THREE.CatmullRomCurve3(pts);
+                const newGeo = new THREE.TubeGeometry(curve, segs, .08, 8, false);
+                r.mesh.geometry.dispose(); r.mesh.geometry = newGeo;
+                const newWGeo = new THREE.TubeGeometry(curve, segs, .09, 8, false);
+                r.wire.geometry.dispose(); r.wire.geometry = newWGeo
+            });
+
+            camera.position.x = mouse.x * 1.5; camera.position.y = mouse.y; camera.lookAt(0, 0, 0);
+            renderer.render(scene, camera)
+        } animate();
+
+        addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight) });
+    </script>
+</body>
+
+</html>

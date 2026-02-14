@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ahyensode — Morphing Blobs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            color: #f0ece2;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .ui {
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .ui * {
+            pointer-events: auto;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 50px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .logo span {
+            color: #ff6b9d;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-right a {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(240, 236, 226, 0.5);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-right a:hover {
+            color: #fff;
+        }
+
+        .hero {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 80px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .hero-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: rgba(240, 236, 226, 0.3);
+            margin-bottom: 16px;
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            font-weight: 300;
+            color: #ff6b9d;
+        }
+
+        .hero-desc {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, 0.4);
+            max-width: 400px;
+            line-height: 1.7;
+        }
+
+        .sections {
+            position: relative;
+            z-index: 3;
+            margin-top: 100vh;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(20px);
+        }
+
+        .sec {
+            padding: 150px 80px;
+            border-bottom: 1px solid rgba(240, 236, 226, 0.06);
+            display: flex;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .sec:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .sec-visual {
+            flex: 0 0 200px;
+            height: 200px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ff6b9d, #a78bfa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sec-content {
+            flex: 1;
+        }
+
+        .sec-tag {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #ff6b9d;
+            margin-bottom: 16px;
+        }
+
+        .sec-title {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .sec-text {
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: rgba(240, 236, 226, 0.5);
+            line-height: 1.8;
+            max-width: 500px;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 200px 60px;
+            background: rgba(10, 10, 15, 0.95);
+        }
+
+        .cta-title {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -3px;
+        }
+
+        .cta-title span {
+            color: #ff6b9d;
+        }
+
+        .cta-sub {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: rgba(240, 236, 226, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .sec {
+                flex-direction: column !important;
+                padding: 80px 30px;
+                gap: 40px;
+            }
+
+            .hero {
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui">
+        <nav class="nav">
+            <div class="logo">AHYENSODE<span>.</span></div>
+            <div class="nav-right">
+                <a href="#">Work</a>
+                <a href="#">Studio</a>
+                <a href="#">Contact</a>
+            </div>
+        </nav>
+
+        <div class="hero">
+            <div class="hero-label">Digital Design Agency</div>
+            <h1 class="hero-title">We shape brands<br>with <em>living</em> design.</h1>
+            <p class="hero-desc">Organic, evolving, alive. Our designs breathe with your brand's identity.</p>
+        </div>
+
+        <div class="sections">
+            <div class="sec">
+                <div class="sec-visual">✦</div>
+                <div class="sec-content">
+                    <div class="sec-tag">01 — To Mark</div>
+                    <h2 class="sec-title">A Lasting Impression</h2>
+                    <p class="sec-text">"Ahyensode" originates from Ghana's Ashanti Twi language, meaning "to mark."
+                        This embodies the essence of our mission: to leave a distinct and lasting impression on our
+                        clients' brands.</p>
+                </div>
+            </div>
+            <div class="sec">
+                <div class="sec-visual">◎</div>
+                <div class="sec-content">
+                    <div class="sec-tag">02 — To Choose</div>
+                    <h2 class="sec-title">Choose Excellence</h2>
+                    <p class="sec-text">The select icon symbolizes a call to action, encouraging businesses to choose
+                        Ahyensode. We deliver services that elevate and place brands on the pedestal of success.</p>
+                </div>
+            </div>
+            <div class="sec">
+                <div class="sec-visual">✎</div>
+                <div class="sec-content">
+                    <div class="sec-tag">03 — To Create</div>
+                    <h2 class="sec-title">The Pentool Is Our Craft</h2>
+                    <p class="sec-text">With our pentool we create, we design, we visually direct, we enhance, we
+                        provide. The pentool is our means of providing essential solutions to brands.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2 class="cta-title">Let's create<br>something <span>alive</span>.</h2>
+            <p class="cta-sub">hello@ahyensode.com</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 4;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.prepend(renderer.domElement);
+
+        const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        document.addEventListener('mousemove', (e) => {
+            mouse.tx = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.ty = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Blob with custom vertex shader for noise
+        const vertexShader = `
+      uniform float uTime;
+      uniform float uMouseX;
+      uniform float uMouseY;
+      varying vec3 vNormal;
+      varying vec3 vPosition;
+
+      // Simplex-like noise
+      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
+      vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+      float snoise(vec3 v) {
+        const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+        const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+        vec3 i = floor(v + dot(v, C.yyy));
+        vec3 x0 = v - i + dot(i, C.xxx);
+        vec3 g = step(x0.yzx, x0.xyz);
+        vec3 l = 1.0 - g;
+        vec3 i1 = min(g.xyz, l.zxy);
+        vec3 i2 = max(g.xyz, l.zxy);
+        vec3 x1 = x0 - i1 + C.xxx;
+        vec3 x2 = x0 - i2 + C.yyy;
+        vec3 x3 = x0 - D.yyy;
+        i = mod289(i);
+        vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0))
+          + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+          + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+        float n_ = 0.142857142857;
+        vec3 ns = n_ * D.wyz - D.xzx;
+        vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+        vec4 x_ = floor(j * ns.z);
+        vec4 y_ = floor(j - 7.0 * x_);
+        vec4 x = x_ * ns.x + ns.yyyy;
+        vec4 y = y_ * ns.x + ns.yyyy;
+        vec4 h = 1.0 - abs(x) - abs(y);
+        vec4 b0 = vec4(x.xy, y.xy);
+        vec4 b1 = vec4(x.zw, y.zw);
+        vec4 s0 = floor(b0) * 2.0 + 1.0;
+        vec4 s1 = floor(b1) * 2.0 + 1.0;
+        vec4 sh = -step(h, vec4(0.0));
+        vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+        vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+        vec3 p0 = vec3(a0.xy, h.x);
+        vec3 p1 = vec3(a0.zw, h.y);
+        vec3 p2 = vec3(a1.xy, h.z);
+        vec3 p3 = vec3(a1.zw, h.w);
+        vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+        p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+        vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+        m = m * m;
+        return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+      }
+
+      void main() {
+        vNormal = normal;
+        vPosition = position;
+        vec3 pos = position;
+        float noise = snoise(pos * 1.5 + uTime * 0.4 + vec3(uMouseX, uMouseY, 0.0) * 0.5);
+        pos += normal * noise * 0.4;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+      }
+    `;
+
+        const fragmentShader = `
+      varying vec3 vNormal;
+      varying vec3 vPosition;
+      uniform float uTime;
+
+      void main() {
+        vec3 color1 = vec3(1.0, 0.42, 0.62); // pink
+        vec3 color2 = vec3(0.65, 0.55, 0.98); // purple
+        vec3 color3 = vec3(0.05, 0.85, 0.95); // cyan
+
+        float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.0);
+        vec3 color = mix(color1, color2, fresnel);
+        color = mix(color, color3, sin(vPosition.y * 3.0 + uTime) * 0.5 + 0.5);
+
+        gl_FragColor = vec4(color, 0.85);
+      }
+    `;
+
+        const blobGeo = new THREE.SphereGeometry(1.5, 128, 128);
+        const blobMat = new THREE.ShaderMaterial({
+            vertexShader,
+            fragmentShader,
+            uniforms: {
+                uTime: { value: 0 },
+                uMouseX: { value: 0 },
+                uMouseY: { value: 0 },
+            },
+            transparent: true,
+        });
+        const blob = new THREE.Mesh(blobGeo, blobMat);
+        blob.position.set(1.5, 0, 0);
+        scene.add(blob);
+
+        // Secondary smaller blob
+        const blob2Geo = new THREE.SphereGeometry(0.6, 64, 64);
+        const blob2Mat = blobMat.clone();
+        blob2Mat.uniforms = {
+            uTime: { value: 0 },
+            uMouseX: { value: 0 },
+            uMouseY: { value: 0 },
+        };
+        const blob2 = new THREE.Mesh(blob2Geo, blob2Mat);
+        blob2.position.set(-2, -0.5, -1);
+        scene.add(blob2);
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            mouse.x += (mouse.tx - mouse.x) * 0.04;
+            mouse.y += (mouse.ty - mouse.y) * 0.04;
+
+            blobMat.uniforms.uTime.value = t;
+            blobMat.uniforms.uMouseX.value = mouse.x;
+            blobMat.uniforms.uMouseY.value = mouse.y;
+
+            blob2Mat.uniforms.uTime.value = t * 1.3;
+            blob2Mat.uniforms.uMouseX.value = mouse.x;
+            blob2Mat.uniforms.uMouseY.value = mouse.y;
+
+            blob.rotation.y = t * 0.15;
+            blob2.rotation.y = -t * 0.2;
+
+            camera.position.x = mouse.x * 0.5;
+            camera.position.y = mouse.y * 0.3;
+            camera.lookAt(0, 0, 0);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>

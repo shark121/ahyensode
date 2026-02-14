@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple — things</title>
+    <meta name="description" content="The necessities for everyday simple life." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,700;0,9..40,800;0,9..40,900&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #0c0a08;
+            color: #f5eed9;
+        }
+
+        /* ───────── Hero wrapper ───────── */
+        .hero-section {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ───────── Full-screen background ───────── */
+        .bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            filter: brightness(0.55) contrast(1.1) saturate(1.15);
+        }
+
+        .bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom,
+                    rgba(12, 10, 8, 0.25) 0%,
+                    rgba(12, 10, 8, 0.05) 40%,
+                    rgba(12, 10, 8, 0.3) 100%);
+        }
+
+        /* ───────── Navigation ───────── */
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 32px 48px;
+        }
+
+        nav a {
+            color: #f5eed9;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 0.6;
+        }
+
+        /* ───────── Hero content ───────── */
+        .hero {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .hero-title {
+            display: flex;
+            align-items: baseline;
+            gap: 20px;
+            line-height: 1;
+            margin-bottom: 48px;
+        }
+
+        .hero-title .sans {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 900;
+            font-size: clamp(4rem, 12vw, 10rem);
+            color: #f5eed9;
+            letter-spacing: -3px;
+        }
+
+        .hero-title .dash {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: clamp(3rem, 8vw, 7rem);
+            color: #f5eed9;
+            opacity: 0.7;
+        }
+
+        .hero-title .serif {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            font-style: italic;
+            font-size: clamp(4rem, 12vw, 10rem);
+            color: #f5eed9;
+            letter-spacing: -1px;
+        }
+
+        .hero-sub {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-sub p {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: rgba(245, 238, 217, 0.7);
+        }
+
+        /* ───────── Scroll down ───────── */
+        .scroll-down {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scroll-down span {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: rgba(245, 238, 217, 0.5);
+        }
+
+        .scroll-down .line {
+            width: 1px;
+            height: 30px;
+            background: rgba(245, 238, 217, 0.3);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollPulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scaleY(0.6);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scaleY(1);
+            }
+        }
+
+        /* ───────── Grain texture ───────── */
+        .grain {
+            position: fixed;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.06;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 128px;
+        }
+
+        /* ───────── Fog Canvas Overlay ───────── */
+        #fog-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        #fog-interaction {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            cursor: none;
+        }
+
+        #fog-interaction.cleared {
+            pointer-events: none;
+        }
+
+        /* Custom cursor */
+        #custom-cursor {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(245, 238, 217, 0.4);
+            pointer-events: none;
+            z-index: 10001;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, opacity 0.3s;
+            opacity: 0;
+        }
+
+        #custom-cursor.active {
+            opacity: 1;
+        }
+
+        #custom-cursor.cleared {
+            opacity: 0;
+        }
+
+        #custom-cursor::after {
+            content: 'wipe';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(245, 238, 217, 0.6);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        /* ───────── Progress indicator ───────── */
+        #fog-progress {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10002;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.5s;
+        }
+
+        #fog-progress.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #fog-progress-bar-bg {
+            width: 160px;
+            height: 2px;
+            background: rgba(245, 238, 217, 0.12);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #fog-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: rgba(245, 238, 217, 0.5);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        #fog-progress-text {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: rgba(245, 238, 217, 0.4);
+            font-weight: 700;
+        }
+
+        /* ───────── Gallery Section ───────── */
+        .gallery-section {
+            position: relative;
+            z-index: 1;
+            height: 250vh;
+            background: #0c0a08;
+            padding: 120px 60px;
+        }
+
+        .gallery-section .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: rgba(245, 238, 217, 0.35);
+            font-weight: 700;
+            margin-bottom: 80px;
+            text-align: center;
+        }
+
+        .gallery-grid {
+            position: relative;
+            width: 100%;
+            height: calc(250vh - 320px);
+        }
+
+        .gallery-item {
+            position: absolute;
+            overflow: hidden;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Different sizes and positions */
+        .gallery-item:nth-child(1) {
+            width: 42%;
+            height: 38%;
+            top: 2%;
+            left: 3%;
+        }
+
+        .gallery-item:nth-child(2) {
+            width: 30%;
+            height: 50%;
+            top: 5%;
+            right: 8%;
+        }
+
+        .gallery-item:nth-child(3) {
+            width: 35%;
+            height: 35%;
+            bottom: 18%;
+            left: 15%;
+        }
+
+        .gallery-item:nth-child(4) {
+            width: 25%;
+            height: 42%;
+            bottom: 8%;
+            right: 5%;
+        }
+
+        .gallery-item img,
+        .gallery-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-item video {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .gallery-item:hover video {
+            opacity: 1;
+        }
+
+        .gallery-item .item-label {
+            position: absolute;
+            bottom: 20px;
+            left: 24px;
+            right: 24px;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+        }
+
+        .gallery-item:hover .item-label {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .gallery-item .item-label h3 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: #f5eed9;
+            margin-bottom: 4px;
+        }
+
+        .gallery-item .item-label span {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: rgba(245, 238, 217, 0.5);
+            font-weight: 700;
+        }
+
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(12, 10, 8, 0.6) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        .gallery-item .img-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(12, 10, 8, 0.15);
+            transition: background 0.5s ease;
+            pointer-events: none;
+        }
+
+        .gallery-item:hover .img-overlay {
+            background: rgba(12, 10, 8, 0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ HERO SECTION ═══ -->
+    <section class="hero-section">
+        <!-- Background image -->
+        <div class="bg">
+            <img src="C://Users/HP/Desktop/nuclear-launch-codes/hyen_web/mosaic-fog/ractapopulous-umbrella-2438190.jpg"
+                alt="background"
+                onerror="this.src='https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1920&q=80&auto=format&fit=crop'" />
+        </div>
+
+        <!-- Navigation -->
+        <nav>
+            <a href="#">Products</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </nav>
+
+        <!-- Hero content -->
+        <div class="hero">
+            <div class="hero-title">
+                <span class="sans">Simple</span>
+                <span class="dash">—</span>
+                <span class="serif">things</span>
+            </div>
+            <div class="hero-sub">
+                <p>The&nbsp;&nbsp;&nbsp;Necessities</p>
+                <p>For&nbsp;&nbsp;&nbsp;Everyday&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;Simple&nbsp;&nbsp;&nbsp;Life</p>
+            </div>
+        </div>
+
+        <!-- Scroll down -->
+        <div class="scroll-down">
+            <span>Scroll Down</span>
+            <div class="line"></div>
+        </div>
+    </section>
+
+    <!-- Grain overlay -->
+    <div class="grain"></div>
+
+    <section class="gallery-section">
+        <p class="section-label">Selected Work</p>
+        <div class="gallery-grid">
+
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80&auto=format&fit=crop"
+                    alt="Mountains" />
+                <video muted loop playsinline preload="metadata">
+                    <source src="https://cdn.coverr.co/videos/coverr-waves-crashing-on-rocks/1080p.mp4"
+                        type="video/mp4" />
+                    <source src="https://storage.coverr.co/videos/coverr-waves-crashing-on-rocks/1080p.mp4"
+                        type="video/mp4" />
+                </video>
+                <div class="img-overlay"></div>
+                <div class="item-label">
+                    <h3>Mountain Solitude</h3>
+                    <span>Nature — 2026</span>
+                </div>
+            </div>
+
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800&q=80&auto=format&fit=crop"
+                    alt="Textures" />
+                <video muted loop playsinline preload="metadata">
+                    <source src="https://cdn.coverr.co/videos/coverr-a-calm-sea-at-sunset/1080p.mp4" type="video/mp4" />
+                    <source src="https://storage.coverr.co/videos/coverr-a-calm-sea-at-sunset/1080p.mp4"
+                        type="video/mp4" />
+                </video>
+                <div class="img-overlay"></div>
+                <div class="item-label">
+                    <h3>Golden Hour</h3>
+                    <span>Film — 2025</span>
+                </div>
+            </div>
+
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80&auto=format&fit=crop"
+                    alt="Forest" />
+                <video muted loop playsinline preload="metadata">
+                    <source src="https://cdn.coverr.co/videos/coverr-forest-trail/1080p.mp4" type="video/mp4" />
+                    <source src="https://storage.coverr.co/videos/coverr-forest-trail/1080p.mp4" type="video/mp4" />
+                </video>
+                <div class="img-overlay"></div>
+                <div class="item-label">
+                    <h3>Verdant Whispers</h3>
+                    <span>Editorial — 2026</span>
+                </div>
+            </div>
+
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1504198453319-5ce911bafcde?w=800&q=80&auto=format&fit=crop"
+                    alt="Ocean" />
+                <video muted loop playsinline preload="metadata">
+                    <source src="https://cdn.coverr.co/videos/coverr-clouds-over-the-mountains/1080p.mp4"
+                        type="video/mp4" />
+                    <source src="https://storage.coverr.co/videos/coverr-clouds-over-the-mountains/1080p.mp4"
+                        type="video/mp4" />
+                </video>
+                <div class="img-overlay"></div>
+                <div class="item-label">
+                    <h3>Still Waters</h3>
+                    <span>Campaign — 2025</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Fog Canvas -->
+    <canvas id="fog-canvas"></canvas>
+    <div id="fog-interaction"></div>
+    <div id="custom-cursor"></div>
+    <div id="fog-progress">
+        <div id="fog-progress-text">hover to reveal</div>
+        <div id="fog-progress-bar-bg">
+            <div id="fog-progress-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const canvas = document.getElementById('fog-canvas');
+            const ctx = canvas.getContext('2d');
+            const hitArea = document.getElementById('fog-interaction');
+            const cursor = document.getElementById('custom-cursor');
+            const progBar = document.getElementById('fog-progress-bar');
+            const progBox = document.getElementById('fog-progress');
+
+            const TILE = 2;       // fine mosaic tile size
+            const BRUSH = 85;      // reveal radius
+            const FOG_ALPHA = 0.55;    // overall fog opacity
+            const CLEAR_AT = 0.90;    // fraction to auto-clear
+
+            let W, H;
+            let isCleared = false;
+            let totalPx, clearedPx = 0;
+
+            /* Warm palette */
+            const PAL = [
+                [18, 14, 10], [28, 22, 16], [22, 18, 12], [32, 26, 18], [15, 12, 8],
+                [25, 20, 14], [20, 16, 10], [30, 24, 16], [12, 10, 7], [24, 18, 12],
+            ];
+
+            /* Offscreen: the mosaic texture (painted once) */
+            const offscreen = document.createElement('canvas');
+            const offCtx = offscreen.getContext('2d');
+
+            /* Offscreen: the alpha mask (we erase circles from this) */
+            const maskCanvas = document.createElement('canvas');
+            const maskCtx = maskCanvas.getContext('2d');
+
+            /* Build a soft radial brush image once for reuse */
+            let brushCanvas, brushSize;
+            function buildBrush() {
+                brushSize = BRUSH * 2;
+                brushCanvas = document.createElement('canvas');
+                brushCanvas.width = brushCanvas.height = brushSize;
+                const bCtx = brushCanvas.getContext('2d');
+                const grad = bCtx.createRadialGradient(BRUSH, BRUSH, 0, BRUSH, BRUSH, BRUSH);
+                grad.addColorStop(0, 'rgba(255,255,255,1)');
+                grad.addColorStop(0.5, 'rgba(255,255,255,0.8)');
+                grad.addColorStop(1, 'rgba(255,255,255,0)');
+                bCtx.fillStyle = grad;
+                bCtx.fillRect(0, 0, brushSize, brushSize);
+            }
+
+            function paintMosaic() {
+                offscreen.width = W;
+                offscreen.height = H;
+                const cols = Math.ceil(W / TILE);
+                const rows = Math.ceil(H / TILE);
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const [cr, cg, cb] = PAL[(Math.random() * PAL.length) | 0];
+                        offCtx.fillStyle = `rgb(${cr},${cg},${cb})`;
+                        offCtx.fillRect(c * TILE, r * TILE, TILE, TILE);
+                    }
+                }
+            }
+
+            function resetMask() {
+                maskCanvas.width = W;
+                maskCanvas.height = H;
+                maskCtx.fillStyle = `rgba(0,0,0,${FOG_ALPHA})`;
+                maskCtx.fillRect(0, 0, W, H);
+            }
+
+            function compositeToScreen() {
+                ctx.clearRect(0, 0, W, H);
+                /* Draw mosaic texture */
+                ctx.drawImage(offscreen, 0, 0);
+                /* Multiply by the mask to apply alpha */
+                ctx.globalCompositeOperation = 'destination-in';
+                ctx.drawImage(maskCanvas, 0, 0);
+                ctx.globalCompositeOperation = 'source-over';
+            }
+
+            /* Erase a circle from the mask at (px,py) */
+            function eraseAt(px, py) {
+                if (isCleared) return;
+                maskCtx.globalCompositeOperation = 'destination-out';
+                maskCtx.drawImage(brushCanvas, px - BRUSH, py - BRUSH);
+                maskCtx.globalCompositeOperation = 'source-over';
+            }
+
+            /* Sample the mask to estimate revealed fraction (fast, sampled) */
+            function getRevealedFraction() {
+                const sample = maskCtx.getImageData(0, 0, W, H).data;
+                const step = 40;  // sample every 40th pixel for speed
+                let total = 0, clear = 0;
+                for (let i = 3; i < sample.length; i += 4 * step) {
+                    total++;
+                    if (sample[i] < 20) clear++;
+                }
+                return clear / total;
+            }
+
+            function autoClear() {
+                isCleared = true;
+                hitArea.classList.add('cleared');
+                cursor.classList.add('cleared');
+                progBox.classList.add('hidden');
+                let opacity = 1;
+                function fadeOut() {
+                    opacity *= 0.88;
+                    if (opacity < 0.01) {
+                        canvas.style.display = 'none';
+                        return;
+                    }
+                    ctx.clearRect(0, 0, W, H);
+                    ctx.globalAlpha = opacity;
+                    ctx.drawImage(offscreen, 0, 0);
+                    ctx.globalCompositeOperation = 'destination-in';
+                    ctx.drawImage(maskCanvas, 0, 0);
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.globalAlpha = 1;
+                    requestAnimationFrame(fadeOut);
+                }
+                requestAnimationFrame(fadeOut);
+            }
+
+            /* ── Interpolate between mouse positions for smooth strokes ── */
+            let prevX = -999, prevY = -999;
+            function strokeTo(x, y) {
+                if (prevX < -900) { prevX = x; prevY = y; }
+                const dx = x - prevX, dy = y - prevY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const steps = Math.max(1, Math.floor(dist / (BRUSH * 0.3)));
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    eraseAt(prevX + dx * t, prevY + dy * t);
+                }
+                prevX = x; prevY = y;
+            }
+
+            /* ── Main loop (lightweight — just composites two canvases) ── */
+            let mouseX = -999, mouseY = -999;
+            let needsUpdate = false;
+            let frameCount = 0;
+
+            function loop() {
+                if (isCleared) return;
+                if (needsUpdate) {
+                    strokeTo(mouseX, mouseY);
+                    needsUpdate = false;
+
+                    // check progress every ~15 frames
+                    frameCount++;
+                    if (frameCount % 15 === 0) {
+                        const frac = getRevealedFraction();
+                        progBar.style.width = (frac * 100) + '%';
+                        if (frac >= CLEAR_AT) { autoClear(); return; }
+                    }
+                }
+                compositeToScreen();
+                requestAnimationFrame(loop);
+            }
+
+            /* ── Events ── */
+            hitArea.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX; mouseY = e.clientY;
+                needsUpdate = true;
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                cursor.classList.add('active');
+            });
+            hitArea.addEventListener('mouseleave', () => {
+                cursor.classList.remove('active');
+                prevX = -999; prevY = -999;
+            });
+            hitArea.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const t = e.touches[0];
+                mouseX = t.clientX; mouseY = t.clientY;
+                needsUpdate = true;
+            }, { passive: false });
+            hitArea.addEventListener('touchend', () => { prevX = -999; prevY = -999; });
+
+            /* ── Init ── */
+            function init() {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+                buildBrush();
+                paintMosaic();
+                resetMask();
+                compositeToScreen();
+                prevX = -999; prevY = -999;
+            }
+
+            window.addEventListener('resize', init);
+            init();
+            requestAnimationFrame(loop);
+        })();
+    </script>
+
+    <script>
+        /* ── Gallery: hover to play video ── */
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            const video = item.querySelector('video');
+            if (!video) return;
+
+            item.addEventListener('mouseenter', () => {
+                video.currentTime = 0;
+                video.play().catch(() => { });
+            });
+
+            item.addEventListener('mouseleave', () => {
+                video.pause();
+            });
+        });
+    </script>
+</body>
+
+</html>

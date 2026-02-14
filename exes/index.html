@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>500-Piece Shatter — Three.js</title>
+    <meta name="description" content="A GPU-accelerated 500-piece circular shatter on scroll" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #08080c;
+            --text-light: #f0ece2;
+            --accent: #c9a96e;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 7rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-align: center;
+            line-height: 1.05;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .hero .subtitle {
+            margin-top: 1.2rem;
+            font-size: clamp(0.9rem, 2vw, 1.25rem);
+            font-weight: 300;
+            color: var(--accent);
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero .scroll-hint {
+            position: absolute;
+            bottom: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+        }
+
+        .scroll-hint span {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(240, 236, 226, 0.4);
+        }
+
+        .scroll-hint .line {
+            width: 1px;
+            height: 50px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollPulse {
+
+            0%,
+            100% {
+                transform: scaleY(1);
+                opacity: 0.6;
+            }
+
+            50% {
+                transform: scaleY(1.4);
+                opacity: 1;
+            }
+        }
+
+        .shatter-section {
+            position: relative;
+            height: 400vh;
+        }
+
+        .shatter-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        #shatterCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .reveal-behind {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 0;
+        }
+
+        .reveal-behind h2 {
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.85);
+        }
+
+        .reveal-behind p {
+            margin-top: 1.5rem;
+            max-width: 500px;
+            text-align: center;
+            font-weight: 300;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: rgba(240, 236, 226, 0.5);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .reveal-behind .accent-line {
+            width: 60px;
+            height: 2px;
+            background: var(--accent);
+            margin-top: 2rem;
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .footer-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-section h2 {
+            font-size: clamp(2rem, 6vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .footer-section h2 .accent {
+            color: var(--accent);
+        }
+
+        .footer-section p {
+            margin-top: 1.5rem;
+            font-weight: 300;
+            font-size: 1rem;
+            color: rgba(240, 236, 226, 0.5);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .grain {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 9999;
+            animation: grainShift 0.5s steps(2) infinite;
+        }
+
+        @keyframes grainShift {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(-2%, -2%);
+            }
+
+            100% {
+                transform: translate(2%, 1%);
+            }
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.5) 100%);
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(201, 169, 110, 0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="loading-overlay" id="loader">
+        <div class="loader"></div>
+    </div>
+    <div class="grain"></div>
+    <div class="vignette"></div>
+
+    <section class="hero">
+        <h1>Shatter<br />& Scatter</h1>
+        <div class="subtitle">500 circles · GPU-powered destruction</div>
+        <div class="scroll-hint">
+            <span>Scroll</span>
+            <div class="line"></div>
+        </div>
+    </section>
+
+    <section class="shatter-section" id="shatter">
+        <div class="shatter-sticky" id="shatterSticky">
+            <div class="reveal-behind">
+                <h2>Fragmented<br />Reality</h2>
+                <p>Five hundred circles scatter into the void — each carrying a fragment of what was once whole.</p>
+                <div class="accent-line"></div>
+            </div>
+            <canvas id="shatterCanvas"></canvas>
+        </div>
+    </section>
+
+    <section class="footer-section">
+        <h2>Nothing<br /><span class="accent">Remains</span></h2>
+        <p>Except memory.</p>
+    </section>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        const COLS = 25;
+        const ROWS = 20;
+        const COUNT = COLS * ROWS;
+        const IMAGE_URL = '../sap2/minezonp-budapest-950310.jpg';
+
+        const canvas = document.getElementById('shatterCanvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera();
+
+        let shatterMesh = null;
+        let uniforms = null;
+
+        /* ─── Shaders ─── */
+        const vertexShader = /* glsl */`
+      attribute vec2 aUvOffset;
+      attribute vec2 aUvScale;
+      attribute vec3 aScatterDir;
+      attribute vec3 aScatterRot;
+      attribute vec2 aIdleOffset;
+      attribute float aIdleSpeed;
+      attribute float aIdlePhase;
+
+      uniform float uTime;
+      uniform float uProgress;
+
+      varying vec2 vUv;
+      varying float vOpacity;
+
+      void main() {
+        vUv = aUvOffset + uv * aUvScale;
+
+        float idleStrength = 1.0 - smoothstep(0.0, 0.08, uProgress);
+        float idleT = uTime * aIdleSpeed + aIdlePhase;
+        vec3 idlePos = vec3(
+          sin(idleT) * aIdleOffset.x * idleStrength,
+          cos(idleT * 0.7) * aIdleOffset.y * idleStrength,
+          0.0
+        );
+
+        float p = smoothstep(0.0, 0.85, uProgress);
+        vec3 scatterPos = aScatterDir * p;
+
+        float angle = (aScatterRot.x + aScatterRot.y) * p;
+        float s = sin(angle);
+        float c = cos(angle);
+
+        vec3 pos = position;
+        vec3 rotated = vec3(pos.x * c - pos.y * s, pos.x * s + pos.y * c, pos.z);
+
+        float scaleDown = mix(1.0, 0.25 + fract(aIdlePhase * 13.37) * 0.4, p);
+        rotated.xy *= scaleDown;
+
+        rotated += idlePos + scatterPos;
+
+        vOpacity = 1.0 - smoothstep(0.5, 1.0, uProgress);
+
+        gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(rotated, 1.0);
+      }
+    `;
+
+        const fragmentShader = /* glsl */`
+      uniform sampler2D uTexture;
+      varying vec2 vUv;
+      varying float vOpacity;
+
+      void main() {
+        vec4 tex = texture2D(uTexture, vUv);
+        gl_FragColor = vec4(tex.rgb, tex.a * vOpacity);
+        if (gl_FragColor.a < 0.01) discard;
+      }
+    `;
+
+        /* ─── Resize ─── */
+        function resize() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            renderer.setSize(w, h);
+            camera.left = -w / 2;
+            camera.right = w / 2;
+            camera.top = h / 2;
+            camera.bottom = -h / 2;
+            camera.near = -1000;
+            camera.far = 1000;
+            camera.updateProjectionMatrix();
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        /* ─── Load image as <img>, draw to canvas, create texture ─── */
+        function loadTexture() {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    // Draw to canvas to avoid CORS issues with Three.js
+                    const c = document.createElement('canvas');
+                    c.width = img.naturalWidth;
+                    c.height = img.naturalHeight;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    const texture = new THREE.CanvasTexture(c);
+                    texture.minFilter = THREE.LinearFilter;
+                    texture.magFilter = THREE.LinearFilter;
+                    texture.needsUpdate = true;
+                    resolve(texture);
+                };
+                img.onerror = () => {
+                    // Fallback: create a gradient texture
+                    console.warn('Image failed to load, using fallback gradient');
+                    const c = document.createElement('canvas');
+                    c.width = 1200;
+                    c.height = 800;
+                    const ctx = c.getContext('2d');
+                    const grad = ctx.createLinearGradient(0, 0, c.width, c.height);
+                    grad.addColorStop(0, '#1a1a2e');
+                    grad.addColorStop(0.3, '#16213e');
+                    grad.addColorStop(0.6, '#0f3460');
+                    grad.addColorStop(1, '#533483');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, c.width, c.height);
+
+                    // Add some visual interest
+                    for (let i = 0; i < 50; i++) {
+                        ctx.beginPath();
+                        ctx.arc(Math.random() * c.width, Math.random() * c.height, Math.random() * 60 + 10, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.08})`;
+                        ctx.fill();
+                    }
+
+                    const texture = new THREE.CanvasTexture(c);
+                    texture.minFilter = THREE.LinearFilter;
+                    texture.magFilter = THREE.LinearFilter;
+                    texture.needsUpdate = true;
+                    resolve(texture);
+                };
+                img.src = IMAGE_URL;
+            });
+        }
+
+        /* ─── Build shards ─── */
+        function buildShards(texture) {
+            if (shatterMesh) {
+                scene.remove(shatterMesh);
+                shatterMesh.geometry.dispose();
+                shatterMesh.material.dispose();
+            }
+
+            const vmin = Math.min(window.innerWidth, window.innerHeight);
+            const gridSize = vmin * 0.8;
+            const cellW = gridSize / COLS;
+            const cellH = gridSize / ROWS;
+            const circleR = Math.max(cellW, cellH) * 0.75;
+
+            const geo = new THREE.CircleGeometry(circleR, 32);
+
+            const uvOffsets = new Float32Array(COUNT * 2);
+            const uvScales = new Float32Array(COUNT * 2);
+            const scatterDirs = new Float32Array(COUNT * 3);
+            const scatterRots = new Float32Array(COUNT * 3);
+            const idleOffsets = new Float32Array(COUNT * 2);
+            const idleSpeeds = new Float32Array(COUNT);
+            const idlePhases = new Float32Array(COUNT);
+
+            const dummy = new THREE.Object3D();
+
+            uniforms = {
+                uTexture: { value: texture },
+                uTime: { value: 0 },
+                uProgress: { value: 0 },
+            };
+
+            const mat = new THREE.ShaderMaterial({
+                vertexShader,
+                fragmentShader,
+                uniforms,
+                transparent: true,
+                depthTest: false,
+            });
+
+            shatterMesh = new THREE.InstancedMesh(geo, mat, COUNT);
+
+            const uvCellW = 1 / COLS;
+            const uvCellH = 1 / ROWS;
+            const overlapUV = 1.45;
+
+            let i = 0;
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const x = (c + 0.5) * cellW - gridSize / 2;
+                    const y = -(r + 0.5) * cellH + gridSize / 2;
+
+                    dummy.position.set(x, y, 0);
+                    dummy.updateMatrix();
+                    shatterMesh.setMatrixAt(i, dummy.matrix);
+
+                    const uvW = uvCellW * overlapUV;
+                    const uvH = uvCellH * overlapUV;
+                    const uvX = (c + 0.5) * uvCellW - uvW / 2;
+                    const uvY = 1.0 - ((r + 0.5) * uvCellH + uvH / 2);
+
+                    uvOffsets[i * 2] = uvX;
+                    uvOffsets[i * 2 + 1] = uvY;
+                    uvScales[i * 2] = uvW;
+                    uvScales[i * 2 + 1] = uvH;
+
+                    const cx = (c + 0.5) / COLS - 0.5;
+                    const cy = (r + 0.5) / ROWS - 0.5;
+                    const dist = Math.sqrt(cx * cx + cy * cy) + 0.3;
+                    const angle = Math.atan2(cy, cx) + (Math.random() - 0.5) * 0.8;
+                    const force = (300 + Math.random() * 500) * dist;
+
+                    scatterDirs[i * 3] = Math.cos(angle) * force;
+                    scatterDirs[i * 3 + 1] = -Math.sin(angle) * force;
+                    scatterDirs[i * 3 + 2] = (Math.random() - 0.5) * 200;
+
+                    scatterRots[i * 3] = (Math.random() - 0.5) * 12;
+                    scatterRots[i * 3 + 1] = (Math.random() - 0.5) * 12;
+                    scatterRots[i * 3 + 2] = 0;
+
+                    idleOffsets[i * 2] = (Math.random() - 0.5) * 4;
+                    idleOffsets[i * 2 + 1] = (Math.random() - 0.5) * 4;
+                    idleSpeeds[i] = 0.4 + Math.random() * 0.8;
+                    idlePhases[i] = Math.random() * Math.PI * 2;
+
+                    i++;
+                }
+            }
+
+            geo.setAttribute('aUvOffset', new THREE.InstancedBufferAttribute(uvOffsets, 2));
+            geo.setAttribute('aUvScale', new THREE.InstancedBufferAttribute(uvScales, 2));
+            geo.setAttribute('aScatterDir', new THREE.InstancedBufferAttribute(scatterDirs, 3));
+            geo.setAttribute('aScatterRot', new THREE.InstancedBufferAttribute(scatterRots, 3));
+            geo.setAttribute('aIdleOffset', new THREE.InstancedBufferAttribute(idleOffsets, 2));
+            geo.setAttribute('aIdleSpeed', new THREE.InstancedBufferAttribute(idleSpeeds, 1));
+            geo.setAttribute('aIdlePhase', new THREE.InstancedBufferAttribute(idlePhases, 1));
+
+            shatterMesh.instanceMatrix.needsUpdate = true;
+            scene.add(shatterMesh);
+        }
+
+        /* ─── Render loop ─── */
+        function tick() {
+            requestAnimationFrame(tick);
+            if (uniforms) uniforms.uTime.value = performance.now() * 0.001;
+            renderer.render(scene, camera);
+        }
+
+        /* ─── Init ─── */
+        async function init() {
+            try {
+                const texture = await loadTexture();
+                buildShards(texture);
+
+                const loaderEl = document.getElementById('loader');
+                loaderEl.classList.add('hidden');
+                setTimeout(() => loaderEl.remove(), 800);
+
+                // Hero entrance
+                const heroTL = gsap.timeline({ delay: 0.2 });
+                heroTL
+                    .to('.hero h1', { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' })
+                    .to('.hero .subtitle', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6')
+                    .to('.hero .scroll-hint', { opacity: 1, duration: 1, ease: 'power2.out' }, '-=0.3');
+
+                // Scroll-driven shatter
+                ScrollTrigger.create({
+                    trigger: '#shatter',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: 1.5,
+                    onUpdate: (self) => {
+                        if (uniforms) uniforms.uProgress.value = self.progress;
+                    }
+                });
+
+                // Reveal text
+                const revealTL = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: '#shatter',
+                        start: 'top top',
+                        end: 'bottom top',
+                        scrub: 1.5,
+                    }
+                });
+                revealTL
+                    .to('.reveal-behind h2', { opacity: 1, scale: 1, duration: 0.3, ease: 'none' }, 0.35)
+                    .to('.reveal-behind p', { opacity: 1, y: 0, duration: 0.25, ease: 'none' }, 0.45)
+                    .to('.reveal-behind .accent-line', { opacity: 1, scaleX: 1, duration: 0.15, ease: 'none' }, 0.55);
+
+                // Footer
+                gsap.to('.footer-section h2', {
+                    scrollTrigger: { trigger: '.footer-section', start: 'top 80%', end: 'top 40%', scrub: 1 },
+                    opacity: 1, y: 0, duration: 1,
+                });
+                gsap.to('.footer-section p', {
+                    scrollTrigger: { trigger: '.footer-section', start: 'top 70%', end: 'top 35%', scrub: 1 },
+                    opacity: 1, y: 0, duration: 1,
+                });
+
+                // Resize handler
+                window.addEventListener('resize', () => {
+                    resize();
+                    if (uniforms) buildShards(uniforms.uTexture.value);
+                });
+
+                tick();
+            } catch (err) {
+                console.error('Init error:', err);
+                document.getElementById('loader').classList.add('hidden');
+            }
+        }
+
+        // Safety timeout — never load forever
+        setTimeout(() => {
+            const loaderEl = document.getElementById('loader');
+            if (loaderEl && !loaderEl.classList.contains('hidden')) {
+                console.warn('Loading timed out, removing loader');
+                loaderEl.classList.add('hidden');
+            }
+        }, 8000);
+
+        init();
+    </script>
+
+</body>
+
+</html>

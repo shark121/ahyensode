@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>monopo | Creative Studio — Saigon</title>
+    <meta name="description"
+        content="monopo is a creative studio crafting digital experiences with minimal design and maximum impact." />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --text: #f0ede8;
+            --dim: rgba(240, 237, 232, 0.35);
+            --accent: #e8d5b5;
+            --font: 'Inter', sans-serif;
+            --serif: 'Playfair Display', serif;
+            --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 28px 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            mix-blend-mode: difference;
+        }
+
+        .nav-logo {
+            font-size: 1.125rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .nav-logo span {
+            font-weight: 300;
+            color: var(--dim);
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-right a {
+            font-size: 0.8125rem;
+            color: var(--dim);
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-right a::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--text);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s var(--ease-out);
+        }
+
+        .nav-right a:hover {
+            color: var(--text);
+        }
+
+        .nav-right a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                padding: 20px 24px;
+            }
+
+            .nav-right {
+                gap: 20px;
+            }
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0 48px 100px;
+            position: relative;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .hero-title {
+            font-family: var(--serif);
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 400;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+        }
+
+        .hero-title .line {
+            display: block;
+            overflow: hidden;
+        }
+
+        .hero-title .line span {
+            display: inline-block;
+            transform: translateY(110%);
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero-scroll {
+            position: absolute;
+            right: 48px;
+            bottom: 100px;
+            writing-mode: vertical-rl;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 0 24px 60px;
+            }
+        }
+
+        /* PROJECTS */
+        .projects {
+            padding: 140px 48px;
+        }
+
+        @media (max-width: 768px) {
+            .projects {
+                padding: 80px 24px;
+            }
+        }
+
+        .projects-header {
+            margin-bottom: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .projects-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+        }
+
+        .projects-count {
+            font-size: 0.7rem;
+            color: rgba(240, 237, 232, 0.2);
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 60px 32px;
+        }
+
+        @media (max-width: 768px) {
+            .project-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        .project {
+            opacity: 0;
+            transform: translateY(50px);
+            cursor: pointer;
+        }
+
+        .project:nth-child(even) {
+            margin-top: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .project:nth-child(even) {
+                margin-top: 0;
+            }
+        }
+
+        .project-visual {
+            aspect-ratio: 4/5;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .project-visual-bg {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 1s var(--ease-out);
+        }
+
+        .project:hover .project-visual-bg {
+            transform: scale(1.04);
+        }
+
+        .project-info {
+            padding: 16px 0;
+        }
+
+        .project-name {
+            font-size: 1.125rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+
+        .project-meta {
+            display: flex;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .project-tag {
+            font-size: 0.7rem;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ABOUT */
+        .about {
+            padding: 120px 48px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 80px;
+            align-items: start;
+            border-top: 1px solid rgba(240, 237, 232, 0.06);
+        }
+
+        @media (max-width: 768px) {
+            .about {
+                grid-template-columns: 1fr;
+                padding: 80px 24px;
+                gap: 40px;
+            }
+        }
+
+        .about-title {
+            font-family: var(--serif);
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+        }
+
+        .about-title em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .about-body {
+            font-size: 1rem;
+            font-weight: 300;
+            color: var(--dim);
+            line-height: 1.8;
+            letter-spacing: -0.01em;
+        }
+
+        .about-body p+p {
+            margin-top: 20px;
+        }
+
+        /* MARQUEE */
+        .marquee-s {
+            padding: 48px 0;
+            border-top: 1px solid rgba(240, 237, 232, 0.06);
+            border-bottom: 1px solid rgba(240, 237, 232, 0.06);
+            overflow: hidden;
+        }
+
+        .marquee-track-s {
+            display: flex;
+            gap: 80px;
+            animation: marqueeS 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .marquee-word {
+            font-family: var(--serif);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 400;
+            color: rgba(240, 237, 232, 0.12);
+            flex-shrink: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .marquee-word em {
+            font-style: italic;
+            color: rgba(232, 213, 181, 0.2);
+        }
+
+        @keyframes marqueeS {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* TEAM */
+        .team {
+            padding: 120px 48px;
+        }
+
+        @media (max-width: 768px) {
+            .team {
+                padding: 60px 24px;
+            }
+        }
+
+        .team-header {
+            margin-bottom: 48px;
+        }
+
+        .team-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .team-member {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .team-photo {
+            aspect-ratio: 3/4;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .team-photo-bg {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .team-name {
+            margin-top: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .team-role {
+            font-size: 0.75rem;
+            color: var(--dim);
+        }
+
+        /* gradient fills */
+        .gm1 {
+            background: url('https://images.unsplash.com/photo-1549317661-bd32c8ce0afa?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .gm2 {
+            background: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .gm3 {
+            background: url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .gm4 {
+            background: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .gm5 {
+            background: url('https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .gm6 {
+            background: url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .gt1 {
+            background: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=530&fit=crop&q=80') center/cover;
+        }
+
+        .gt2 {
+            background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=530&fit=crop&q=80') center/cover;
+        }
+
+        .gt3 {
+            background: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=530&fit=crop&q=80') center/cover;
+        }
+
+        .gt4 {
+            background: url('https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=530&fit=crop&q=80') center/cover;
+        }
+
+        /* FOOTER */
+        .footer {
+            padding: 100px 48px 40px;
+            border-top: 1px solid rgba(240, 237, 232, 0.06);
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 60px 24px 32px;
+            }
+        }
+
+        .footer-cta {
+            font-family: var(--serif);
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 400;
+            letter-spacing: -0.03em;
+            margin-bottom: 80px;
+            line-height: 1.1;
+        }
+
+        .footer-cta em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .footer-bottom {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+        }
+
+        .footer-copy {
+            font-size: 0.7rem;
+            color: rgba(240, 237, 232, 0.15);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            font-size: 0.8125rem;
+            color: var(--dim);
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <a class="nav-logo" href="#">monopo <span>saigon</span></a>
+        <div class="nav-right">
+            <a href="#">Work</a>
+            <a href="#">About</a>
+            <a href="#">Team</a>
+            <a href="#">Contact</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-eyebrow">Creative Studio — Ho Chi Minh City</div>
+        <h1 class="hero-title">
+            <span class="line"><span>Crafting</span></span>
+            <span class="line"><span><em>digital</em></span></span>
+            <span class="line"><span>experiences</span></span>
+        </h1>
+        <div class="hero-scroll">Scroll ↓</div>
+    </section>
+
+    <section class="projects">
+        <div class="projects-header">
+            <span class="projects-label">Selected Work</span>
+            <span class="projects-count">01 — 06</span>
+        </div>
+        <div class="project-grid">
+            <div class="project">
+                <div class="project-visual">
+                    <div class="project-visual-bg gm1"></div>
+                </div>
+                <div class="project-info">
+                    <div class="project-name">Toyota Mobility</div>
+                    <div class="project-meta"><span class="project-tag">Web Design</span><span
+                            class="project-tag">2024</span></div>
+                </div>
+            </div>
+            <div class="project">
+                <div class="project-visual">
+                    <div class="project-visual-bg gm2"></div>
+                </div>
+                <div class="project-info">
+                    <div class="project-name">Uniqlo Global</div>
+                    <div class="project-meta"><span class="project-tag">E-Commerce</span><span
+                            class="project-tag">2024</span></div>
+                </div>
+            </div>
+            <div class="project">
+                <div class="project-visual">
+                    <div class="project-visual-bg gm3"></div>
+                </div>
+                <div class="project-info">
+                    <div class="project-name">Dentsu Inc.</div>
+                    <div class="project-meta"><span class="project-tag">Branding</span><span
+                            class="project-tag">2023</span></div>
+                </div>
+            </div>
+            <div class="project">
+                <div class="project-visual">
+                    <div class="project-visual-bg gm4"></div>
+                </div>
+                <div class="project-info">
+                    <div class="project-name">Sony Interactive</div>
+                    <div class="project-meta"><span class="project-tag">Interactive</span><span
+                            class="project-tag">2023</span></div>
+                </div>
+            </div>
+            <div class="project">
+                <div class="project-visual">
+                    <div class="project-visual-bg gm5"></div>
+                </div>
+                <div class="project-info">
+                    <div class="project-name">Shiseido</div>
+                    <div class="project-meta"><span class="project-tag">Campaign</span><span
+                            class="project-tag">2023</span></div>
+                </div>
+            </div>
+            <div class="project">
+                <div class="project-visual">
+                    <div class="project-visual-bg gm6"></div>
+                </div>
+                <div class="project-info">
+                    <div class="project-name">Muji Lab</div>
+                    <div class="project-meta"><span class="project-tag">Strategy</span><span
+                            class="project-tag">2022</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="marquee-s">
+        <div class="marquee-track-s">
+            <span class="marquee-word">Design · Development · <em>Strategy</em> · Branding · Motion ·
+                <em>Experience</em> · Innovation ·</span>
+            <span class="marquee-word">Design · Development · <em>Strategy</em> · Branding · Motion ·
+                <em>Experience</em> · Innovation ·</span>
+        </div>
+    </div>
+
+    <section class="about">
+        <div>
+            <h2 class="about-title reveal-up">A studio of <em>makers</em> & storytellers</h2>
+        </div>
+        <div>
+            <div class="about-body reveal-up">
+                <p>monopo Saigon is a creative studio that designs and builds digital experiences for forward-thinking
+                    brands. We combine Japanese craftsmanship with Vietnamese creativity to deliver work that resonates
+                    globally.</p>
+                <p>From brand strategy to immersive web experiences, we craft every detail with intention and care. Our
+                    multidisciplinary team brings together designers, developers, and strategists under one roof.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="team">
+        <div class="team-header"><span class="team-label">Our Team</span></div>
+        <div class="team-grid">
+            <div class="team-member">
+                <div class="team-photo">
+                    <div class="team-photo-bg gt1"></div>
+                </div>
+                <div class="team-name">Yuta Takahashi</div>
+                <div class="team-role">Creative Director</div>
+            </div>
+            <div class="team-member">
+                <div class="team-photo">
+                    <div class="team-photo-bg gt2"></div>
+                </div>
+                <div class="team-name">Linh Nguyen</div>
+                <div class="team-role">Design Lead</div>
+            </div>
+            <div class="team-member">
+                <div class="team-photo">
+                    <div class="team-photo-bg gt3"></div>
+                </div>
+                <div class="team-name">Kento Yamada</div>
+                <div class="team-role">Tech Lead</div>
+            </div>
+            <div class="team-member">
+                <div class="team-photo">
+                    <div class="team-photo-bg gt4"></div>
+                </div>
+                <div class="team-name">Mai Pham</div>
+                <div class="team-role">Project Manager</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <h2 class="footer-cta reveal-up">Let's create something <em>meaningful</em> together.</h2>
+        <div class="footer-bottom">
+            <span class="footer-copy">© 2024 monopo Saigon. Ho Chi Minh City, Vietnam</span>
+            <ul class="footer-links">
+                <li><a href="#">Instagram</a></li>
+                <li><a href="#">Behance</a></li>
+                <li><a href="#">LinkedIn</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        (function () {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Hero
+            gsap.to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2 });
+            gsap.to('.hero-title .line span', { y: 0, duration: 1.4, stagger: 0.12, ease: 'power4.out', delay: 0.4 });
+
+            // Projects stagger
+            gsap.utils.toArray('.project').forEach((p, i) => {
+                gsap.to(p, {
+                    scrollTrigger: { trigger: p, start: 'top 90%' },
+                    opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: (i % 2) * 0.12,
+                });
+            });
+
+            // Parallax on project images
+            gsap.utils.toArray('.project-visual-bg').forEach(bg => {
+                gsap.to(bg, {
+                    scrollTrigger: { trigger: bg.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1 },
+                    y: '-12%', ease: 'none',
+                });
+            });
+
+            // Reveals
+            gsap.utils.toArray('.reveal-up').forEach(el => {
+                gsap.from(el, {
+                    scrollTrigger: { trigger: el, start: 'top 88%' },
+                    opacity: 0, y: 40, duration: 1, ease: 'power3.out',
+                });
+            });
+
+            // Team stagger
+            gsap.utils.toArray('.team-member').forEach((m, i) => {
+                gsap.to(m, {
+                    scrollTrigger: { trigger: m, start: 'top 90%' },
+                    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: i * 0.08,
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>

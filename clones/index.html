@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A toy for creating and sharing 3D blobs" />
+    <title>Blobmixer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ease-circ-out: cubic-bezier(0.075, 0.82, 0.165, 1);
+            --ease-back-out: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --ease-expo-out: cubic-bezier(0.19, 1, 0.22, 1);
+            --color-bg: #141518;
+            --color-white: #fff;
+            --color-black: #000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            background: var(--color-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            color: var(--color-white);
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* ===== LOADER ===== */
+        @keyframes blobPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.9);
+                border-radius: 51% 49% 51% 49% / 45% 44% 56% 55%;
+            }
+
+            33% {
+                transform: translate(-50%, -50%) scale(1);
+                border-radius: 54% 46% 54% 46% / 45% 46% 54% 55%;
+            }
+
+            66% {
+                transform: translate(-50%, -50%) scale(0.9);
+                border-radius: 48% 52% 48% 52% / 49% 41% 59% 51%;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                border-radius: 51% 49% 51% 49% / 45% 44% 56% 55%;
+            }
+        }
+
+        @keyframes blobHide {
+            from {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+        }
+
+        .loader-blob {
+            width: 14vw;
+            height: 14vw;
+            min-width: 100px;
+            min-height: 100px;
+            position: fixed;
+            top: 46%;
+            left: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            background: #000;
+            border-radius: 50%;
+            animation: blobPulse 2s ease-in-out infinite alternate;
+            z-index: 9999;
+            transition: transform 0.5s ease-out;
+        }
+
+        .loader-blob.hide {
+            animation: blobHide 0.6s ease-in forwards;
+        }
+
+        @keyframes pulse {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loader-progress {
+            position: fixed;
+            top: 46%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            font-size: 0.875rem;
+            letter-spacing: -0.03em;
+            z-index: 10000;
+            opacity: 0;
+            animation: pulse 0.5s infinite alternate;
+            pointer-events: none;
+        }
+
+        .loader-progress.loaded {
+            animation: none;
+            opacity: 1;
+        }
+
+        .loader-progress.hide {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* ===== CANVAS ===== */
+        .canvas-wrapper {
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* ===== APP UI ===== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+        }
+
+        .app-ui {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+        }
+
+        .app-ui.visible {
+            animation: fadeIn 1.5s ease-out 0.5s 1 backwards;
+            opacity: 1;
+        }
+
+        /* ===== BACK LINK (top-left) ===== */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            position: absolute;
+            left: 4.5vh;
+            top: 4.5vh;
+            color: #fff;
+            pointer-events: auto;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .back-link svg {
+            width: 27px;
+            margin-right: 14px;
+            display: block;
+        }
+
+        .back-link h1 {
+            font-size: 1.125rem;
+            font-weight: 400;
+            margin: 0;
+            letter-spacing: -0.03em;
+            position: relative;
+        }
+
+        .back-link h1::after {
+            content: '';
+            width: 100%;
+            height: 1px;
+            background: #fff;
+            display: block;
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 0.3s var(--ease-circ-out);
+        }
+
+        .back-link:hover h1::after {
+            transform: scaleX(1);
+        }
+
+        /* ===== ABOUT LINK (top-right) ===== */
+        .about-link {
+            -webkit-appearance: none;
+            appearance: none;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem;
+            outline: none;
+            padding: 0;
+            pointer-events: auto;
+            position: absolute;
+            right: 4.5vh;
+            top: 4.5vh;
+            letter-spacing: -0.03em;
+        }
+
+        .about-link::after {
+            content: '';
+            display: block;
+            height: 1px;
+            background: #fff;
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 0.3s var(--ease-circ-out);
+            width: 100%;
+        }
+
+        .about-link:hover::after {
+            transform: scaleX(1);
+        }
+
+        /* ===== NEXT / PREV BUTTONS ===== */
+        .btn-nav {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            outline: none;
+            position: absolute;
+            top: 50%;
+            margin-top: -40vh;
+            height: 80vh;
+            width: 14vw;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .btn-prev {
+            left: 0;
+        }
+
+        .btn-next {
+            right: 0;
+        }
+
+        /* ===== TOOLBAR (bottom-center) ===== */
+        .toolbar {
+            animation: fadeIn 1s ease-out 0.5s 1 backwards;
+            bottom: 4.5vh;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 0.9375rem;
+            left: 50%;
+            pointer-events: auto;
+            position: absolute;
+            transform: translateX(-50%);
+        }
+
+        @media (orientation: portrait) {
+            .toolbar {
+                bottom: 10vh;
+            }
+        }
+
+        .toolbar-btn {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #fff;
+            border: none;
+            border-radius: 50px;
+            color: #000;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            height: 37px;
+            outline: none;
+            padding: 6px 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -0.03em;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+        }
+
+        .toolbar-btn:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .toolbar-btn:active {
+            transform: scale(0.95);
+        }
+
+        .toolbar-btn svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        /* ===== PAGINATION (bottom-right) ===== */
+        .pagination {
+            background: rgba(255, 255, 255, 0.2);
+            bottom: 4.5vh;
+            height: 1px;
+            overflow: hidden;
+            position: absolute;
+            right: 4.5vh;
+            width: 14vw;
+        }
+
+        .pagination-progress {
+            background: #fff;
+            height: 1px;
+            left: 0;
+            position: absolute;
+            top: 0;
+            transform: scaleX(0);
+            transform-origin: left center;
+            width: 100%;
+            transition: transform 0.6s var(--ease-circ-out);
+        }
+
+        /* ===== NFT-STYLE LINK (bottom-left) ===== */
+        .collection-link {
+            bottom: 4.5vh;
+            color: #fff;
+            font-size: 1.125rem;
+            font-weight: 300;
+            left: 4.5vh;
+            letter-spacing: 0;
+            line-height: 22px;
+            pointer-events: auto;
+            position: absolute;
+            text-decoration: none;
+            opacity: 0.75;
+            letter-spacing: -0.03em;
+        }
+
+        .collection-link:hover {
+            opacity: 1;
+        }
+
+        @media (orientation: portrait) {
+            .collection-link {
+                display: none;
+            }
+        }
+
+        /* ===== REMIX CTA (optional rotating ring) ===== */
+        @keyframes rotateRing {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== ABOUT OVERLAY ===== */
+        @keyframes overlayFadeIn {
+            from {
+                opacity: 0;
+            }
+        }
+
+        .overlay {
+            animation: overlayFadeIn 0.3s ease-out;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            color: #fff;
+            font-size: 1.125rem;
+            line-height: 1.5;
+            pointer-events: auto;
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 7vw;
+        }
+
+        .overlay.visible {
+            display: flex;
+        }
+
+        .overlay-content {
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .overlay-content h2 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .overlay-content p {
+            margin-bottom: 1.25rem;
+            opacity: 0.7;
+            font-size: 1rem;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+
+        .overlay-content a {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .overlay-close {
+            position: absolute;
+            top: 4.5vh;
+            right: 4.5vh;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0.8rem;
+            pointer-events: auto;
+            transition: transform 0.2s ease;
+        }
+
+        .overlay-close:hover {
+            transform: scale(1.1);
+        }
+
+        /* ===== NOTIFICATION ===== */
+        @keyframes notifBounce {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 7vh);
+            }
+
+            60% {
+                opacity: 1;
+                transform: translate(-50%, -10px);
+            }
+
+            80% {
+                transform: translate(-50%, 3px);
+            }
+
+            100% {
+                transform: translate(-50%, 0);
+            }
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 2.5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #000;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            z-index: 200;
+            animation: notifBounce 0.85s var(--ease-back-out);
+            display: none;
+            pointer-events: none;
+            letter-spacing: -0.02em;
+        }
+
+        .notification.visible {
+            display: inline-block;
+        }
+
+        /* ===== GUI PANEL (optional: dat.gui style) ===== */
+        .gui-toggle {
+            position: absolute;
+            bottom: calc(70px + 4.5vh);
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: auto;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .gui-toggle:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-blob" id="loaderBlob"></div>
+    <div class="loader-progress" id="loaderProgress">
+        <span id="loaderNumber">0</span> %
+    </div>
+
+    <!-- Canvas wrapper -->
+    <div class="canvas-wrapper" id="canvasWrapper"></div>
+
+    <!-- UI Overlay -->
+    <div class="app-ui" id="appUI">
+        <!-- Back Link -->
+        <a class="back-link" href="#" onclick="return false;">
+            <svg viewBox="0 0 27 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.5 1L1 11.5L11.5 22" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <line x1="1.75" y1="11.5" x2="26.25" y2="11.5" stroke="white" stroke-width="1.5"
+                    stroke-linecap="round" />
+            </svg>
+            <h1>Blobmixer</h1>
+        </a>
+
+        <!-- About Link -->
+        <button class="about-link" id="aboutBtn">About</button>
+
+        <!-- Nav buttons -->
+        <button class="btn-nav btn-prev" id="btnPrev" aria-label="Previous blob"></button>
+        <button class="btn-nav btn-next" id="btnNext" aria-label="Next blob"></button>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" id="btnRemix" title="Remix">
+                <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 10.5C1.5 10.5 3.5 8 5 8C6.5 8 7.5 11 9 11C10.5 11 12.5 8.5 12.5 8.5"
+                        stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M1.5 5.5C1.5 5.5 3.5 3 5 3C6.5 3 7.5 6 9 6C10.5 6 12.5 3.5 12.5 3.5" stroke="currentColor"
+                        stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M12.5 2V5H9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M12.5 12V9H9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Remix
+            </button>
+
+            <button class="toolbar-btn" id="btnShare" title="Share">
+                <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.5 1.5V9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    <path d="M4.5 4.5L7.5 1.5L10.5 4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path
+                        d="M12.5 8.5V12.5C12.5 13.0523 12.0523 13.5 11.5 13.5H3.5C2.94772 13.5 2.5 13.0523 2.5 12.5V8.5"
+                        stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                </svg>
+                Share
+            </button>
+
+            <button class="toolbar-btn" id="btnRandom" title="Random">
+                <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="1.5" y="1.5" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2" />
+                    <circle cx="5" cy="5" r="1" fill="currentColor" />
+                    <circle cx="10" cy="5" r="1" fill="currentColor" />
+                    <circle cx="5" cy="10" r="1" fill="currentColor" />
+                    <circle cx="10" cy="10" r="1" fill="currentColor" />
+                    <circle cx="7.5" cy="7.5" r="1" fill="currentColor" />
+                </svg>
+                Random
+            </button>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <div class="pagination-progress" id="paginationProgress"></div>
+        </div>
+
+        <!-- Collection link -->
+        <a class="collection-link" href="#" onclick="return false;">Gallery</a>
+    </div>
+
+    <!-- About Overlay -->
+    <div class="overlay" id="aboutOverlay">
+        <button class="overlay-close" id="aboutClose">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="4" y1="4" x2="20" y2="20" stroke="white" stroke-width="1.5" stroke-linecap="round" />
+                <line x1="20" y1="4" x2="4" y2="20" stroke="white" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+        </button>
+        <div class="overlay-content">
+            <h2>About Blobmixer</h2>
+            <p>
+                Blobmixer is a toy for creating and sharing 3D blobs.
+                Built with Three.js, custom GLSL shaders, and plenty of simplex noise.
+            </p>
+            <p>
+                Use the <strong>Remix</strong> button to randomize all blob parameters —
+                noise, colors, geometry, and distortion. Press <strong>Random</strong> for
+                a completely new blob, or navigate with the left/right sides of the screen.
+            </p>
+            <p>
+                Inspired by the original <a href="https://blobmixer.14islands.com/" target="_blank">Blobmixer</a>
+                by <a href="https://14islands.com/" target="_blank">14islands</a>.
+            </p>
+            <p style="opacity: 0.4; font-size: 0.8125rem; margin-top: 2rem;">
+                Clone crafted with Three.js &amp; GSAP.
+            </p>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">Link copied!</div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            // ============================================================
+            //  BLOB PRESETS — each is a unique blob configuration
+            // ============================================================
+            const presets = [
+                {
+                    name: 'Coral',
+                    c1: [1.0, 0.42, 0.35],
+                    c2: [0.18, 0.08, 0.12],
+                    c3: [1.0, 0.85, 0.78],
+                    bg: [0.10, 0.05, 0.06],
+                    noiseScale: 1.8, noiseSpeed: 0.3, noiseAmp: 0.35,
+                    detailScale: 4.0, detailAmp: 0.15,
+                    geo: 'sphere', segments: 200, size: 1.35,
+                },
+                {
+                    name: 'Cosmos',
+                    c1: [0.35, 0.15, 0.80],
+                    c2: [0.06, 0.02, 0.20],
+                    c3: [0.80, 0.65, 1.0],
+                    bg: [0.04, 0.02, 0.10],
+                    noiseScale: 2.5, noiseSpeed: 0.2, noiseAmp: 0.55,
+                    detailScale: 3.0, detailAmp: 0.25,
+                    geo: 'dodecahedron', segments: 60, size: 1.35,
+                },
+                {
+                    name: 'Mint',
+                    c1: [0.20, 0.90, 0.65],
+                    c2: [0.05, 0.25, 0.20],
+                    c3: [0.85, 1.0, 0.90],
+                    bg: [0.02, 0.09, 0.06],
+                    noiseScale: 2.2, noiseSpeed: 0.25, noiseAmp: 0.30,
+                    detailScale: 5.0, detailAmp: 0.12,
+                    geo: 'sphere', segments: 220, size: 1.3,
+                },
+                {
+                    name: 'Lava',
+                    c1: [0.95, 0.25, 0.05],
+                    c2: [0.20, 0.05, 0.02],
+                    c3: [1.0, 0.70, 0.25],
+                    bg: [0.08, 0.03, 0.01],
+                    noiseScale: 1.5, noiseSpeed: 0.5, noiseAmp: 0.45,
+                    detailScale: 3.5, detailAmp: 0.20,
+                    geo: 'sphere', segments: 200, size: 1.4,
+                },
+                {
+                    name: 'Ice',
+                    c1: [0.55, 0.78, 0.95],
+                    c2: [0.10, 0.15, 0.40],
+                    c3: [0.92, 0.96, 1.0],
+                    bg: [0.02, 0.04, 0.10],
+                    noiseScale: 3.2, noiseSpeed: 0.15, noiseAmp: 0.22,
+                    detailScale: 6.0, detailAmp: 0.10,
+                    geo: 'icosahedron', segments: 80, size: 1.3,
+                },
+                {
+                    name: 'Gold',
+                    c1: [0.95, 0.78, 0.20],
+                    c2: [0.40, 0.25, 0.05],
+                    c3: [1.0, 0.95, 0.70],
+                    bg: [0.08, 0.06, 0.02],
+                    noiseScale: 2.0, noiseSpeed: 0.35, noiseAmp: 0.40,
+                    detailScale: 4.0, detailAmp: 0.18,
+                    geo: 'sphere', segments: 200, size: 1.35,
+                },
+                {
+                    name: 'Neon',
+                    c1: [0.95, 0.10, 0.70],
+                    c2: [0.12, 0.02, 0.18],
+                    c3: [1.0, 0.60, 0.90],
+                    bg: [0.06, 0.01, 0.08],
+                    noiseScale: 2.8, noiseSpeed: 0.4, noiseAmp: 0.38,
+                    detailScale: 5.0, detailAmp: 0.16,
+                    geo: 'sphere', segments: 220, size: 1.35,
+                },
+                {
+                    name: 'Ocean',
+                    c1: [0.08, 0.55, 0.80],
+                    c2: [0.02, 0.15, 0.35],
+                    c3: [0.70, 0.92, 1.0],
+                    bg: [0.01, 0.06, 0.10],
+                    noiseScale: 1.6, noiseSpeed: 0.25, noiseAmp: 0.32,
+                    detailScale: 3.0, detailAmp: 0.14,
+                    geo: 'sphere', segments: 200, size: 1.4,
+                },
+            ];
+
+            // ============================================================
+            //  SHADERS
+            // ============================================================
+            const vertexShader = `
+            uniform float uTime;
+            uniform float uMx;
+            uniform float uMy;
+            uniform float uNoiseScale;
+            uniform float uNoiseSpeed;
+            uniform float uNoiseAmp;
+            uniform float uDetailScale;
+            uniform float uDetailAmp;
+            varying vec3 vNormal;
+            varying float vDisp;
+            varying vec3 vPosition;
+
+            vec3 mod289(vec3 x){ return x - floor(x * (1.0/289.0)) * 289.0; }
+            vec4 mod289(vec4 x){ return x - floor(x * (1.0/289.0)) * 289.0; }
+            vec4 permute(vec4 x){ return mod289(((x*34.0)+1.0)*x); }
+            vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314*r; }
+
+            float snoise(vec3 v){
+                const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+                const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+                vec3 i = floor(v + dot(v, C.yyy));
+                vec3 x0 = v - i + dot(i, C.xxx);
+                vec3 g = step(x0.yzx, x0.xyz);
+                vec3 l = 1.0 - g;
+                vec3 i1 = min(g.xyz, l.zxy);
+                vec3 i2 = max(g.xyz, l.zxy);
+                vec3 x1 = x0 - i1 + C.xxx;
+                vec3 x2 = x0 - i2 + C.yyy;
+                vec3 x3 = x0 - D.yyy;
+                i = mod289(i);
+                vec4 p = permute(permute(permute(
+                    i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                  + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                  + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+                float n_ = 0.142857142857;
+                vec3 ns = n_ * D.wyz - D.xzx;
+                vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                vec4 x_ = floor(j * ns.z);
+                vec4 y_ = floor(j - 7.0 * x_);
+                vec4 x = x_ * ns.x + ns.yyyy;
+                vec4 y = y_ * ns.x + ns.yyyy;
+                vec4 h = 1.0 - abs(x) - abs(y);
+                vec4 b0 = vec4(x.xy, y.xy);
+                vec4 b1 = vec4(x.zw, y.zw);
+                vec4 s0 = floor(b0)*2.0+1.0;
+                vec4 s1 = floor(b1)*2.0+1.0;
+                vec4 sh = -step(h, vec4(0.0));
+                vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+                vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+                vec3 p0 = vec3(a0.xy, h.x);
+                vec3 p1 = vec3(a0.zw, h.y);
+                vec3 p2 = vec3(a1.xy, h.z);
+                vec3 p3 = vec3(a1.zw, h.w);
+                vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+                p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+                vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                m = m * m;
+                return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+            }
+
+            void main(){
+                vNormal = normal;
+                vPosition = position;
+                float mouseInfluence = 1.0 + length(vec2(uMx, uMy)) * 0.5;
+                float n = snoise(position * uNoiseScale + uTime * uNoiseSpeed + vec3(uMx, uMy, 0.0) * 0.3) * uNoiseAmp * mouseInfluence;
+                n += snoise(position * uDetailScale + uTime * uNoiseSpeed * 1.5) * uDetailAmp;
+                vDisp = n;
+                vec3 pos = position + normal * n;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+        `;
+
+            const fragmentShader = `
+            uniform float uTime;
+            uniform vec3 uColor1;
+            uniform vec3 uColor2;
+            uniform vec3 uColor3;
+            varying vec3 vNormal;
+            varying float vDisp;
+            varying vec3 vPosition;
+
+            void main(){
+                float fresnel = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.5);
+                vec3 col = mix(uColor1, uColor2, fresnel);
+                col = mix(col, uColor3, smoothstep(-0.2, 0.4, vDisp));
+                col += 0.025 * sin(vPosition * 12.0 + uTime);
+
+                // Subtle rim glow
+                col += uColor3 * pow(fresnel, 3.0) * 0.3;
+
+                gl_FragColor = vec4(col, 1.0);
+            }
+        `;
+
+            // ============================================================
+            //  THREE.JS SETUP
+            // ============================================================
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+            camera.position.z = 4;
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(innerWidth, innerHeight);
+            renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+            renderer.setClearColor(new THREE.Color(...presets[0].bg));
+            document.getElementById('canvasWrapper').appendChild(renderer.domElement);
+
+            // Mouse tracking
+            const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+            document.addEventListener('mousemove', e => {
+                mouse.tx = (e.clientX / innerWidth) * 2 - 1;
+                mouse.ty = -(e.clientY / innerHeight) * 2 + 1;
+            });
+
+            // Geometry factory
+            function createGeo(preset) {
+                switch (preset.geo) {
+                    case 'icosahedron':
+                        return new THREE.IcosahedronGeometry(preset.size, preset.segments);
+                    case 'dodecahedron':
+                        return new THREE.DodecahedronGeometry(preset.size, preset.segments);
+                    default:
+                        return new THREE.SphereGeometry(preset.size, preset.segments, preset.segments);
+                }
+            }
+
+            // Uniforms
+            const uniforms = {
+                uTime: { value: 0 },
+                uMx: { value: 0 },
+                uMy: { value: 0 },
+                uNoiseScale: { value: presets[0].noiseScale },
+                uNoiseSpeed: { value: presets[0].noiseSpeed },
+                uNoiseAmp: { value: presets[0].noiseAmp },
+                uDetailScale: { value: presets[0].detailScale },
+                uDetailAmp: { value: presets[0].detailAmp },
+                uColor1: { value: new THREE.Vector3(...presets[0].c1) },
+                uColor2: { value: new THREE.Vector3(...presets[0].c2) },
+                uColor3: { value: new THREE.Vector3(...presets[0].c3) },
+            };
+
+            const material = new THREE.ShaderMaterial({ vertexShader, fragmentShader, uniforms });
+            let currentGeo = createGeo(presets[0]);
+            const blob = new THREE.Mesh(currentGeo, material);
+            scene.add(blob);
+
+            // Ambient particles
+            const particleCount = 250;
+            const pGeo = new THREE.BufferGeometry();
+            const pPos = new Float32Array(particleCount * 3);
+            const pCol = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount; i++) {
+                pPos[i * 3] = (Math.random() - 0.5) * 14;
+                pPos[i * 3 + 1] = (Math.random() - 0.5) * 14;
+                pPos[i * 3 + 2] = (Math.random() - 0.5) * 14;
+                pCol[i * 3] = presets[0].c1[0];
+                pCol[i * 3 + 1] = presets[0].c1[1];
+                pCol[i * 3 + 2] = presets[0].c1[2];
+            }
+            pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+            pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 3));
+            const particleMat = new THREE.PointsMaterial({
+                size: 0.012,
+                transparent: true,
+                opacity: 0.35,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+            });
+            const particles = new THREE.Points(pGeo, particleMat);
+            scene.add(particles);
+
+            // ============================================================
+            //  STATE
+            // ============================================================
+            let currentIndex = 0;
+            let transitioning = false;
+            const bgColor = new THREE.Color(...presets[0].bg);
+
+            // ============================================================
+            //  TRANSITION
+            // ============================================================
+            function transitionTo(index, duration = 1.6) {
+                if (transitioning) return;
+                if (index === currentIndex) return;
+                transitioning = true;
+
+                const direction = index > currentIndex ? 1 : -1;
+                currentIndex = index;
+                const preset = presets[index];
+                const slideDistance = 5;
+
+                // Slide blob off, swap geo, slide in
+                const tl = gsap.timeline({
+                    onComplete: () => { transitioning = false; }
+                });
+
+                tl.to(blob.position, {
+                    y: -slideDistance * direction,
+                    duration: 0.6,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        blob.geometry.dispose();
+                        blob.geometry = createGeo(preset);
+                        blob.position.y = slideDistance * direction;
+                    }
+                });
+                tl.to(blob.position, {
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power2.out',
+                });
+
+                // Animate shader uniforms
+                gsap.to(uniforms.uNoiseScale, { value: preset.noiseScale, duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uNoiseSpeed, { value: preset.noiseSpeed, duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uNoiseAmp, { value: preset.noiseAmp, duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uDetailScale, { value: preset.detailScale, duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uDetailAmp, { value: preset.detailAmp, duration, ease: 'sine.inOut' });
+
+                // Colors
+                gsap.to(uniforms.uColor1.value, { x: preset.c1[0], y: preset.c1[1], z: preset.c1[2], duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uColor2.value, { x: preset.c2[0], y: preset.c2[1], z: preset.c2[2], duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uColor3.value, { x: preset.c3[0], y: preset.c3[1], z: preset.c3[2], duration, ease: 'sine.inOut' });
+
+                // Background
+                gsap.to(bgColor, { r: preset.bg[0], g: preset.bg[1], b: preset.bg[2], duration, ease: 'sine.inOut' });
+
+                // Particles
+                const targetColor = new THREE.Color(...preset.c1);
+                gsap.to({}, {
+                    duration,
+                    onUpdate: function () {
+                        for (let i = 0; i < particleCount; i++) {
+                            pCol[i * 3] += (targetColor.r - pCol[i * 3]) * 0.04;
+                            pCol[i * 3 + 1] += (targetColor.g - pCol[i * 3 + 1]) * 0.04;
+                            pCol[i * 3 + 2] += (targetColor.b - pCol[i * 3 + 2]) * 0.04;
+                        }
+                        pGeo.attributes.color.needsUpdate = true;
+                    }
+                });
+
+                // Update pagination
+                updatePagination();
+            }
+
+            // ============================================================
+            //  REMIX (randomize current blob's parameters in-place)
+            // ============================================================
+            function remixBlob() {
+                const preset = presets[currentIndex];
+                const duration = 1.4;
+
+                // New random noise params
+                const newNoiseScale = 1.0 + Math.random() * 3.5;
+                const newNoiseSpeed = 0.1 + Math.random() * 0.6;
+                const newNoiseAmp = 0.15 + Math.random() * 0.55;
+                const newDetailScale = 2.0 + Math.random() * 6.0;
+                const newDetailAmp = 0.05 + Math.random() * 0.30;
+
+                gsap.to(uniforms.uNoiseScale, { value: newNoiseScale, duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uNoiseSpeed, { value: newNoiseSpeed, duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uNoiseAmp, { value: newNoiseAmp, duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uDetailScale, { value: newDetailScale, duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uDetailAmp, { value: newDetailAmp, duration, ease: 'sine.inOut' });
+
+                // Random colors
+                const hue = Math.random();
+                const c1 = hslToRgb(hue, 0.7 + Math.random() * 0.3, 0.5 + Math.random() * 0.2);
+                const c2 = hslToRgb(hue + 0.5, 0.3, 0.1 + Math.random() * 0.15);
+                const c3 = hslToRgb(hue + 0.1, 0.3 + Math.random() * 0.3, 0.8 + Math.random() * 0.15);
+                const bg = hslToRgb(hue, 0.5, 0.03 + Math.random() * 0.05);
+
+                gsap.to(uniforms.uColor1.value, { x: c1[0], y: c1[1], z: c1[2], duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uColor2.value, { x: c2[0], y: c2[1], z: c2[2], duration, ease: 'sine.inOut' });
+                gsap.to(uniforms.uColor3.value, { x: c3[0], y: c3[1], z: c3[2], duration, ease: 'sine.inOut' });
+                gsap.to(bgColor, { r: bg[0], g: bg[1], b: bg[2], duration, ease: 'sine.inOut' });
+
+                // Particles
+                const targetColor = new THREE.Color(...c1);
+                gsap.to({}, {
+                    duration,
+                    onUpdate: function () {
+                        for (let i = 0; i < particleCount; i++) {
+                            pCol[i * 3] += (targetColor.r - pCol[i * 3]) * 0.04;
+                            pCol[i * 3 + 1] += (targetColor.g - pCol[i * 3 + 1]) * 0.04;
+                            pCol[i * 3 + 2] += (targetColor.b - pCol[i * 3 + 2]) * 0.04;
+                        }
+                        pGeo.attributes.color.needsUpdate = true;
+                    }
+                });
+            }
+
+            // ============================================================
+            //  RANDOM (jump to a random preset)
+            // ============================================================
+            function randomBlob() {
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * presets.length);
+                } while (newIndex === currentIndex && presets.length > 1);
+                transitionTo(newIndex);
+            }
+
+            // ============================================================
+            //  HELPERS
+            // ============================================================
+            function hslToRgb(h, s, l) {
+                let r, g, b;
+                if (s === 0) {
+                    r = g = b = l;
+                } else {
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1 / 6) return p + (q - p) * 6 * t;
+                        if (t < 1 / 2) return q;
+                        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                        return p;
+                    };
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    const p = 2 * l - q;
+                    r = hue2rgb(p, q, h + 1 / 3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1 / 3);
+                }
+                return [r, g, b];
+            }
+
+            // ============================================================
+            //  UI
+            // ============================================================
+            const paginationEl = document.getElementById('paginationProgress');
+
+            function updatePagination() {
+                const progress = (currentIndex + 1) / presets.length;
+                paginationEl.style.transform = `scaleX(${progress})`;
+            }
+
+            // Nav buttons
+            document.getElementById('btnPrev').addEventListener('click', () => {
+                const newIndex = (currentIndex - 1 + presets.length) % presets.length;
+                transitionTo(newIndex);
+            });
+
+            document.getElementById('btnNext').addEventListener('click', () => {
+                const newIndex = (currentIndex + 1) % presets.length;
+                transitionTo(newIndex);
+            });
+
+            // Toolbar
+            document.getElementById('btnRemix').addEventListener('click', remixBlob);
+            document.getElementById('btnRandom').addEventListener('click', randomBlob);
+
+            document.getElementById('btnShare').addEventListener('click', () => {
+                const url = window.location.href;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url);
+                }
+                const notif = document.getElementById('notification');
+                notif.classList.add('visible');
+                setTimeout(() => notif.classList.remove('visible'), 2500);
+            });
+
+            // About overlay
+            document.getElementById('aboutBtn').addEventListener('click', () => {
+                document.getElementById('aboutOverlay').classList.add('visible');
+            });
+
+            document.getElementById('aboutClose').addEventListener('click', () => {
+                document.getElementById('aboutOverlay').classList.remove('visible');
+            });
+
+            // Keyboard nav
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    const newIndex = (currentIndex + 1) % presets.length;
+                    transitionTo(newIndex);
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    const newIndex = (currentIndex - 1 + presets.length) % presets.length;
+                    transitionTo(newIndex);
+                } else if (e.key === 'Escape') {
+                    document.getElementById('aboutOverlay').classList.remove('visible');
+                }
+            });
+
+            // ============================================================
+            //  LOADER
+            // ============================================================
+            const loaderBlob = document.getElementById('loaderBlob');
+            const loaderProgress = document.getElementById('loaderProgress');
+            const loaderNumber = document.getElementById('loaderNumber');
+            const appUI = document.getElementById('appUI');
+
+            let loadProgress = 0;
+            const loadInterval = setInterval(() => {
+                loadProgress += Math.floor(Math.random() * 15) + 5;
+                if (loadProgress > 100) loadProgress = 100;
+                loaderNumber.textContent = loadProgress;
+                loaderProgress.classList.add('loaded');
+
+                if (loadProgress >= 100) {
+                    clearInterval(loadInterval);
+                    setTimeout(() => {
+                        loaderBlob.classList.add('hide');
+                        loaderProgress.classList.add('hide');
+                        setTimeout(() => {
+                            loaderBlob.style.display = 'none';
+                            loaderProgress.style.display = 'none';
+                            appUI.classList.add('visible');
+                            updatePagination();
+                        }, 600);
+                    }, 400);
+                }
+            }, 200);
+
+            // ============================================================
+            //  RENDER LOOP
+            // ============================================================
+            const clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const t = clock.getElapsedTime();
+
+                // Smooth mouse lerp
+                mouse.x += (mouse.tx - mouse.x) * 0.04;
+                mouse.y += (mouse.ty - mouse.y) * 0.04;
+
+                // Update uniforms
+                uniforms.uTime.value = t;
+                uniforms.uMx.value = mouse.x;
+                uniforms.uMy.value = mouse.y;
+
+                // Slow rotation
+                blob.rotation.y = t * 0.08;
+                blob.rotation.x = t * 0.04;
+
+                // Particles rotation
+                particles.rotation.y = t * 0.015;
+                particles.rotation.x = t * 0.008;
+
+                // Mouse parallax camera
+                camera.position.x = mouse.x * 1.0;
+                camera.position.y = mouse.y * 0.6;
+                camera.lookAt(0, 0, 0);
+
+                // Background
+                renderer.setClearColor(bgColor);
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = innerWidth / innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(innerWidth, innerHeight);
+            });
+
+            // Touch/swipe support
+            let touchStartY = 0;
+            document.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            document.addEventListener('touchend', (e) => {
+                const delta = touchStartY - e.changedTouches[0].clientY;
+                if (Math.abs(delta) > 40) {
+                    if (delta > 0) {
+                        transitionTo((currentIndex + 1) % presets.length);
+                    } else {
+                        transitionTo((currentIndex - 1 + presets.length) % presets.length);
+                    }
+                }
+            }, { passive: true });
+
+            // Wheel nav
+            let wheelTimeout = null;
+            document.addEventListener('wheel', (e) => {
+                if (wheelTimeout) return;
+                wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 800);
+
+                if (e.deltaY > 20) {
+                    transitionTo((currentIndex + 1) % presets.length);
+                } else if (e.deltaY < -20) {
+                    transitionTo((currentIndex - 1 + presets.length) % presets.length);
+                }
+            }, { passive: true });
+
+        })();
+    </script>
+</body>
+
+</html>

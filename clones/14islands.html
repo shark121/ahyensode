@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>14islands | Creative Design & Technology Agency</title>
+    <meta name="description"
+        content="We're a nimble team of designers and developers crafting lovable products, brands, and experiences." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0e0e0e;
+            --text: #fff;
+            --dim: rgba(255, 255, 255, 0.45);
+            --accent: #c8ff00;
+            --font: 'Inter', sans-serif;
+            --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* === NAV === */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 28px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            mix-blend-mode: difference;
+        }
+
+        .nav-logo {
+            font-size: 1.125rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-right a {
+            font-size: 0.875rem;
+            color: var(--dim);
+            transition: color 0.3s;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-right a:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                padding: 20px 24px;
+            }
+
+            .nav-right {
+                gap: 20px;
+            }
+        }
+
+        /* === HERO === */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 40px 80px;
+            position: relative;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+            margin-bottom: 24px;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 7vw, 6rem);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            max-width: 900px;
+        }
+
+        .hero-title .line {
+            display: block;
+            overflow: hidden;
+        }
+
+        .hero-title .line span {
+            display: inline-block;
+            transform: translateY(110%);
+        }
+
+        .hero-title em {
+            font-style: normal;
+            color: var(--accent);
+        }
+
+        .hero-desc {
+            margin-top: 32px;
+            font-size: 1.125rem;
+            font-weight: 300;
+            color: var(--dim);
+            max-width: 500px;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        /* === PROJECT GRID === */
+        .projects {
+            padding: 100px 40px 140px;
+        }
+
+        .projects-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 64px;
+        }
+
+        .projects-heading {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+        }
+
+        .projects-link {
+            font-size: 0.8125rem;
+            color: var(--dim);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 2px;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .projects-link:hover {
+            color: #fff;
+            border-color: #fff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .projects {
+                padding: 60px 24px 100px;
+            }
+        }
+
+        .grid-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .grid-item:nth-child(3n+2) {
+            margin-top: 60px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-item:nth-child(3n+2) {
+                margin-top: 0;
+            }
+        }
+
+        .grid-visual {
+            aspect-ratio: 4/5;
+            overflow: hidden;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .grid-visual-bg {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.8s var(--ease-out);
+        }
+
+        .grid-item:hover .grid-visual-bg {
+            transform: scale(1.05);
+        }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 50%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .grid-item:hover .grid-overlay {
+            opacity: 1;
+        }
+
+        .grid-project-name {
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .grid-project-tag {
+            font-size: 0.75rem;
+            color: var(--dim);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* === ABOUT === */
+        .about {
+            padding: 140px 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        @media (max-width: 768px) {
+            .about {
+                grid-template-columns: 1fr;
+                padding: 80px 24px;
+                gap: 40px;
+            }
+        }
+
+        .about-title {
+            font-size: clamp(2rem, 4.5vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 1.05;
+        }
+
+        .about-title em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .about-body {
+            font-size: 1.0625rem;
+            font-weight: 300;
+            color: var(--dim);
+            line-height: 1.7;
+            letter-spacing: -0.01em;
+        }
+
+        .about-body p+p {
+            margin-top: 20px;
+        }
+
+        /* === SERVICES STRIP === */
+        .services {
+            padding: 80px 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .services {
+                padding: 60px 24px;
+            }
+
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
+        }
+
+        .service-item {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .service-icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            opacity: 0.7;
+        }
+
+        .service-name {
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .service-desc {
+            font-size: 0.8125rem;
+            color: var(--dim);
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        /* === CLIENTS === */
+        .clients {
+            padding: 100px 40px;
+            text-align: center;
+        }
+
+        .clients-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+            margin-bottom: 48px;
+        }
+
+        .clients-logos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 48px 64px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .client-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: rgba(255, 255, 255, 0.2);
+            transition: color 0.4s;
+            cursor: default;
+        }
+
+        .client-name:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* === FOOTER === */
+        .footer {
+            padding: 100px 40px 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .footer-cta {
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            margin-bottom: 60px;
+        }
+
+        .footer-cta em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 60px 24px 32px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+        }
+
+        .footer-copy {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            font-size: 0.8125rem;
+            color: var(--dim);
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+        }
+
+        /* Gradient fills for project cards */
+        .g1 {
+            background: url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .g2 {
+            background: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .g3 {
+            background: url('https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .g4 {
+            background: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .g5 {
+            background: url('https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .g6 {
+            background: url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .g7 {
+            background: url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .g8 {
+            background: url('https://images.unsplash.com/photo-1617802690992-15d93263d3a9?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+
+        .g9 {
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=750&fit=crop&q=80') center/cover;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <a class="nav-logo" href="#">14islands</a>
+        <div class="nav-right">
+            <a href="#">Work</a>
+            <a href="#">About</a>
+            <a href="#">Careers</a>
+            <a href="#">Contact</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-eyebrow">Creative agency</div>
+        <h1 class="hero-title">
+            <span class="line"><span>Design<em>&</em></span></span>
+            <span class="line"><span>Technology</span></span>
+        </h1>
+        <p class="hero-desc">We design and build lovable digital products, brands, and experiences — with studios in
+            Stockholm and Reykjavík.</p>
+    </section>
+
+    <section class="projects">
+        <div class="projects-header">
+            <h2 class="projects-heading">Selected work</h2>
+            <a class="projects-link" href="#">View all →</a>
+        </div>
+        <div class="grid">
+            <div class="grid-item">
+                <div class="grid-visual">
+                    <div class="grid-visual-bg g1"></div>
+                    <div class="grid-overlay">
+                        <div class="grid-project-name">Cartier</div>
+                        <div class="grid-project-tag">Luxury</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="grid-visual">
+                    <div class="grid-visual-bg g2"></div>
+                    <div class="grid-overlay">
+                        <div class="grid-project-name">Poly AI</div>
+                        <div class="grid-project-tag">AI Technologies</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="grid-visual">
+                    <div class="grid-visual-bg g3"></div>
+                    <div class="grid-overlay">
+                        <div class="grid-project-name">Lynxeye</div>
+                        <div class="grid-project-tag">Consulting</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="grid-visual">
+                    <div class="grid-visual-bg g4"></div>
+                    <div class="grid-overlay">
+                        <div class="grid-project-name">Neko Health</div>
+                        <div class="grid-project-tag">Healthtech</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="grid-visual">
+                    <div class="grid-visual-bg g5"></div>
+                    <div class="grid-overlay">
+                        <div class="grid-project-name">Breakthrough Energy</div>
+                        <div class="grid-project-tag">Sustainability</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="grid-visual">
+                    <div class="grid-visual-bg g6"></div>
+                    <div class="grid-overlay">
+                        <div class="grid-project-name">GOALS</div>
+                        <div class="grid-project-tag">Gaming</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="grid-visual">
+                    <div class="grid-visual-bg g7"></div>
+                    <div class="grid-overlay">
+                        <div class="grid-project-name">Galxe</div>
+                        <div class="grid-project-tag">Web3</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="grid-visual">
+                    <div class="grid-visual-bg g8"></div>
+                    <div class="grid-overlay">
+                        <div class="grid-project-name">Pluto</div>
+                        <div class="grid-project-tag">AR, VR, XR</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="grid-visual">
+                    <div class="grid-visual-bg g9"></div>
+                    <div class="grid-overlay">
+                        <div class="grid-project-name">Blobmixer</div>
+                        <div class="grid-project-tag">Web3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about">
+        <div>
+            <h2 class="about-title reveal-up">A nimble team of <em>makers</em></h2>
+        </div>
+        <div>
+            <div class="about-body reveal-up">
+                <p>We're a nimble team of designers and developers crafting lovable products, brands, and experiences.
+                    From concept to launch, we partner with ambitious companies to build digital products that people
+                    love.</p>
+                <p>Our work spans across UI/UX design, creative development, branding, and emerging technologies
+                    including Web3, AR, and AI-powered experiences.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="services-grid">
+            <div class="service-item">
+                <div class="service-icon">◈</div>
+                <div class="service-name">Design</div>
+                <div class="service-desc">UI/UX, brand identity, design systems, art direction</div>
+            </div>
+            <div class="service-item">
+                <div class="service-icon">⚡</div>
+                <div class="service-name">Technology</div>
+                <div class="service-desc">Creative development, WebGL, React, mobile apps</div>
+            </div>
+            <div class="service-item">
+                <div class="service-icon">✦</div>
+                <div class="service-name">Strategy</div>
+                <div class="service-desc">Product strategy, user research, concept development</div>
+            </div>
+            <div class="service-item">
+                <div class="service-icon">◉</div>
+                <div class="service-name">Emerging</div>
+                <div class="service-desc">Web3, AI, AR/VR, voice interfaces</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="clients">
+        <div class="clients-title">Trusted by</div>
+        <div class="clients-logos">
+            <span class="client-name">Google</span>
+            <span class="client-name">Cartier</span>
+            <span class="client-name">Spotify</span>
+            <span class="client-name">United Nations</span>
+            <span class="client-name">Cisco</span>
+            <span class="client-name">IKEA</span>
+            <span class="client-name">H&M</span>
+            <span class="client-name">King</span>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <h2 class="footer-cta reveal-up">Let's build something <em>lovable.</em></h2>
+        <div class="footer-bottom">
+            <span class="footer-copy">© 2024 14islands. Stockholm · Reykjavík</span>
+            <ul class="footer-links">
+                <li><a href="#">Instagram</a></li>
+                <li><a href="#">Twitter</a></li>
+                <li><a href="#">GitHub</a></li>
+                <li><a href="#">LinkedIn</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        (function () {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Hero animation
+            const lines = document.querySelectorAll('.hero-title .line span');
+            gsap.to(lines, { y: 0, duration: 1.2, stagger: 0.12, ease: 'power4.out', delay: 0.3 });
+            gsap.to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.1 });
+            gsap.to('.hero-desc', { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.6 });
+
+            // Grid items stagger
+            gsap.utils.toArray('.grid-item').forEach((item, i) => {
+                gsap.to(item, {
+                    scrollTrigger: { trigger: item, start: 'top 90%' },
+                    opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
+                    delay: (i % 3) * 0.1,
+                });
+            });
+
+            // Parallax on grid images
+            gsap.utils.toArray('.grid-visual-bg').forEach(bg => {
+                gsap.to(bg, {
+                    scrollTrigger: { trigger: bg.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1 },
+                    y: '-12%', ease: 'none',
+                });
+            });
+
+            // Reveal-up elements
+            gsap.utils.toArray('.reveal-up').forEach(el => {
+                gsap.from(el, {
+                    scrollTrigger: { trigger: el, start: 'top 88%' },
+                    opacity: 0, y: 40, duration: 1, ease: 'power3.out',
+                });
+            });
+
+            // Service items stagger
+            gsap.utils.toArray('.service-item').forEach((item, i) => {
+                gsap.to(item, {
+                    scrollTrigger: { trigger: item, start: 'top 90%' },
+                    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: i * 0.08,
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>

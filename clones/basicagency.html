@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BASIC/DEPT® | Digital Branding & Product Design Agency</title>
+    <meta name="description"
+        content="We design digital products, services, and eCommerce experiences for brands like Google, Airbnb, Patagonia, Apple, and other category leaders." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0c0c0c;
+            --bg-light: #f4f2ee;
+            --text-light: #fff;
+            --text-dark: #1a1a1a;
+            --dim-light: rgba(255, 255, 255, 0.4);
+            --dim-dark: rgba(0, 0, 0, 0.4);
+            --font: 'Inter', sans-serif;
+            --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--bg-dark);
+            font-family: var(--font);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 28px 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            mix-blend-mode: difference;
+            color: #fff;
+        }
+
+        .nav-logo {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 28px;
+        }
+
+        .nav-right a {
+            font-size: 0.8125rem;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.3s;
+        }
+
+        .nav-right a:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                padding: 20px 24px;
+            }
+
+            .nav-right {
+                gap: 16px;
+            }
+        }
+
+        /* === DARK SECTIONS === */
+        .section-dark {
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .section-light {
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        /* HERO — dark */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 160px 48px 100px;
+        }
+
+        .hero-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim-light);
+            margin-bottom: 32px;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 300;
+            letter-spacing: -0.03em;
+            line-height: 1.25;
+            max-width: 900px;
+        }
+
+        .hero-title strong {
+            font-weight: 700;
+        }
+
+        .hero-title .line {
+            display: block;
+            overflow: hidden;
+        }
+
+        .hero-title .line span {
+            display: inline-block;
+            transform: translateY(110%);
+        }
+
+        .hero-cta {
+            margin-top: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            opacity: 0;
+            transform: translateY(15px);
+            transition: color 0.3s;
+        }
+
+        .hero-cta:hover {
+            color: #fff;
+        }
+
+        .hero-cta svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s var(--ease-out);
+        }
+
+        .hero-cta:hover svg {
+            transform: translateX(4px);
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 120px 24px 60px;
+            }
+        }
+
+        /* FEATURED — light section */
+        .featured {
+            padding: 120px 48px;
+        }
+
+        @media (max-width: 768px) {
+            .featured {
+                padding: 60px 24px;
+            }
+        }
+
+        .featured-header {
+            margin-bottom: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .featured-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim-dark);
+        }
+
+        .featured-link {
+            font-size: 0.8125rem;
+            color: var(--dim-dark);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+            padding-bottom: 2px;
+            transition: color 0.3s;
+        }
+
+        .featured-link:hover {
+            color: var(--text-dark);
+        }
+
+        .case-carousel {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            padding-bottom: 8px;
+        }
+
+        .case-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .case-card {
+            min-width: 400px;
+            flex-shrink: 0;
+            scroll-snap-align: start;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        @media (max-width: 768px) {
+            .case-card {
+                min-width: 300px;
+            }
+        }
+
+        .case-visual {
+            aspect-ratio: 16/10;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .case-visual-bg {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.8s var(--ease-out);
+        }
+
+        .case-card:hover .case-visual-bg {
+            transform: scale(1.05);
+        }
+
+        .case-info {
+            margin-top: 16px;
+        }
+
+        .case-client {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--dim-dark);
+            margin-bottom: 4px;
+        }
+
+        .case-name {
+            font-size: 1.125rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+
+        /* SERVICES — dark */
+        .services {
+            padding: 120px 48px;
+        }
+
+        @media (max-width: 768px) {
+            .services {
+                padding: 60px 24px;
+            }
+        }
+
+        .services-header {
+            margin-bottom: 60px;
+        }
+
+        .services-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim-light);
+        }
+
+        .services-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 28px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+        }
+
+        .service-row:last-child {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .service-row-name {
+            font-size: clamp(1.25rem, 2.5vw, 2rem);
+            font-weight: 500;
+            letter-spacing: -0.03em;
+            transition: transform 0.4s var(--ease-out);
+        }
+
+        .service-row:hover .service-row-name {
+            transform: translateX(12px);
+        }
+
+        .service-row-desc {
+            font-size: 0.8125rem;
+            color: var(--dim-light);
+            max-width: 300px;
+            text-align: right;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .service-row-desc {
+                display: none;
+            }
+        }
+
+        /* NEWS — light */
+        .news {
+            padding: 100px 48px;
+        }
+
+        @media (max-width: 768px) {
+            .news {
+                padding: 60px 24px;
+            }
+        }
+
+        .news-header {
+            margin-bottom: 48px;
+        }
+
+        .news-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim-dark);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .news-item {
+            opacity: 0;
+            transform: translateY(30px);
+            cursor: pointer;
+        }
+
+        .news-thumb {
+            aspect-ratio: 16/10;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .news-thumb-bg {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.8s var(--ease-out);
+        }
+
+        .news-item:hover .news-thumb-bg {
+            transform: scale(1.04);
+        }
+
+        .news-item-date {
+            font-size: 0.7rem;
+            color: var(--dim-dark);
+            margin-top: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .news-item-title {
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        /* AWARDS BAR — dark */
+        .awards {
+            padding: 80px 48px;
+        }
+
+        @media (max-width: 768px) {
+            .awards {
+                padding: 40px 24px;
+            }
+        }
+
+        .awards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .awards-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
+        }
+
+        .award {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .award-number {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .award-label {
+            font-size: 0.75rem;
+            color: var(--dim-light);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* CTA + FOOTER — dark */
+        .cta-s {
+            padding: 120px 48px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .cta-s {
+                padding: 80px 24px;
+            }
+        }
+
+        .cta-title {
+            font-size: clamp(2rem, 6vw, 5rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+            padding: 16px 36px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #fff;
+            transition: all 0.4s var(--ease-out);
+        }
+
+        .cta-btn:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .cta-btn svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s;
+        }
+
+        .cta-btn:hover svg {
+            transform: translateX(4px);
+        }
+
+        .foot {
+            padding: 32px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        @media (max-width: 768px) {
+            .foot {
+                padding: 24px;
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+
+        .foot-copy {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        .foot-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .foot-links a {
+            font-size: 0.8125rem;
+            color: var(--dim-light);
+            transition: color 0.3s;
+        }
+
+        .foot-links a:hover {
+            color: #fff;
+        }
+
+        /* fills */
+        .bl1 {
+            background: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=500&fit=crop&q=80') center/cover;
+        }
+
+        .bl2 {
+            background: url('https://images.unsplash.com/photo-1461896836934-bd45ba8fcf9b?w=800&h=500&fit=crop&q=80') center/cover;
+        }
+
+        .bl3 {
+            background: url('https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=500&fit=crop&q=80') center/cover;
+        }
+
+        .bd1 {
+            background: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=375&fit=crop&q=80') center/cover;
+        }
+
+        .bd2 {
+            background: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=375&fit=crop&q=80') center/cover;
+        }
+
+        .bd3 {
+            background: url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=600&h=375&fit=crop&q=80') center/cover;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <a class="nav-logo" href="#">BASIC/DEPT®</a>
+        <div class="nav-right">
+            <a href="#">Work</a>
+            <a href="#">Services</a>
+            <a href="#">About</a>
+            <a href="#">Careers</a>
+            <a href="#">Contact</a>
+        </div>
+    </nav>
+
+    <!-- HERO — dark -->
+    <section class="hero section-dark">
+        <div class="hero-label">Digital Branding & Product Design</div>
+        <h1 class="hero-title">
+            <span class="line"><span><strong>BASIC/DEPT®</strong> is a global</span></span>
+            <span class="line"><span>branding and digital design</span></span>
+            <span class="line"><span>agency building <strong>products</strong>,</span></span>
+            <span class="line"><span><strong>services</strong>, and eCommerce</span></span>
+            <span class="line"><span>experiences.</span></span>
+        </h1>
+        <a class="hero-cta" href="#">
+            See The Work
+            <svg viewBox="0 0 14 14" fill="none">
+                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </a>
+    </section>
+
+    <!-- FEATURED — light -->
+    <section class="featured section-light">
+        <div class="featured-header">
+            <span class="featured-title">Featured Engagements</span>
+            <a class="featured-link" href="#">View all work →</a>
+        </div>
+        <div class="case-carousel">
+            <div class="case-card">
+                <div class="case-visual">
+                    <div class="case-visual-bg bl1"></div>
+                </div>
+                <div class="case-info">
+                    <div class="case-client">Patagonia</div>
+                    <div class="case-name">An eCommerce experience driven by Patagonia's brand mission</div>
+                </div>
+            </div>
+            <div class="case-card">
+                <div class="case-visual">
+                    <div class="case-visual-bg bl2"></div>
+                </div>
+                <div class="case-info">
+                    <div class="case-client">Wilson</div>
+                    <div class="case-name">A century-old sports brand finding its place in culture</div>
+                </div>
+            </div>
+            <div class="case-card">
+                <div class="case-visual">
+                    <div class="case-visual-bg bl3"></div>
+                </div>
+                <div class="case-info">
+                    <div class="case-client">Google Store</div>
+                    <div class="case-name">Helping Google bring its hardware to people across the globe</div>
+                </div>
+            </div>
+            <div class="case-card">
+                <div class="case-visual">
+                    <div class="case-visual-bg bl1"></div>
+                </div>
+                <div class="case-info">
+                    <div class="case-client">Apple</div>
+                    <div class="case-name">eCommerce experiences for Apple's global retail presence</div>
+                </div>
+            </div>
+            <div class="case-card">
+                <div class="case-visual">
+                    <div class="case-visual-bg bl2"></div>
+                </div>
+                <div class="case-info">
+                    <div class="case-client">KFC</div>
+                    <div class="case-name">A digital transformation for one of the world's most iconic brands</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES — dark -->
+    <section class="services section-dark">
+        <div class="services-header">
+            <span class="services-label">What We Do</span>
+        </div>
+        <div class="services-list">
+            <div class="service-row"><span class="service-row-name">Branding & Strategy</span><span
+                    class="service-row-desc">Brand identity, positioning, and go-to-market strategy</span></div>
+            <div class="service-row"><span class="service-row-name">Product Design</span><span
+                    class="service-row-desc">UI/UX design for web and mobile products</span></div>
+            <div class="service-row"><span class="service-row-name">eCommerce</span><span
+                    class="service-row-desc">Shopify, custom platforms, conversion optimization</span></div>
+            <div class="service-row"><span class="service-row-name">Content & Campaign</span><span
+                    class="service-row-desc">Social, video, and integrated campaign creation</span></div>
+            <div class="service-row"><span class="service-row-name">Development</span><span
+                    class="service-row-desc">Frontend, backend, and platform engineering</span></div>
+        </div>
+    </section>
+
+    <!-- NEWS — light -->
+    <section class="news section-light">
+        <div class="news-header">
+            <span class="news-label">Featured News</span>
+        </div>
+        <div class="news-grid">
+            <div class="news-item">
+                <div class="news-thumb">
+                    <div class="news-thumb-bg bd1"></div>
+                </div>
+                <div class="news-item-date">January 2024</div>
+                <div class="news-item-title">BASIC/DEPT® Named Agency of the Year at Webby Awards</div>
+            </div>
+            <div class="news-item">
+                <div class="news-thumb">
+                    <div class="news-thumb-bg bd2"></div>
+                </div>
+                <div class="news-item-date">December 2023</div>
+                <div class="news-item-title">Reimagining eCommerce for the next generation of digital-native brands
+                </div>
+            </div>
+            <div class="news-item">
+                <div class="news-thumb">
+                    <div class="news-thumb-bg bd3"></div>
+                </div>
+                <div class="news-item-date">November 2023</div>
+                <div class="news-item-title">How design systems accelerate product development at scale</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AWARDS — dark -->
+    <section class="awards section-dark">
+        <div class="awards-grid">
+            <div class="award">
+                <div class="award-number">200+</div>
+                <div class="award-label">Awards Won</div>
+            </div>
+            <div class="award">
+                <div class="award-number">15+</div>
+                <div class="award-label">Years Active</div>
+            </div>
+            <div class="award">
+                <div class="award-number">300+</div>
+                <div class="award-label">Projects Shipped</div>
+            </div>
+            <div class="award">
+                <div class="award-number">4</div>
+                <div class="award-label">Global Offices</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA — dark -->
+    <section class="cta-s section-dark">
+        <h2 class="cta-title reveal-up">Let's work<br>together.</h2>
+        <a class="cta-btn reveal-up" href="#">
+            Get in touch
+            <svg viewBox="0 0 14 14" fill="none">
+                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </a>
+    </section>
+
+    <footer class="foot section-dark">
+        <span class="foot-copy">© 2024 BASIC/DEPT®. All rights reserved.</span>
+        <ul class="foot-links">
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Twitter</a></li>
+            <li><a href="#">LinkedIn</a></li>
+            <li><a href="#">Dribbble</a></li>
+        </ul>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        (function () {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Smooth scroll via Lenis-style approach (using native smooth via GSAP)
+            // Hero animations
+            gsap.to('.hero-label', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2 });
+            const lines = document.querySelectorAll('.hero-title .line span');
+            gsap.to(lines, { y: 0, duration: 1.2, stagger: 0.08, ease: 'power4.out', delay: 0.4 });
+            gsap.to('.hero-cta', { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 1 });
+
+            // Case cards stagger
+            gsap.utils.toArray('.case-card').forEach((card, i) => {
+                gsap.to(card, {
+                    scrollTrigger: { trigger: card, start: 'top 90%' },
+                    opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: i * 0.1,
+                });
+            });
+
+            // Service rows
+            gsap.utils.toArray('.service-row').forEach((row, i) => {
+                gsap.from(row, {
+                    scrollTrigger: { trigger: row, start: 'top 92%' },
+                    opacity: 0, x: -20, duration: 0.7, ease: 'power3.out', delay: i * 0.05,
+                });
+            });
+
+            // News items
+            gsap.utils.toArray('.news-item').forEach((item, i) => {
+                gsap.to(item, {
+                    scrollTrigger: { trigger: item, start: 'top 90%' },
+                    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: i * 0.1,
+                });
+            });
+
+            // Awards counter
+            gsap.utils.toArray('.award').forEach((a, i) => {
+                gsap.to(a, {
+                    scrollTrigger: { trigger: a, start: 'top 90%' },
+                    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: i * 0.08,
+                });
+            });
+
+            // Award number animate
+            gsap.utils.toArray('.award-number').forEach(el => {
+                const txt = el.textContent;
+                const num = parseInt(txt);
+                const sfx = txt.replace(/[0-9]/g, '');
+                if (!isNaN(num)) {
+                    const obj = { v: 0 };
+                    gsap.to(obj, {
+                        v: num, duration: 2, ease: 'power2.out',
+                        scrollTrigger: { trigger: el, start: 'top 85%' },
+                        onUpdate: () => { el.textContent = Math.round(obj.v) + sfx; }
+                    });
+                }
+            });
+
+            // General reveals
+            gsap.utils.toArray('.reveal-up').forEach(el => {
+                gsap.from(el, {
+                    scrollTrigger: { trigger: el, start: 'top 85%' },
+                    opacity: 0, y: 50, duration: 1, ease: 'power3.out',
+                });
+            });
+
+            // Parallax on case images
+            gsap.utils.toArray('.case-visual-bg').forEach(bg => {
+                gsap.to(bg, {
+                    scrollTrigger: { trigger: bg.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1 },
+                    y: '-10%', ease: 'none',
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>

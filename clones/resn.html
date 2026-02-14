@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Resn — Creative Digital Agency</title>
+    <meta name="description"
+        content="Resn is a creative studio bringing brand, content and digital experiences to life through stories shaped with global brands." />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000;
+            --text: #fff;
+            --dim: rgba(255, 255, 255, 0.35);
+            --accent: #ff3c00;
+            --heading: 'Space Grotesk', sans-serif;
+            --body: 'Inter', sans-serif;
+            --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--body);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+            cursor: none;
+        }
+
+        /* CURSOR */
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+
+        .cursor-ring {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out),
+                border-color 0.3s;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-ring.hover {
+            width: 80px;
+            height: 80px;
+            border-color: var(--accent);
+        }
+
+        @media (any-hover: none) {
+
+            .cursor-dot,
+            .cursor-ring {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            a {
+                cursor: pointer;
+            }
+        }
+
+        /* LOADER */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .loader.done {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s ease;
+        }
+
+        .loader-bar {
+            width: 100%;
+            height: 1px;
+            position: absolute;
+            bottom: 0;
+        }
+
+        .loader-bar-bg {
+            position: absolute;
+            inset: 0;
+            background: rgb(40, 40, 40);
+        }
+
+        .loader-bar-fill {
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .loader-drop {
+            width: 24px;
+            height: 22px;
+            fill: #fff;
+            opacity: 0.7;
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 32px 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            mix-blend-mode: difference;
+        }
+
+        .nav-logo {
+            font-family: var(--heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 0.8125rem;
+            color: var(--dim);
+            transition: color 0.3s;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                padding: 24px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* HERO*/
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-title {
+            font-family: var(--heading);
+            font-size: clamp(3rem, 10vw, 10rem);
+            font-weight: 700;
+            letter-spacing: -0.06em;
+            line-height: 0.9;
+            text-transform: uppercase;
+        }
+
+        .hero-title .line {
+            display: block;
+            overflow: hidden;
+        }
+
+        .hero-title .line span {
+            display: inline-block;
+            transform: translateY(120%);
+        }
+
+        .hero-sub {
+            position: absolute;
+            bottom: 48px;
+            left: 48px;
+            font-size: 0.8125rem;
+            color: var(--dim);
+            max-width: 300px;
+            line-height: 1.6;
+            text-align: left;
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        /* PROJECTS */
+        .work {
+            padding: 140px 48px;
+        }
+
+        @media (max-width: 768px) {
+            .work {
+                padding: 80px 24px;
+            }
+        }
+
+        .work-header {
+            margin-bottom: 80px;
+        }
+
+        .work-title {
+            font-family: var(--heading);
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+        }
+
+        .work-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .work-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 32px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .work-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.03);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s var(--ease-out);
+        }
+
+        .work-item:hover::before {
+            transform: scaleX(1);
+        }
+
+        .work-item-name {
+            font-family: var(--heading);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -0.04em;
+            transition: transform 0.5s var(--ease-out);
+            position: relative;
+            z-index: 1;
+        }
+
+        .work-item:hover .work-item-name {
+            transform: translateX(16px);
+        }
+
+        .work-item-meta {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .work-item-tag {
+            font-size: 0.75rem;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .work-item-year {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .work-item-arrow {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.4s var(--ease-out);
+        }
+
+        .work-item:hover .work-item-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .work-item-arrow svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* SHOWREEL */
+        .showreel {
+            padding: 120px 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 80vh;
+        }
+
+        .showreel-visual {
+            width: 80vw;
+            max-width: 1000px;
+            aspect-ratio: 16/9;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .showreel-bg {
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&h=675&fit=crop&q=80') center/cover;
+        }
+
+        .showreel-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.4s var(--ease-out);
+        }
+
+        .showreel-play:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .showreel-play svg {
+            width: 20px;
+            height: 20px;
+            margin-left: 3px;
+        }
+
+        .showreel-label {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        /* SERVICES */
+        .capabilities {
+            padding: 120px 48px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .cap-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px 32px;
+        }
+
+        @media (max-width: 768px) {
+            .capabilities {
+                padding: 80px 24px;
+            }
+
+            .cap-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+        }
+
+        .cap-item {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .cap-number {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.15);
+            margin-bottom: 12px;
+            letter-spacing: 0.1em;
+        }
+
+        .cap-name {
+            font-family: var(--heading);
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+
+        .cap-desc {
+            font-size: 0.8125rem;
+            color: var(--dim);
+            line-height: 1.6;
+        }
+
+        /* FOOTER */
+        .footer {
+            padding: 100px 48px 48px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .footer-big {
+            font-family: var(--heading);
+            font-size: clamp(2rem, 6vw, 6rem);
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            line-height: 0.95;
+            margin-bottom: 60px;
+        }
+
+        .footer-big a {
+            position: relative;
+        }
+
+        .footer-big a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.5s var(--ease-out);
+        }
+
+        .footer-big a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 60px 24px 32px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+        }
+
+        .footer-copy {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .footer-social a {
+            font-size: 0.8125rem;
+            color: var(--dim);
+            transition: color 0.3s;
+        }
+
+        .footer-social a:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <div class="loader" id="loader">
+        <svg class="loader-drop" viewBox="0 0 24 22">
+            <path d="M12 0C12 0 0 14 0 18a12 12 0 0024 0C24 14 12 0 12 0z" />
+        </svg>
+        <div class="loader-bar">
+            <div class="loader-bar-bg"></div>
+            <div class="loader-bar-fill" id="loaderFill"></div>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <a class="nav-logo" href="#">Resn</a>
+        <ul class="nav-links">
+            <li><a href="#" data-h>Work</a></li>
+            <li><a href="#" data-h>About</a></li>
+            <li><a href="#" data-h>Capabilities</a></li>
+            <li><a href="#" data-h>Contact</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <h1 class="hero-title">
+            <span class="line"><span>Stories</span></span>
+            <span class="line"><span>Shaped</span></span>
+        </h1>
+        <p class="hero-sub">Resn is a creative studio bringing brand, content and digital experiences to life through
+            stories shaped with global brands and emerging innovators.</p>
+    </section>
+
+    <section class="work">
+        <div class="work-header">
+            <h2 class="work-title reveal-up">Selected Work</h2>
+        </div>
+        <div class="work-list">
+            <div class="work-item" data-h>
+                <span class="work-item-name">Nike Air Max Day</span>
+                <div class="work-item-meta">
+                    <span class="work-item-tag">Interactive</span>
+                    <span class="work-item-year">2024</span>
+                    <div class="work-item-arrow"><svg viewBox="0 0 14 14" fill="none">
+                            <path d="M1 7h12M8 2l5 5-5 5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg></div>
+                </div>
+            </div>
+            <div class="work-item" data-h>
+                <span class="work-item-name">Spotify Listening Party</span>
+                <div class="work-item-meta">
+                    <span class="work-item-tag">Experience</span>
+                    <span class="work-item-year">2024</span>
+                    <div class="work-item-arrow"><svg viewBox="0 0 14 14" fill="none">
+                            <path d="M1 7h12M8 2l5 5-5 5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg></div>
+                </div>
+            </div>
+            <div class="work-item" data-h>
+                <span class="work-item-name">Google Year in Search</span>
+                <div class="work-item-meta">
+                    <span class="work-item-tag">Film + Digital</span>
+                    <span class="work-item-year">2023</span>
+                    <div class="work-item-arrow"><svg viewBox="0 0 14 14" fill="none">
+                            <path d="M1 7h12M8 2l5 5-5 5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg></div>
+                </div>
+            </div>
+            <div class="work-item" data-h>
+                <span class="work-item-name">Meta Quest Launch</span>
+                <div class="work-item-meta">
+                    <span class="work-item-tag">Campaign</span>
+                    <span class="work-item-year">2023</span>
+                    <div class="work-item-arrow"><svg viewBox="0 0 14 14" fill="none">
+                            <path d="M1 7h12M8 2l5 5-5 5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg></div>
+                </div>
+            </div>
+            <div class="work-item" data-h>
+                <span class="work-item-name">Samsung Galaxy Unpacked</span>
+                <div class="work-item-meta">
+                    <span class="work-item-tag">Activation</span>
+                    <span class="work-item-year">2023</span>
+                    <div class="work-item-arrow"><svg viewBox="0 0 14 14" fill="none">
+                            <path d="M1 7h12M8 2l5 5-5 5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg></div>
+                </div>
+            </div>
+            <div class="work-item" data-h>
+                <span class="work-item-name">Coca-Cola Creations</span>
+                <div class="work-item-meta">
+                    <span class="work-item-tag">Web3</span>
+                    <span class="work-item-year">2022</span>
+                    <div class="work-item-arrow"><svg viewBox="0 0 14 14" fill="none">
+                            <path d="M1 7h12M8 2l5 5-5 5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="showreel">
+        <div class="showreel-visual reveal-up">
+            <div class="showreel-bg"></div>
+            <div class="showreel-play" data-h>
+                <svg viewBox="0 0 20 20" fill="white">
+                    <polygon points="5,3 17,10 5,17" />
+                </svg>
+            </div>
+            <div class="showreel-label">Showreel 2024</div>
+        </div>
+    </section>
+
+    <section class="capabilities">
+        <div class="cap-grid">
+            <div class="cap-item">
+                <div class="cap-number">01</div>
+                <div class="cap-name">Digital Strategy</div>
+                <div class="cap-desc">User experience, content strategy, digital ecosystems, platform architecture</div>
+            </div>
+            <div class="cap-item">
+                <div class="cap-number">02</div>
+                <div class="cap-name">Content Creation</div>
+                <div class="cap-desc">Art direction, motion design, 3D, animation, audio, music design, copywriting
+                </div>
+            </div>
+            <div class="cap-item">
+                <div class="cap-number">03</div>
+                <div class="cap-name">Web Development</div>
+                <div class="cap-desc">Frontend, WebGL, e-commerce, CMS integration, accessibility, performance</div>
+            </div>
+            <div class="cap-item">
+                <div class="cap-number">04</div>
+                <div class="cap-name">Game & Activations</div>
+                <div class="cap-desc">Game concept, digital installations, interactive graphics, experiential</div>
+            </div>
+            <div class="cap-item">
+                <div class="cap-number">05</div>
+                <div class="cap-name">Social & Video</div>
+                <div class="cap-desc">Video content, social content creation, campaign assets, brand films</div>
+            </div>
+            <div class="cap-item">
+                <div class="cap-number">06</div>
+                <div class="cap-name">Emerging Tech</div>
+                <div class="cap-desc">Web3, AR/VR, AI, spatial computing, voice interfaces</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-big">
+            <a href="#" data-h>Let's make<br>something<br>together.</a>
+        </div>
+        <div class="footer-bottom">
+            <span class="footer-copy">© 2024 Resn. Wellington · Amsterdam · Shanghai</span>
+            <ul class="footer-social">
+                <li><a href="#" data-h>Instagram</a></li>
+                <li><a href="#" data-h>Twitter</a></li>
+                <li><a href="#" data-h>Vimeo</a></li>
+                <li><a href="#" data-h>LinkedIn</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        (function () {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Cursor
+            const dot = document.getElementById('cursorDot');
+            const ring = document.getElementById('cursorRing');
+            let dx = 0, dy = 0, rx = 0, ry = 0, mx = 0, my = 0;
+            document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+            function tickCursor() {
+                dx += (mx - dx) * 0.2; dy += (my - dy) * 0.2;
+                rx += (mx - rx) * 0.08; ry += (my - ry) * 0.08;
+                dot.style.left = dx + 'px'; dot.style.top = dy + 'px';
+                ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+                requestAnimationFrame(tickCursor);
+            }
+            tickCursor();
+            document.querySelectorAll('[data-h]').forEach(el => {
+                el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+                el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+            });
+
+            // Loader
+            const loaderFill = document.getElementById('loaderFill');
+            const loader = document.getElementById('loader');
+            let p = 0;
+            const li = setInterval(() => {
+                p += Math.random() * 18 + 6;
+                if (p > 100) p = 100;
+                loaderFill.style.transform = `scaleX(${p / 100})`;
+                if (p >= 100) { clearInterval(li); setTimeout(() => { loader.classList.add('done'); revealHero(); }, 400); }
+            }, 160);
+
+            function revealHero() {
+                gsap.to('.hero-title .line span', { y: 0, duration: 1.4, stagger: 0.12, ease: 'power4.out', delay: 0.2 });
+                gsap.to('.hero-sub', { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.7 });
+            }
+
+            // Work items stagger
+            gsap.utils.toArray('.work-item').forEach((item, i) => {
+                gsap.from(item, {
+                    scrollTrigger: { trigger: item, start: 'top 92%' },
+                    opacity: 0, x: -30, duration: 0.8, ease: 'power3.out', delay: i * 0.05,
+                });
+            });
+
+            // Capability items
+            gsap.utils.toArray('.cap-item').forEach((item, i) => {
+                gsap.to(item, {
+                    scrollTrigger: { trigger: item, start: 'top 90%' },
+                    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: i * 0.06,
+                });
+            });
+
+            // General reveals
+            gsap.utils.toArray('.reveal-up').forEach(el => {
+                gsap.from(el, {
+                    scrollTrigger: { trigger: el, start: 'top 88%' },
+                    opacity: 0, y: 50, duration: 1, ease: 'power3.out',
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>

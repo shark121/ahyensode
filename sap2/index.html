@@ -5,6 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ahyensode</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500;700;900&display=swap"
+    rel="stylesheet">
   <style>
     /* --- GLOBAL RESET --- */
     body,
@@ -13,7 +18,7 @@
       padding: 0;
       background-color: #fff;
       color: black;
-      font-family: "Helvetica Neue", sans-serif;
+      font-family: 'Inter', 'Helvetica Neue', sans-serif;
       overflow-x: hidden;
     }
 
@@ -22,7 +27,7 @@
            ========================================= */
     .parallax-container {
       position: relative;
-      height: 200vh;
+      height: 300vh;
       width: 100%;
       overflow: hidden;
     }
@@ -46,21 +51,99 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      align-items: center;
-      padding: 50px;
-      text-align: center;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      padding: 0 50px;
+      box-sizing: border-box;
       z-index: 1;
     }
 
-    h1 {
-      font-size: 5rem;
-      margin-top: 20vh;
-      letter-spacing: -2px;
+    /* First viewport: description at the bottom */
+    .hero-intro {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 60px;
+      box-sizing: border-box;
     }
 
-    p {
-      font-size: 2rem;
+    .hero-intro-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+    }
+
+    .hero-description {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(0.9rem, 1.3vw, 1.2rem);
+      font-weight: 300;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+      max-width: 420px;
+      margin: 0;
+    }
+
+    .hero-scroll {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    /* Massive title spanning viewports 2-3 */
+    .hero-title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(4.5rem, 17vw, 19rem);
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      color: #fff;
+      margin: 0;
+      padding: 10vh 0;
+    }
+
+    /* Bottom section: second description + links */
+    .hero-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 60px;
+    }
+
+    .hero-footer-left {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(0.9rem, 1.3vw, 1.15rem);
+      font-weight: 300;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+      max-width: 420px;
+    }
+
+    .hero-footer-right {
+      display: flex;
+      gap: 60px;
+    }
+
+    .hero-footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hero-footer-col a,
+    .hero-footer-col span {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .hero-footer-col a:hover {
+      color: #fff;
     }
 
     /* =========================================
@@ -249,27 +332,18 @@
     }
 
     .navbar {
-      /* Position fixed to stay at the top */
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 80px;
-
-      /* Layout */
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 0 50px;
       box-sizing: border-box;
       z-index: 1000;
-      /* Ensure it stays above all sections */
-
-      /* Glassmorphism Effect */
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: transparent;
 
       /* Initial state for GSAP animation */
       opacity: 0;
@@ -277,15 +351,16 @@
     }
 
     .nav-logo {
-      font-size: 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
       font-weight: 300;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       color: #fff;
+      text-transform: lowercase;
     }
 
     .nav-logo strong {
-      color: #ff3e00;
-      /* Subtle accent color */
+      color: #fff;
     }
 
     .nav-links {
@@ -296,10 +371,12 @@
 
     .nav-links a {
       text-decoration: none;
-      color: #fff;
-      font-size: 0.55rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.8);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 300;
+      text-transform: none;
+      letter-spacing: 0;
       transition: color 0.3s ease;
     }
 
@@ -321,271 +398,204 @@
       color: #000;
     }
 
-    /* =========================================
-           SECTION: WORK (Exo Ape style)
-           ========================================= */
-    .work-section {
+    .container-2 {
+      padding: 60px 5vw;
+      margin: 0 auto;
+      min-height: 100vh;
+      width: 100vw;
+      background-color: white;
       position: relative;
-      width: 100%;
-      background-color: #fff;
-      padding: 15vh 5vw 10vh;
       box-sizing: border-box;
-    }
-
-    .work-title {
-      font-size: clamp(4rem, 14vw, 16rem);
-      font-weight: 400;
-      line-height: 0.95;
-      letter-spacing: -0.04em;
-      color: #000;
-      margin: 0 0 8vh 0;
-    }
-
-    .work-intro {
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
-      gap: 40px;
-      margin-bottom: 12vh;
-      padding-right: 5vw;
-    }
-
-    .work-intro-label {
-      font-size: 0.85rem;
-      font-weight: 400;
-      color: #000;
-      letter-spacing: 0.5px;
-    }
-
-    .work-intro-label span {
-      margin-right: 6px;
-    }
-
-    .work-intro-desc {
-      font-size: clamp(0.95rem, 1.4vw, 1.2rem);
-      font-weight: 300;
-      line-height: 1.6;
-      color: #555;
-      max-width: 380px;
-    }
-
-    /* Project rows */
-    .work-projects {
       display: flex;
       flex-direction: column;
-      gap: 20vh;
+      gap: 40px;
     }
 
-    .work-row {
+    .container-2-text-1 {
+      font-size: clamp(4rem, 10vw, 12rem);
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .container-2-layout {
       display: flex;
+      gap: 30px;
       align-items: flex-start;
-      gap: 4vw;
       width: 100%;
     }
 
-    .work-row.row-right {
-      justify-content: flex-end;
-    }
-
-    .work-row.row-center {
-      justify-content: center;
-    }
-
-    .work-row.row-split {
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-
-    /* Project card */
-    .project-card {
+    /* Left side: large portrait */
+    .container-2-left {
+      flex: 0 0 40%;
       position: relative;
-      overflow: hidden;
     }
 
-    .project-card img {
+    .container-2-left img {
       width: 100%;
-      height: 100%;
+      height: auto;
+      max-height: 85vh;
       object-fit: cover;
       display: block;
     }
 
-    .project-card.large {
-      width: 50%;
-      aspect-ratio: 4 / 5;
+    /* Right side: staggered collage grid */
+    .container-2-right {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      grid-template-rows: auto auto auto;
+      gap: 16px;
+      align-content: start;
+      padding-top: 60px;
     }
 
-    .project-card.medium {
-      width: 35%;
-      aspect-ratio: 4 / 5;
+    .collage-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 4px;
     }
 
-    .project-card.wide {
-      width: 45%;
-      aspect-ratio: 3 / 2;
+    /* Row 1: small image left, taller image right */
+    .collage-item-1 {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border-radius: 4px;
+      align-self: start;
     }
 
-    .project-info {
-      margin-top: 16px;
-      font-size: 0.85rem;
-      color: #888;
+    .collage-item-2 {
+      grid-column: 2 / 3;
+      grid-row: 1 / 3;
+      overflow: hidden;
+      border-radius: 4px;
+      aspect-ratio: 4 / 3;
     }
 
-    .project-info strong {
-      color: #000;
-      font-weight: 400;
-      margin-right: 8px;
+    /* Row 2: wide image spanning left, right already taken by item-2 */
+    .collage-item-3 {
+      grid-column: 1 / 3;
+      grid-row: 3 / 4;
+      overflow: hidden;
+      border-radius: 4px;
+      aspect-ratio: 16 / 9;
     }
 
-    .project-info em {
-      font-style: italic;
-      font-weight: 300;
+    /* Row 3: small items */
+    .collage-item-4 {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+      overflow: hidden;
+      border-radius: 4px;
+      aspect-ratio: 4 / 3;
+      align-self: end;
     }
 
-    /* Quote card */
-    .quote-card {
-      background-color: #f5f0e8;
-      padding: 50px 40px;
-      max-width: 400px;
-      align-self: center;
+    .collage-item-5 {
+      grid-column: 2 / 3;
+      grid-row: 3 / 4;
+      display: none;
+      /* hidden, using item-3 full width instead */
     }
 
-    .quote-card .quote-mark {
-      font-size: 2rem;
-      color: #b8935a;
-      margin-bottom: 10px;
+    /* The masking technique */
+    .line-mask {
+      overflow: hidden;
+      margin-bottom: 5px;
     }
 
-    .quote-card .quote-line {
-      width: 60px;
-      height: 2px;
-      background: #b8935a;
-      margin-bottom: 20px;
-      display: inline-block;
-      margin-left: 16px;
-      vertical-align: middle;
-    }
-
-    .quote-card .quote-text {
-      font-size: clamp(1.1rem, 1.8vw, 1.5rem);
-      font-weight: 300;
-      line-height: 1.5;
-      color: #6b5a3e;
-      font-style: italic;
-    }
-
-    .quote-card .quote-text em {
-      font-style: italic;
-    }
-
-    /* Browse all work */
-    .work-browse {
-      display: flex;
-      justify-content: center;
-      margin-top: 15vh;
-      padding-bottom: 5vh;
-    }
-
-    .work-browse a {
-      font-size: 0.9rem;
-      font-weight: 400;
-      color: #000;
-      text-decoration: none;
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: opacity 0.3s ease;
-    }
-
-    .work-browse a:hover {
-      opacity: 0.6;
-    }
-
-    .work-browse a span {
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      border: 1px solid #000;
+    .container-2 h1 {
+      font-size: 5vw;
+      margin: 0;
+      line-height: 1.1;
     }
   </style>
 </head>
 
 <body>
+  <nav class="navbar">
+    <div class="nav-logo">studio<strong>.</strong></div>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#about">Studio</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
   <div class="parallax-container">
     <div class="parallax-bg"></div>
     <div class="content">
-      <!-- <h1>Smooth<br>Scroll</h1>
-            <p>Scroll down gently...</p>
-            <h1>End of Section 1</h1> -->
-      <nav class="navbar">
-        <div class="nav-logo">STUDIO<strong>.</strong></div>
-        <ul class="nav-links">
-          <li><a href="#work">Work</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </nav>
+      <!-- First viewport: intro description -->
+      <div class="hero-intro">
+        <div class="hero-intro-inner">
+          <p class="hero-description">
+            Global digital design studio partnering with<br>
+            brands and businesses that create exceptional<br>
+            experiences where people live, work, and unwind.
+          </p>
+          <span class="hero-scroll">Scroll to explore</span>
+        </div>
+      </div>
+
+      <!-- Massive title spanning viewports 2-3 -->
+      <h1 class="hero-title">Digital<br>Design<br>Experience</h1>
+
+      <!-- Bottom: second description + footer links -->
+      <div class="hero-footer">
+        <p class="hero-footer-left">
+          We help experience-driven companies<br>
+          thrive by making their audience feel the<br>
+          refined intricacies of their brand and product<br>
+          in the digital space. Unforgettable journeys<br>
+          start with a click.
+        </p>
+        <div class="hero-footer-right">
+          <div class="hero-footer-col">
+            <a href="#">Work</a>
+            <a href="#">Studio</a>
+            <a href="#">News</a>
+          </div>
+          <div class="hero-footer-col">
+            <span>hello@studio.com</span>
+            <span>+1 234 567 890</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <section class="work-section">
-    <h2 class="work-title">Work</h2>
-
-    <div class="work-intro">
-      <div>
-        <div class="work-intro-label"><span>+</span> Featured Projects</div>
-      </div>
-      <p class="work-intro-desc">
-        Highlights of cases that we<br>
-        passionately built with forward-thinking<br>
-        clients and friends over the years.
-      </p>
+  <div class="container-2">
+    <div class="line-mask container-2-text-1">
+      <div class="animate-me">Work</div>
     </div>
-
-    <div class="work-projects">
-      <!-- Row 1: Large left, smaller right -->
-      <div class="work-row">
-        <div class="project-card large">
-          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1000&q=80" alt="Ottografie" />
-          <div class="project-info"><strong>Ottografie</strong> <em>— Creative Direction</em></div>
-        </div>
-        <div class="project-card medium" style="margin-top: 25vh;">
-          <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80" alt="Skyward" />
-          <div class="project-info"><strong>Skyward</strong> <em>— Digital Experience</em></div>
-        </div>
+    <div class="container-2-layout">
+      <!-- Left: Large portrait -->
+      <div class="container-2-left">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1000&q=80" alt="Portrait 1" />
       </div>
-
-      <!-- Row 2: Centered single -->
-      <div class="work-row row-center">
-        <div class="project-card wide">
-          <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1000&q=80" alt="Luminary" />
-          <div class="project-info"><strong>Luminary</strong> <em>— Brand Identity</em></div>
+      <!-- Right: Staggered collage -->
+      <div class="container-2-right">
+        <div class="collage-item-1">
+          <img class="collage-img" src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80"
+            alt="Project 1" />
         </div>
-      </div>
-
-      <!-- Row 3: Left project + right quote -->
-      <div class="work-row row-split">
-        <div class="project-card medium">
-          <img src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?w=1000&q=80" alt="Cambium" />
-          <div class="project-info"><strong>Cambium</strong> <em>— Pioneering Sustainable Solutions</em></div>
+        <div class="collage-item-2">
+          <img class="collage-img" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80"
+            alt="Project 2" />
         </div>
-        <div class="quote-card">
-          <div>
-            <span class="quote-mark">&ldquo;</span>
-            <span class="quote-line"></span>
-          </div>
-          <p class="quote-text">
-            100 years of drama,<br>
-            suspense, laughter, <em>and love.</em>
-          </p>
+        <div class="collage-item-4">
+          <img class="collage-img" src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80"
+            alt="Project 3" />
+        </div>
+        <div class="collage-item-3">
+          <img class="collage-img" src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?w=1000&q=80"
+            alt="Project 4" />
         </div>
       </div>
     </div>
-
-    <div class="work-browse">
-      <a href="#"><span></span> Browse all work</a>
-    </div>
-  </section>
+  </div>
 
   <section class="gallery-section">
     <div class="gallery-item item-1"></div>
@@ -721,19 +731,20 @@
     );
 
     window.addEventListener("DOMContentLoaded", () => {
+      // Scroll to top on load
+      window.scrollTo(0, 0);
+      lenis.scrollTo(0, { immediate: true });
+
+      // Page gently moves up from a skewed angle
+      gsap.fromTo("body",
+        { y: 100, skewY: 3, opacity: 0 },
+        { y: 0, skewY: 0, opacity: 1, duration: 1.4, ease: "power3.out", delay: 0.3 }
+      );
+
       gsap.fromTo(
         ".navbar",
-        {
-          opacity: 0,
-          y: -20,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power2.out",
-          delay: 0.2,
-        },
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 1, ease: "power2.out", delay: 0.5 },
       );
     });
 

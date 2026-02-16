@@ -14,7 +14,7 @@
         }
 
         body {
-            background: #111;
+            background: #fff;
             color: #eee;
             font-family: 'Outfit', sans-serif;
             overflow: hidden;
@@ -142,7 +142,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #444;
+            background: #fff;
             transition: background 0.4s, transform 0.4s;
         }
 
@@ -189,11 +189,10 @@
     <!-- Progress dots -->
     <div class="progress-dots" id="progressDots">
         <div class="dot active"></div>
-        <div class="dot"></div>
     </div>
 
     <!-- Hint -->
-    <div class="hint" id="hint">click to disperse / form</div>
+    <div class="hint" id="hint">loading...</div>
 
     <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -203,8 +202,8 @@
         // ═══════════════════════════════════════════
         //  CONFIGURATION
         // ═══════════════════════════════════════════
-        const PARTICLE_COUNT = 16000;
-        const TRANSITION_DURATION = 2.0;
+        const PARTICLE_COUNT = 50000;
+        const TRANSITION_DURATION = 5.0;
 
         // ═══════════════════════════════════════════
         //  CONCENTRIC CIRCLES BACKGROUND
@@ -245,7 +244,7 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(innerWidth, innerHeight);
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-        renderer.setClearColor(0x111111, 1);
+        renderer.setClearColor(0xffffff, 1);
         renderer.domElement.id = 'main-canvas';
         document.body.prepend(renderer.domElement);
 
@@ -386,23 +385,6 @@
             staggerOffsets[i] = Math.random();
         }
 
-        // Initialize to random cloud
-        for (let i = 0; i < PARTICLE_COUNT; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * 20;
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 12;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
-
-            colors[i * 3] = 0.5;
-            colors[i * 3 + 1] = 0.5;
-            colors[i * 3 + 2] = 0.5;
-        }
-
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('aColor', new THREE.BufferAttribute(colors, 3));
-
-        const particles = new THREE.Points(geometry, particleMat);
-        scene.add(particles);
-
         // ═══════════════════════════════════════════
         //  MOUSE TRACKING
         // ═══════════════════════════════════════════
@@ -416,20 +398,7 @@
         //  SHAPE GENERATORS
         // ═══════════════════════════════════════════
 
-        // 0 — Random Cloud
-        function generateCloud(count) {
-            const arr = [];
-            for (let i = 0; i < count; i++) {
-                arr.push(
-                    (Math.random() - 0.5) * 25,
-                    (Math.random() - 0.5) * 15,
-                    (Math.random() - 0.5) * 10
-                );
-            }
-            return new Float32Array(arr);
-        }
-
-        // 1 — Image-based shape
+        // Image-based shape
         function generateFromImage(imgSrc, count) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -460,7 +429,7 @@
                     const positions = [];
                     const cols = [];
                     const aspect = c.width / c.height;
-                    const worldH = 10;
+                    const worldH = 20;
                     const worldW = worldH * aspect;
 
                     for (let i = 0; i < count; i++) {
@@ -483,26 +452,33 @@
                     resolve({ positions: new Float32Array(positions), colors: new Float32Array(cols) });
                 };
                 img.onerror = () => {
-                    resolve({ positions: generateCloud(count), colors: new Float32Array(count * 3).fill(1) });
+                    // Fallback to random if image fails
+                    const arr = [];
+                    for (let i = 0; i < count; i++) {
+                        arr.push((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, 0);
+                    }
+                    resolve({ positions: new Float32Array(arr), colors: new Float32Array(count * 3).fill(1) });
                 };
                 img.src = imgSrc;
             });
         }
 
         // ═══════════════════════════════════════════
-        //  PRE-COMPUTE ALL SHAPES
+        //  IMAGE URLS & SHAPES
         // ═══════════════════════════════════════════
-        const IMAGE_URL = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80';
-
-        const shapes = [
-            { data: generateCloud(PARTICLE_COUNT), colors: null, label: 'disperse', name: 'Cloud' },
-            { data: null, colors: null, label: 'form', name: 'Image' }
+        const IMAGE_URLS = [
+            'C:/Users/HP/Desktop/nuclear-launch-codes/hyen_web/exes/Untitled.png',
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=512&auto=format&fit=crop',
+            // 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=512&auto=format&fit=crop',
+            // 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=512&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1770387795112-e2b476b15f71?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
         ];
 
-        // Initialize targets
-        prevTargets.set(positions);
-        nextTargets.set(positions);
-        targetPositions.set(positions);
+        const CYCLE_INTERVAL = 15; // seconds between image changes
+
+        const shapes = IMAGE_URLS.map((_, i) => ({
+            data: null, colors: null, label: 'form', name: `Image ${i + 1}`
+        }));
 
         let currentShape = 0;
         let isTransitioning = false;
@@ -515,10 +491,6 @@
         const stageLabel = document.getElementById('stageLabel');
         const dots = document.querySelectorAll('.progress-dots .dot');
         const hint = document.getElementById('hint');
-
-        function setActiveDot(index) {
-            dots.forEach((d, i) => d.classList.toggle('active', i === index));
-        }
 
         function showStageLabel(text) {
             stageLabel.textContent = text;
@@ -545,18 +517,13 @@
         }
 
         function transitionToShape(index) {
-            if (isTransitioning || index === currentShape) return;
+            if (isTransitioning) return;
+            if (index === currentShape) return;
+            const shape = shapes[index];
+            if (!shape.data) return; // not loaded yet
+
             isTransitioning = true;
             currentShape = index;
-
-            const shape = shapes[index];
-            if (!shape.data) {
-                isTransitioning = false;
-                return; // not ready yet
-            }
-
-            setActiveDot(index);
-            showStageLabel(shape.label);
 
             // Glitch effect on transition
             gsap.fromTo(glitchIntensity, { value: 0 }, {
@@ -587,24 +554,6 @@
                         geometry.attributes.aColor.needsUpdate = true;
                     }
                 });
-            } else {
-                // Fade to default
-                const startColors = new Float32Array(geometry.attributes.aColor.array);
-                const colorObj = { t: 0 };
-                gsap.to(colorObj, {
-                    t: 1,
-                    duration: TRANSITION_DURATION,
-                    ease: 'power1.inOut',
-                    onUpdate: () => {
-                        const colorArr = geometry.attributes.aColor.array;
-                        const t = colorObj.t;
-                        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-                            // Fade to light grey
-                            colorArr[i] = startColors[i] + (0.5 - startColors[i]) * t;
-                        }
-                        geometry.attributes.aColor.needsUpdate = true;
-                    }
-                });
             }
 
             gsap.to(morphProgress, {
@@ -612,123 +561,140 @@
                 duration: TRANSITION_DURATION,
                 ease: 'power2.inOut',
                 onUpdate: updateTargetsFromMorph,
-                onComplete: () => { isTransitioning = false; }
+                onComplete: () => {
+                    isTransitioning = false;
+                }
             });
         }
 
-        // ═══════════════════════════════════════════
-        //  INIT & EVENTS
-        // ═══════════════════════════════════════════
-
-        generateFromImage(IMAGE_URL, PARTICLE_COUNT).then(result => {
-            shapes[1].data = result.positions;
-            shapes[1].colors = result.colors;
-
-            // Initial transition to Image after load
-            gsap.delayedCall(1.0, () => transitionToShape(1));
-        });
-
-        // Toggle on click
-        document.addEventListener('click', () => {
-            // Only allow toggle if image is loaded
-            if (shapes[1].data) {
-                const next = currentShape === 0 ? 1 : 0;
-                transitionToShape(next);
-            }
-        });
-
-        // Hide hint
-        document.addEventListener('mousemove', function hideHint() {
-            gsap.to(hint, { opacity: 0, duration: 1 });
-            document.removeEventListener('mousemove', hideHint);
-        }, { once: true });
-
-        // ═══════════════════════════════════════════
-        //  ANIMATION LOOP
-        // ═══════════════════════════════════════════
-        const clock = new THREE.Clock();
-        let autoRotation = { x: 0, y: 0 };
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const t = clock.getElapsedTime();
-
-            mouse.sx += (mouse.x - mouse.sx) * 0.04;
-            mouse.sy += (mouse.y - mouse.sy) * 0.04;
-
-            autoRotation.y += 0.002;
-            autoRotation.x = Math.sin(t * 0.2) * 0.1;
-
-            const mouseWorld = new THREE.Vector3(mouse.sx * 8, mouse.sy * 5, 0);
-            const posArr = geometry.attributes.position.array;
-
-            for (let i = 0; i < PARTICLE_COUNT; i++) {
-                const i3 = i * 3;
-
-                // Physics: spring to target
-                const dx = targetPositions[i3] - posArr[i3];
-                const dy = targetPositions[i3 + 1] - posArr[i3 + 1];
-                const dz = targetPositions[i3 + 2] - posArr[i3 + 2];
-
-                velocities[i3] += dx * 0.03;
-                velocities[i3 + 1] += dy * 0.03;
-                velocities[i3 + 2] += dz * 0.03;
-
-                // Mouse interaction
-                const mx = posArr[i3] - mouseWorld.x;
-                const my = posArr[i3 + 1] - mouseWorld.y;
-                const mz = posArr[i3 + 2] - mouseWorld.z;
-                const md = Math.sqrt(mx * mx + my * my + mz * mz);
-
-                // Repel logic
-                if (md < 4.0) {
-                    const force = (4.0 - md) * 0.02;
-                    velocities[i3] += (mx / md) * force * 2.5;
+        // Auto-cycle to next image
+        function cycleToNext() {
+            const next = (currentShape + 1) % shapes.length;
+            // Find next loaded shape
+            for (let i = 0; i < shapes.length; i++) {
+                const idx = (currentShape + 1 + i) % shapes.length;
+                if (shapes[idx].data) {
+                    transitionToShape(idx);
+                    return;
                 }
-
-                // Noise/Drift when in cloud mode (shape 0)
-                if (currentShape === 0) {
-                    velocities[i3] += Math.sin(t + i) * 0.002;
-                    velocities[i3 + 1] += Math.cos(t + i * 0.5) * 0.002;
-                }
-
-                velocities[i3] *= 0.85; // Damping
-                velocities[i3 + 1] *= 0.85;
-                velocities[i3 + 2] *= 0.85;
-
-                posArr[i3] += velocities[i3];
-                posArr[i3 + 1] += velocities[i3 + 1];
-                posArr[i3 + 2] += velocities[i3 + 2];
-            }
-            geometry.attributes.position.needsUpdate = true;
-
-            // Camera & Rendering
-            particleMat.uniforms.uTime.value = t;
-
-            const rotY = autoRotation.y + mouse.sx * 0.3;
-            const rotX = autoRotation.x + mouse.sy * 0.2;
-            particles.rotation.y = rotY;
-            particles.rotation.x = rotX;
-
-            camera.position.x = mouse.sx * 2;
-            camera.position.y = mouse.sy * 2;
-            camera.lookAt(0, 0, 0);
-
-            // Post-processing
-            ppMat.uniforms.uIntensity.value = glitchIntensity.value;
-            ppMat.uniforms.uTime.value = t;
-
-            if (glitchIntensity.value > 0.01) {
-                renderer.setRenderTarget(rtA);
-                renderer.render(scene, camera);
-                renderer.setRenderTarget(null);
-                ppMat.uniforms.tDiffuse.value = rtA.texture;
-                renderer.render(ppScene, ppCamera);
-            } else {
-                renderer.render(scene, camera);
             }
         }
-        animate();
+
+        // ═══════════════════════════════════════════
+        //  INIT: Load all images, start with first one ready
+        // ═══════════════════════════════════════════
+
+        // Load all images in parallel
+        const loadPromises = IMAGE_URLS.map((url, i) =>
+            generateFromImage(url, PARTICLE_COUNT).then(result => {
+                shapes[i].data = result.positions;
+                shapes[i].colors = result.colors;
+            })
+        );
+
+        // Once the first image is loaded, start rendering immediately
+        loadPromises[0].then(() => {
+            const first = shapes[0];
+
+            // Initialize particles directly at first image positions
+            positions.set(first.data);
+            colors.set(first.colors);
+
+            // Set all target arrays to match
+            prevTargets.set(first.data);
+            nextTargets.set(first.data);
+            targetPositions.set(first.data);
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('aColor', new THREE.BufferAttribute(colors, 3));
+
+            const particles = new THREE.Points(geometry, particleMat);
+            scene.add(particles);
+
+            // Hide loading hint
+            gsap.to(hint, { opacity: 0, duration: 0.5 });
+
+            // Start animation loop
+            startAnimation();
+
+            // Start auto-cycling
+            setInterval(cycleToNext, CYCLE_INTERVAL * 1000);
+        });
+
+        // ═══════════════════════════════════════════
+        //  ANIMATION LOOP (starts after image loads)
+        // ═══════════════════════════════════════════
+        const clock = new THREE.Clock();
+
+        function startAnimation() {
+            function animate() {
+                requestAnimationFrame(animate);
+                const t = clock.getElapsedTime();
+
+                mouse.sx += (mouse.x - mouse.sx) * 0.04;
+                mouse.sy += (mouse.y - mouse.sy) * 0.04;
+
+                const mouseWorld = new THREE.Vector3(mouse.sx * 8, mouse.sy * 5, 0);
+                const posArr = geometry.attributes.position.array;
+
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    const i3 = i * 3;
+
+                    // Physics: spring to target
+                    const dx = targetPositions[i3] - posArr[i3];
+                    const dy = targetPositions[i3 + 1] - posArr[i3 + 1];
+                    const dz = targetPositions[i3 + 2] - posArr[i3 + 2];
+
+                    velocities[i3] += dx * 0.03;
+                    velocities[i3 + 1] += dy * 0.03;
+                    velocities[i3 + 2] += dz * 0.03;
+
+                    // Mouse interaction
+                    const mx = posArr[i3] - mouseWorld.x;
+                    const my = posArr[i3 + 1] - mouseWorld.y;
+                    const mz = posArr[i3 + 2] - mouseWorld.z;
+                    const md = Math.sqrt(mx * mx + my * my + mz * mz);
+
+                    // Repel logic
+                    if (md < 4.0) {
+                        const force = (4.0 - md) * 0.02;
+                        velocities[i3] += (mx / md) * force * 2.5;
+                    }
+
+                    velocities[i3] *= 0.85; // Damping
+                    velocities[i3 + 1] *= 0.85;
+                    velocities[i3 + 2] *= 0.85;
+
+                    posArr[i3] += velocities[i3];
+                    posArr[i3 + 1] += velocities[i3 + 1];
+                    posArr[i3 + 2] += velocities[i3 + 2];
+                }
+                geometry.attributes.position.needsUpdate = true;
+
+                // Camera & Rendering
+                particleMat.uniforms.uTime.value = t;
+
+                // Simple parallax, no rotation
+                camera.position.x = mouse.sx * 0.5;
+                camera.position.y = mouse.sy * 0.5;
+                camera.lookAt(0, 0, 0);
+
+                // Post-processing
+                ppMat.uniforms.uIntensity.value = glitchIntensity.value;
+                ppMat.uniforms.uTime.value = t;
+
+                if (glitchIntensity.value > 0.01) {
+                    renderer.setRenderTarget(rtA);
+                    renderer.render(scene, camera);
+                    renderer.setRenderTarget(null);
+                    ppMat.uniforms.tDiffuse.value = rtA.texture;
+                    renderer.render(ppScene, ppCamera);
+                } else {
+                    renderer.render(scene, camera);
+                }
+            }
+            animate();
+        }
 
         window.addEventListener('resize', () => {
             camera.aspect = innerWidth / innerHeight;

@@ -371,7 +371,7 @@
         //  CONFIGURATION
         // ═══════════════════════════════════════════
         const PARTICLE_COUNT = 50000;
-        const TRANSITION_DURATION = 1.0;
+        const TRANSITION_DURATION = 3.0;
         const PARTICLE_OFFSET_X = 4.5;   // How far left/right particles shift
 
         // ═══════════════════════════════════════════
@@ -384,7 +384,7 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(innerWidth, innerHeight);
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-        renderer.setClearColor(0x000000, 1);
+        renderer.setClearColor(0xffffff, 1);
         renderer.domElement.id = 'main-canvas';
         document.body.prepend(renderer.domElement);
 

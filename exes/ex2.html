@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GUNSHIFT — Front-End Developer</title>
+    <title>HIFT — Digital Craft</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -13,186 +13,354 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            background: #fff;
-            color: #eee;
+            background: #000;
+            color: #fff;
             font-family: 'Outfit', sans-serif;
-            overflow: hidden;
-            cursor: pointer;
-            width: 100vw;
-            height: 100vh;
+            cursor: default;
         }
 
+        /* ── Fixed Three.js Canvas ── */
         canvas#main-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 2;
-        }
-
-        /* ── Background concentric circles ── */
-        .bg-circles {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.1;
-        }
-
-        .bg-circles .ring {
-            position: absolute;
-            border: 1px solid #444;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        /* ── UI Overlay ── */
-        .ui-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 10;
+            z-index: 2;
             pointer-events: none;
         }
 
-        .ui-overlay * {
-            pointer-events: auto;
+        /* ── Fixed Header ── */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 36px 44px;
+            pointer-events: none;
         }
 
-        .top-left {
-            position: absolute;
-            top: 36px;
-            left: 44px;
+        .header * {
+            pointer-events: auto;
         }
 
         .logo {
             font-weight: 800;
-            font-size: 1.15rem;
-            letter-spacing: 2px;
-            text-transform: lowercase;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
             color: #fff;
         }
 
-        .role {
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: #fff;
+            transition: transform 0.3s;
+        }
+
+        /* ── Fixed Sidebar Nav ── */
+        .sidebar-nav {
+            position: fixed;
+            left: 44px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .sidebar-nav a {
             font-size: 0.55rem;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #888;
-            margin-top: 4px;
-        }
-
-        .top-right {
-            position: absolute;
-            top: 40px;
-            right: 44px;
-        }
-
-        .top-right a {
-            font-size: 0.6rem;
-            text-transform: lowercase;
             letter-spacing: 3px;
-            color: #888;
+            color: #666;
             text-decoration: none;
-            margin-left: 28px;
             transition: color 0.3s;
         }
 
-        .top-right a:hover {
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
             color: #fff;
         }
 
-        /* ── Stage indicator ── */
-        .stage-label {
+        /* ── Sections ── */
+        .section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            z-index: 5;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .section * {
+            pointer-events: auto;
+        }
+
+        .section-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 44px 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* ── Text column ── */
+        .section-content {
+            z-index: 10;
+        }
+
+        /* ── Image placeholder column (particles render here via canvas) ── */
+        .section-image-area {
+            /* This is intentionally empty — particles from the fixed canvas fill this area */
+            min-height: 60vh;
+        }
+
+        /* ── Alternating layout ── */
+        /* Odd sections: text LEFT, image RIGHT (default grid order) */
+        /* Even sections: text RIGHT, image LEFT (reversed) */
+        .section--even .section-inner {
+            direction: rtl;
+        }
+
+        .section--even .section-inner>* {
+            direction: ltr;
+        }
+
+        .section--even .section-content {
+            text-align: right;
+        }
+
+        .section--even .section-divider {
+            margin-left: auto;
+        }
+
+        /* ── Typography ── */
+        .section-heading {
+            font-weight: 800;
+            font-size: clamp(3rem, 8vw, 7rem);
+            line-height: 0.95;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .section.in-view .section-heading {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-text {
+            font-weight: 300;
+            font-size: 0.75rem;
+            line-height: 1.8;
+            color: #999;
+            max-width: 320px;
+            letter-spacing: 0.5px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+        }
+
+        .section--even .section-text {
+            margin-left: auto;
+        }
+
+        .section.in-view .section-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Section divider ── */
+        .section-divider {
+            width: 60px;
+            height: 1px;
+            background: #333;
+            margin: 30px 0;
+            opacity: 0;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: opacity 0.6s ease 0.5s, transform 0.6s ease 0.5s;
+        }
+
+        .section--even .section-divider {
+            transform-origin: right;
+        }
+
+        .section.in-view .section-divider {
+            opacity: 1;
+            transform: scaleX(1);
+        }
+
+        /* ── Loading state ── */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: #666;
+            transition: opacity 0.6s;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ── Scroll indicator ── */
+        .scroll-indicator {
             position: fixed;
             bottom: 36px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 10;
-            font-size: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            color: #666;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.6s;
-        }
-
-        .stage-label.visible {
-            opacity: 1;
-        }
-
-        /* ── Progress dots ── */
-        .progress-dots {
-            position: fixed;
-            bottom: 36px;
-            right: 44px;
-            z-index: 10;
-            display: flex;
-            gap: 8px;
-            pointer-events: none;
-        }
-
-        .progress-dots .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #fff;
-            transition: background 0.4s, transform 0.4s;
-        }
-
-        .progress-dots .dot.active {
-            background: #fff;
-            transform: scale(1.4);
-        }
-
-        /* ── Interaction hint ── */
-        .hint {
-            position: fixed;
-            bottom: 36px;
-            left: 44px;
-            z-index: 10;
+            z-index: 100;
             font-size: 0.48rem;
             text-transform: uppercase;
             letter-spacing: 4px;
-            color: #666;
-            pointer-events: none;
+            color: #444;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- Background concentric circles -->
-    <div class="bg-circles" id="bgCircles"></div>
+    <!-- Loader -->
+    <div class="loader" id="loader">loading</div>
 
-    <!-- UI overlay -->
-    <div class="ui-overlay">
-        <div class="top-left">
-            <div class="logo">hift</div>
-            <div class="role">front-end developer</div>
+    <!-- Fixed Header -->
+    <header class="header">
+        <div class="logo">HIFT</div>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
-        <div class="top-right">
-            <a href="#">top</a>
-            <a href="#">works</a>
-            <a href="#">about</a>
+    </header>
+
+    <!-- Sidebar Nav -->
+    <nav class="sidebar-nav">
+        <a href="#section-0" class="active">Top</a>
+        <a href="#section-1">Story</a>
+        <a href="#section-2">Works</a>
+        <a href="#section-3">Contact</a>
+    </nav>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator" id="scrollIndicator">scroll</div>
+
+    <!-- Section 1: Text LEFT, Image RIGHT -->
+    <section class="section section--odd" id="section-0" data-shape="0" data-image-side="right">
+        <div class="section-inner">
+            <div class="section-content">
+                <h2 class="section-heading">Evolving<br>Ideas</h2>
+                <div class="section-divider"></div>
+                <p class="section-text">
+                    Lorem ipsum dolor sit amet, evolving
+                    adipiscing elit. sed do eiusmod tempor incididunt
+                    out labore. Dolore et harumd dereud
+                    from image_fixing
+                </p>
+            </div>
+            <div class="section-image-area"></div>
         </div>
-    </div>
+    </section>
 
-    <!-- Stage label -->
-    <div class="stage-label" id="stageLabel"></div>
+    <!-- Section 2: Text RIGHT, Image LEFT -->
+    <section class="section section--even" id="section-1" data-shape="1" data-image-side="left">
+        <div class="section-inner">
+            <div class="section-content">
+                <h2 class="section-heading">Digital<br>Craft</h2>
+                <div class="section-divider"></div>
+                <p class="section-text">
+                    Lorem ipsum dolor sit amet, consectetur
+                    adipiscing elit. sed do eiusmod diam nonumy eirmod
+                    from image_fixing
+                </p>
+            </div>
+            <div class="section-image-area"></div>
+        </div>
+    </section>
 
-    <!-- Progress dots -->
-    <div class="progress-dots" id="progressDots">
-        <div class="dot active"></div>
-    </div>
+    <!-- Section 3: Text LEFT, Image RIGHT -->
+    <section class="section section--odd" id="section-2" data-shape="2" data-image-side="right">
+        <div class="section-inner">
+            <div class="section-content">
+                <h2 class="section-heading">Visual<br>Form</h2>
+                <div class="section-divider"></div>
+                <p class="section-text">
+                    Lorem ipsum dolor sit amet, consectetur
+                    adipiscing elit. Ut enim ad minim veniam
+                    quis nostrud exercitation
+                </p>
+            </div>
+            <div class="section-image-area"></div>
+        </div>
+    </section>
 
-    <!-- Hint -->
-    <div class="hint" id="hint">loading...</div>
+    <!-- Section 4: Text RIGHT, Image LEFT -->
+    <section class="section section--even" id="section-3" data-shape="3" data-image-side="left">
+        <div class="section-inner">
+            <div class="section-content">
+                <h2 class="section-heading">Digital<br>Motion</h2>
+                <div class="section-divider"></div>
+                <p class="section-text">
+                    Lorem ipsum dolor sit amet, consectetur
+                    adipiscing elit. sed do eiusmod diam nonumy eirmod
+                    from image_fixing
+                </p>
+            </div>
+            <div class="section-image-area"></div>
+        </div>
+    </section>
 
     <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -203,36 +371,8 @@
         //  CONFIGURATION
         // ═══════════════════════════════════════════
         const PARTICLE_COUNT = 50000;
-        const TRANSITION_DURATION = 5.0;
-
-        // ═══════════════════════════════════════════
-        //  CONCENTRIC CIRCLES BACKGROUND
-        // ═══════════════════════════════════════════
-        (function createCircles() {
-            const container = document.getElementById('bgCircles');
-            const sizes = [120, 220, 340, 480, 640, 820, 1020];
-            sizes.forEach(s => {
-                const ring = document.createElement('div');
-                ring.className = 'ring';
-                ring.style.width = s + 'px';
-                ring.style.height = s + 'px';
-                container.appendChild(ring);
-            });
-            // Slow drift animation
-            gsap.to(container, {
-                rotation: 360,
-                duration: 120,
-                repeat: -1,
-                ease: 'none'
-            });
-            gsap.to(container, {
-                x: 20, y: 15,
-                duration: 8,
-                yoyo: true,
-                repeat: -1,
-                ease: 'sine.inOut'
-            });
-        })();
+        const TRANSITION_DURATION = 1.0;
+        const PARTICLE_OFFSET_X = 4.5;   // How far left/right particles shift
 
         // ═══════════════════════════════════════════
         //  THREE.JS SETUP
@@ -244,14 +384,13 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(innerWidth, innerHeight);
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-        renderer.setClearColor(0xffffff, 1);
+        renderer.setClearColor(0x000000, 1);
         renderer.domElement.id = 'main-canvas';
         document.body.prepend(renderer.domElement);
 
-        // ── Render targets for post-processing ──
         const rtA = new THREE.WebGLRenderTarget(innerWidth * Math.min(devicePixelRatio, 2), innerHeight * Math.min(devicePixelRatio, 2));
 
-        // ── Post-processing scene (chromatic aberration) ──
+        // Post-processing
         const ppScene = new THREE.Scene();
         const ppCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         const ppMat = new THREE.ShaderMaterial({
@@ -274,13 +413,11 @@
                 varying vec2 vUv;
                 void main() {
                     vec2 dir = vUv - vec2(0.5);
-                    float dist = length(dir);
                     float offset = uIntensity * (0.008 + 0.004 * sin(uTime * 8.0));
                     float r = texture2D(tDiffuse, vUv + dir * offset).r;
                     float g = texture2D(tDiffuse, vUv).g;
                     float b = texture2D(tDiffuse, vUv - dir * offset).b;
                     float a = texture2D(tDiffuse, vUv).a;
-                    // Scanline / static noise
                     float noise = fract(sin(dot(vUv * uTime * 0.1, vec2(12.9898, 78.233))) * 43758.5453);
                     float scanline = 1.0 - 0.04 * uIntensity * sin(vUv.y * 800.0 + uTime * 10.0);
                     gl_FragColor = vec4(r * scanline, g * scanline, b * scanline, a) + vec4(noise * 0.015 * uIntensity);
@@ -288,35 +425,22 @@
             `,
             transparent: true
         });
-        const ppQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), ppMat);
-        ppScene.add(ppQuad);
+        ppScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), ppMat));
 
         // ═══════════════════════════════════════════
-        //  MOSAIC TILE TEXTURE (square with gap border)
+        //  MOSAIC TILE TEXTURE
         // ═══════════════════════════════════════════
         function createNoiseSprite() {
-            const size = 64;
-            const gap = 3; // pixel border gap for mosaic look
+            const size = 64, gap = 3;
             const c = document.createElement('canvas');
             c.width = size; c.height = size;
             const ctx = c.getContext('2d');
             const imgData = ctx.createImageData(size, size);
             for (let i = 0; i < imgData.data.length; i += 4) {
-                const px = (i / 4) % size;
-                const py = Math.floor((i / 4) / size);
-                // Square tile with gap border (mosaic grout)
+                const px = (i / 4) % size, py = Math.floor((i / 4) / size);
                 const inTile = px >= gap && px < size - gap && py >= gap && py < size - gap;
-                if (inTile) {
-                    imgData.data[i] = 255;
-                    imgData.data[i + 1] = 255;
-                    imgData.data[i + 2] = 255;
-                    imgData.data[i + 3] = 255;
-                } else {
-                    imgData.data[i] = 0;
-                    imgData.data[i + 1] = 0;
-                    imgData.data[i + 2] = 0;
-                    imgData.data[i + 3] = 0;
-                }
+                imgData.data[i] = imgData.data[i + 1] = imgData.data[i + 2] = inTile ? 255 : 0;
+                imgData.data[i + 3] = inTile ? 255 : 0;
             }
             ctx.putImageData(imgData, 0, 0);
             const tex = new THREE.CanvasTexture(c);
@@ -324,26 +448,22 @@
             return tex;
         }
 
-        const spriteTex = createNoiseSprite();
-
         // ═══════════════════════════════════════════
-        //  PARTICLE MATERIAL (custom shader)
+        //  PARTICLE MATERIAL
         // ═══════════════════════════════════════════
         const particleMat = new THREE.ShaderMaterial({
             uniforms: {
                 uTime: { value: 0 },
-                uSprite: { value: spriteTex },
+                uSprite: { value: createNoiseSprite() },
                 uSize: { value: 16.0 * Math.min(devicePixelRatio, 2) }
             },
             vertexShader: `
                 attribute vec3 aColor;
                 varying vec3 vColor;
                 uniform float uSize;
-                uniform float uTime;
                 void main() {
                     vColor = aColor;
                     vec4 mv = modelViewMatrix * vec4(position, 1.0);
-                    // Scale size by distance
                     gl_PointSize = uSize * (2.0 / -mv.z);
                     gl_Position = projectionMatrix * mv;
                 }
@@ -355,8 +475,6 @@
                 void main() {
                     vec4 sprite = texture2D(uSprite, gl_PointCoord);
                     if (sprite.a < 0.1) discard;
-
-                    // Add subtle flicker
                     float flicker = 0.9 + 0.1 * sin(uTime * 10.0 + gl_PointCoord.x * 10.0);
                     gl_FragColor = vec4(vColor * flicker, sprite.a);
                 }
@@ -373,93 +491,82 @@
         const positions = new Float32Array(PARTICLE_COUNT * 3);
         const velocities = new Float32Array(PARTICLE_COUNT * 3);
         const colors = new Float32Array(PARTICLE_COUNT * 3);
-
-        // Morph system: lerp between prevTargets and nextTargets
         const prevTargets = new Float32Array(PARTICLE_COUNT * 3);
         const nextTargets = new Float32Array(PARTICLE_COUNT * 3);
         const targetPositions = new Float32Array(PARTICLE_COUNT * 3);
-
-        // Per-particle random delay offsets for staggered morphing
         const staggerOffsets = new Float32Array(PARTICLE_COUNT);
-        for (let i = 0; i < PARTICLE_COUNT; i++) {
-            staggerOffsets[i] = Math.random();
-        }
+        for (let i = 0; i < PARTICLE_COUNT; i++) staggerOffsets[i] = Math.random();
 
         // ═══════════════════════════════════════════
         //  MOUSE TRACKING
         // ═══════════════════════════════════════════
-        const mouse = { x: 0, y: 0, sx: 0, sy: 0 }; // sx/sy = smoothed
+        const mouse = { x: 0, y: 0, sx: 0, sy: 0 };
         document.addEventListener('mousemove', e => {
             mouse.x = (e.clientX / innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / innerHeight) * 2 + 1;
         });
 
         // ═══════════════════════════════════════════
-        //  SHAPE GENERATORS
+        //  IMAGE LOADER
         // ═══════════════════════════════════════════
-
-        // Image-based shape
         function generateFromImage(imgSrc, count) {
             return new Promise((resolve) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.onload = () => {
-                    const c = document.createElement('canvas');
-                    const maxW = 512;
-                    const scale = Math.min(maxW / img.width, maxW / img.height);
-                    c.width = Math.floor(img.width * scale);
-                    c.height = Math.floor(img.height * scale);
-                    const ctx = c.getContext('2d');
-                    ctx.drawImage(img, 0, 0, c.width, c.height);
-                    const data = ctx.getImageData(0, 0, c.width, c.height).data;
+                function loadImage(useCors) {
+                    const img = new Image();
+                    if (useCors) img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                        const c = document.createElement('canvas');
+                        const maxW = 512;
+                        const scale = Math.min(maxW / img.width, maxW / img.height);
+                        c.width = Math.floor(img.width * scale);
+                        c.height = Math.floor(img.height * scale);
+                        const ctx = c.getContext('2d');
+                        ctx.drawImage(img, 0, 0, c.width, c.height);
 
-                    // Build weighted list of pixel positions
-                    const candidates = [];
-                    for (let y = 0; y < c.height; y++) {
-                        for (let x = 0; x < c.width; x++) {
-                            const idx = (y * c.width + x) * 4;
-                            const r = data[idx], g = data[idx + 1], b = data[idx + 2], a = data[idx + 3];
-                            // Only take visible pixels
-                            if (a > 20) {
-                                candidates.push({ x, y, r, g, b });
+                        let data;
+                        try {
+                            data = ctx.getImageData(0, 0, c.width, c.height).data;
+                        } catch (e) {
+                            if (useCors) { loadImage(false); return; }
+                            const pos = [], col = [];
+                            const aspect = c.width / c.height, worldH = 12, worldW = worldH * aspect;
+                            for (let i = 0; i < count; i++) {
+                                pos.push((Math.random() - 0.5) * worldW, (Math.random() - 0.5) * worldH, (Math.random() - 0.5) * 0.2);
+                                col.push(0.6, 0.6, 0.6);
+                            }
+                            resolve({ positions: new Float32Array(pos), colors: new Float32Array(col) });
+                            return;
+                        }
+
+                        const candidates = [];
+                        for (let y = 0; y < c.height; y++)
+                            for (let x = 0; x < c.width; x++) {
+                                const idx = (y * c.width + x) * 4;
+                                if (data[idx + 3] > 20) candidates.push({ x, y, r: data[idx], g: data[idx + 1], b: data[idx + 2] });
+                            }
+
+                        const pos = [], col = [];
+                        const aspect = c.width / c.height, worldH = 12, worldW = worldH * aspect;
+                        for (let i = 0; i < count; i++) {
+                            const cand = candidates[Math.floor(Math.random() * candidates.length)];
+                            if (cand) {
+                                pos.push((cand.x / c.width - 0.5) * worldW, (0.5 - cand.y / c.height) * worldH, (Math.random() - 0.5) * 0.2);
+                                col.push(cand.r / 255, cand.g / 255, cand.b / 255);
+                            } else {
+                                pos.push((Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8, 0);
+                                col.push(1, 1, 1);
                             }
                         }
-                    }
-
-                    const positions = [];
-                    const cols = [];
-                    const aspect = c.width / c.height;
-                    const worldH = 20;
-                    const worldW = worldH * aspect;
-
-                    for (let i = 0; i < count; i++) {
-                        const cand = candidates[Math.floor(Math.random() * candidates.length)];
-                        if (cand) {
-                            // Map pixel x,y to world x,y
-                            const px = (cand.x / c.width - 0.5) * worldW;
-                            const py = (0.5 - cand.y / c.height) * worldH;
-                            const pz = (Math.random() - 0.5) * 0.2; // slight depth
-                            positions.push(px, py, pz);
-
-                            // Color
-                            cols.push(cand.r / 255, cand.g / 255, cand.b / 255);
-                        } else {
-                            // Fallback if not enough pixels
-                            positions.push((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, 0);
-                            cols.push(1, 1, 1);
-                        }
-                    }
-                    resolve({ positions: new Float32Array(positions), colors: new Float32Array(cols) });
-                };
-                img.onerror = () => {
-                    // Fallback to random if image fails
-                    const arr = [];
-                    for (let i = 0; i < count; i++) {
-                        arr.push((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, 0);
-                    }
-                    resolve({ positions: new Float32Array(arr), colors: new Float32Array(count * 3).fill(1) });
-                };
-                img.src = imgSrc;
+                        resolve({ positions: new Float32Array(pos), colors: new Float32Array(col) });
+                    };
+                    img.onerror = () => {
+                        const arr = [];
+                        for (let i = 0; i < count; i++) arr.push((Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8, 0);
+                        resolve({ positions: new Float32Array(arr), colors: new Float32Array(count * 3).fill(1) });
+                    };
+                    img.src = imgSrc;
+                }
+                loadImage(true);
             });
         }
 
@@ -467,37 +574,30 @@
         //  IMAGE URLS & SHAPES
         // ═══════════════════════════════════════════
         const IMAGE_URLS = [
-            'C:/Users/HP/Desktop/nuclear-launch-codes/hyen_web/exes/Untitled.png',
+            'https://images.unsplash.com/photo-1570158268183-d296b2892211?w=600&auto=format&fit=crop&q=60',
             'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=512&auto=format&fit=crop',
-            // 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=512&auto=format&fit=crop',
-            // 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=512&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1770387795112-e2b476b15f71?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+            'https://images.unsplash.com/photo-1770387795112-e2b476b15f71?q=80&w=387&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1612379009485-2ad55066fb16?q=80&w=387&auto=format&fit=crop'
         ];
 
-        const CYCLE_INTERVAL = 15; // seconds between image changes
-
-        const shapes = IMAGE_URLS.map((_, i) => ({
-            data: null, colors: null, label: 'form', name: `Image ${i + 1}`
-        }));
+        const shapes = IMAGE_URLS.map(() => ({ data: null, colors: null }));
 
         let currentShape = 0;
         let isTransitioning = false;
         let glitchIntensity = { value: 0 };
         let morphProgress = { value: 1.0 };
 
+        // Track the target X position for the particle group
+        let particleGroupTargetX = PARTICLE_OFFSET_X; // Start right (first section has image on right)
+        let particleGroupTargetY = 0;
+
+        // Scroll direction tracking
+        let lastScrollY = 0;
+        let scrollDirection = 1; // 1 = down, -1 = up
+
         // ═══════════════════════════════════════════
         //  TRANSITION SYSTEM
         // ═══════════════════════════════════════════
-        const stageLabel = document.getElementById('stageLabel');
-        const dots = document.querySelectorAll('.progress-dots .dot');
-        const hint = document.getElementById('hint');
-
-        function showStageLabel(text) {
-            stageLabel.textContent = text;
-            stageLabel.classList.add('visible');
-            gsap.delayedCall(2, () => stageLabel.classList.remove('visible'));
-        }
-
         function easeInOut(t) {
             return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         }
@@ -516,27 +616,34 @@
             }
         }
 
-        function transitionToShape(index) {
+        function transitionToShape(index, imageSide) {
             if (isTransitioning) return;
-            if (index === currentShape) return;
+            if (index === currentShape) {
+                // Even if same shape, still move particles if side changed
+                moveParticlesToSide(imageSide);
+                return;
+            }
             const shape = shapes[index];
-            if (!shape.data) return; // not loaded yet
+            if (!shape.data) return;
 
             isTransitioning = true;
             currentShape = index;
 
-            // Glitch effect on transition
+            // Move particles to the correct side
+            moveParticlesToSide(imageSide);
+
+            // Glitch effect
             gsap.fromTo(glitchIntensity, { value: 0 }, {
-                value: 1.0, duration: 0.2, yoyo: true, repeat: 3, ease: 'power2.inOut',
-                onComplete: () => gsap.to(glitchIntensity, { value: 0, duration: 0.5 })
+                value: 1.0, duration: 0.15, yoyo: true, repeat: 3, ease: 'power2.inOut',
+                onComplete: () => gsap.to(glitchIntensity, { value: 0, duration: 0.4 })
             });
 
-            // Set targets
+            // Morph positions
             prevTargets.set(targetPositions);
             nextTargets.set(shape.data);
             morphProgress.value = 0;
 
-            // Animate Colors
+            // Morph colors
             if (shape.colors) {
                 const startColors = new Float32Array(geometry.attributes.aColor.array);
                 const endColors = shape.colors;
@@ -547,9 +654,8 @@
                     ease: 'power1.inOut',
                     onUpdate: () => {
                         const colorArr = geometry.attributes.aColor.array;
-                        const t = colorObj.t;
                         for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-                            colorArr[i] = startColors[i] + (endColors[i] - startColors[i]) * t;
+                            colorArr[i] = startColors[i] + (endColors[i] - startColors[i]) * colorObj.t;
                         }
                         geometry.attributes.aColor.needsUpdate = true;
                     }
@@ -561,30 +667,88 @@
                 duration: TRANSITION_DURATION,
                 ease: 'power2.inOut',
                 onUpdate: updateTargetsFromMorph,
+                onComplete: () => { isTransitioning = false; }
+            });
+        }
+
+        function moveParticlesToSide(side) {
+            const targetX = (side === 'left') ? -PARTICLE_OFFSET_X : PARTICLE_OFFSET_X;
+
+            // Vertical kick based on scroll direction
+            const kickY = scrollDirection * -2.0;
+
+            gsap.to(scene.position, {
+                x: targetX,
+                duration: TRANSITION_DURATION * 0.8,
+                ease: 'power3.inOut'
+            });
+
+            // Vertical movement: kick then return
+            gsap.to(scene.position, {
+                y: kickY,
+                duration: TRANSITION_DURATION * 0.3,
+                ease: 'power2.out',
                 onComplete: () => {
-                    isTransitioning = false;
+                    gsap.to(scene.position, {
+                        y: 0,
+                        duration: TRANSITION_DURATION * 0.5,
+                        ease: 'power2.inOut'
+                    });
                 }
             });
         }
 
-        // Auto-cycle to next image
-        function cycleToNext() {
-            const next = (currentShape + 1) % shapes.length;
-            // Find next loaded shape
-            for (let i = 0; i < shapes.length; i++) {
-                const idx = (currentShape + 1 + i) % shapes.length;
-                if (shapes[idx].data) {
-                    transitionToShape(idx);
-                    return;
-                }
+        // ═══════════════════════════════════════════
+        //  SCROLL-DRIVEN TRANSITIONS
+        // ═══════════════════════════════════════════
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+        // Track scroll direction
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            scrollDirection = currentScrollY > lastScrollY ? 1 : -1;
+            lastScrollY = currentScrollY;
+
+            // Hide scroll indicator
+            if (currentScrollY > 100) {
+                document.getElementById('scrollIndicator').style.opacity = '0';
+            } else {
+                document.getElementById('scrollIndicator').style.opacity = '';
             }
-        }
+        }, { passive: true });
+
+        // IntersectionObserver for section transitions
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const section = entry.target;
+                    const shapeIdx = parseInt(section.dataset.shape);
+                    const imageSide = section.dataset.imageSide;
+
+                    // Text reveal
+                    section.classList.add('in-view');
+
+                    // Trigger particle transition + side movement
+                    if (!isNaN(shapeIdx) && shapes[shapeIdx] && shapes[shapeIdx].data) {
+                        transitionToShape(shapeIdx, imageSide);
+                    }
+
+                    // Update sidebar nav
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    const activeLink = document.querySelector(`.sidebar-nav a[href="#${section.id}"]`);
+                    if (activeLink) activeLink.classList.add('active');
+                }
+            });
+        }, { threshold: 0.4 });
+
+        sections.forEach(s => observer.observe(s));
 
         // ═══════════════════════════════════════════
-        //  INIT: Load all images, start with first one ready
+        //  INIT
         // ═══════════════════════════════════════════
+        const loader = document.getElementById('loader');
 
-        // Load all images in parallel
         const loadPromises = IMAGE_URLS.map((url, i) =>
             generateFromImage(url, PARTICLE_COUNT).then(result => {
                 shapes[i].data = result.positions;
@@ -592,37 +756,30 @@
             })
         );
 
-        // Once the first image is loaded, start rendering immediately
         loadPromises[0].then(() => {
             const first = shapes[0];
-
-            // Initialize particles directly at first image positions
             positions.set(first.data);
             colors.set(first.colors);
-
-            // Set all target arrays to match
             prevTargets.set(first.data);
             nextTargets.set(first.data);
             targetPositions.set(first.data);
 
             geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             geometry.setAttribute('aColor', new THREE.BufferAttribute(colors, 3));
+            scene.add(new THREE.Points(geometry, particleMat));
 
-            const particles = new THREE.Points(geometry, particleMat);
-            scene.add(particles);
+            // Position particles on the right side (first section: image right)
+            scene.position.x = PARTICLE_OFFSET_X;
 
-            // Hide loading hint
-            gsap.to(hint, { opacity: 0, duration: 0.5 });
+            loader.classList.add('hidden');
+            setTimeout(() => loader.remove(), 600);
+            sections[0].classList.add('in-view');
 
-            // Start animation loop
             startAnimation();
-
-            // Start auto-cycling
-            setInterval(cycleToNext, CYCLE_INTERVAL * 1000);
         });
 
         // ═══════════════════════════════════════════
-        //  ANIMATION LOOP (starts after image loads)
+        //  ANIMATION LOOP
         // ═══════════════════════════════════════════
         const clock = new THREE.Clock();
 
@@ -634,13 +791,17 @@
                 mouse.sx += (mouse.x - mouse.sx) * 0.04;
                 mouse.sy += (mouse.y - mouse.sy) * 0.04;
 
-                const mouseWorld = new THREE.Vector3(mouse.sx * 8, mouse.sy * 5, 0);
+                // Mouse world position — offset by scene position so repulsion works correctly
+                const mouseWorld = new THREE.Vector3(
+                    mouse.sx * 8 - scene.position.x,
+                    mouse.sy * 5 - scene.position.y,
+                    0
+                );
                 const posArr = geometry.attributes.position.array;
 
                 for (let i = 0; i < PARTICLE_COUNT; i++) {
                     const i3 = i * 3;
 
-                    // Physics: spring to target
                     const dx = targetPositions[i3] - posArr[i3];
                     const dy = targetPositions[i3 + 1] - posArr[i3 + 1];
                     const dz = targetPositions[i3 + 2] - posArr[i3 + 2];
@@ -649,19 +810,17 @@
                     velocities[i3 + 1] += dy * 0.03;
                     velocities[i3 + 2] += dz * 0.03;
 
-                    // Mouse interaction
                     const mx = posArr[i3] - mouseWorld.x;
                     const my = posArr[i3 + 1] - mouseWorld.y;
                     const mz = posArr[i3 + 2] - mouseWorld.z;
                     const md = Math.sqrt(mx * mx + my * my + mz * mz);
 
-                    // Repel logic
                     if (md < 4.0) {
                         const force = (4.0 - md) * 0.02;
                         velocities[i3] += (mx / md) * force * 2.5;
                     }
 
-                    velocities[i3] *= 0.85; // Damping
+                    velocities[i3] *= 0.85;
                     velocities[i3 + 1] *= 0.85;
                     velocities[i3 + 2] *= 0.85;
 
@@ -671,15 +830,13 @@
                 }
                 geometry.attributes.position.needsUpdate = true;
 
-                // Camera & Rendering
                 particleMat.uniforms.uTime.value = t;
 
-                // Simple parallax, no rotation
-                camera.position.x = mouse.sx * 0.5;
-                camera.position.y = mouse.sy * 0.5;
-                camera.lookAt(0, 0, 0);
+                // Subtle parallax
+                camera.position.x = mouse.sx * 0.3 + scene.position.x * 0.1;
+                camera.position.y = mouse.sy * 0.3;
+                camera.lookAt(scene.position.x * 0.5, 0, 0);
 
-                // Post-processing
                 ppMat.uniforms.uIntensity.value = glitchIntensity.value;
                 ppMat.uniforms.uTime.value = t;
 

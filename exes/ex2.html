@@ -190,6 +190,110 @@
                 opacity: 0;
             }
         }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* ── Works Section ── */
+        #works-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 101;
+            padding: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.0);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.0s ease;
+        }
+
+        #works-section.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .works-header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #222;
+        }
+
+        .works-header h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .works-grid {
+            display: flex;
+            gap: 40px;
+            perspective: 1000px;
+        }
+
+        .work-item {
+            width: 250px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .work-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .work-item img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .work-item h3 {
+            font-size: 1.2rem;
+            color: #444;
+        }
+
+        .back-btn {
+            margin-top: 50px;
+            padding: 10px 30px;
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Helper to hide UI during transition */
+        .hidden-ui {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
     </style>
 </head>
 
@@ -201,7 +305,7 @@
     <div class="ui-overlay">
         <div class="top-left">
             <a href="#">top</a>
-            <a href="#">works</a>
+            <a href="#" id="navWorks">works</a>
             <a href="#">about</a>
         </div>
         <!-- <div class="top-right">
@@ -226,6 +330,29 @@
                 ">Book
                 Appointment</a>
         </div>
+    </div>
+
+    <!-- Works Section -->
+    <div id="works-section">
+        <div class="works-header">
+            <h2>Select Projects</h2>
+            <p>Our best work</p>
+        </div>
+        <div class="works-grid">
+            <div class="work-item">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400" alt="Project 1">
+                <h3>Neon Cyber</h3>
+            </div>
+            <div class="work-item">
+                <img src="https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=400" alt="Project 2">
+                <h3>Flux Dynamics</h3>
+            </div>
+            <div class="work-item">
+                <img src="https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=400" alt="Project 3">
+                <h3>Aether Lens</h3>
+            </div>
+        </div>
+        <button class="back-btn" id="backToHero">Back</button>
     </div>
 
     <!-- Stage label -->
@@ -790,8 +917,10 @@
 
         // Initialize auto-play timer
         let autoPlayTimer = gsap.delayedCall(AUTO_PLAY_INTERVAL, nextSlide);
+        let viewState = 'hero'; // 'hero' | 'works'
 
         function nextSlide() {
+            if (viewState !== 'hero') return; // Pause auto-play if not in hero view
             const next = (currentShape + 1) % SLIDES.length;
             if (shapes[next].data) {
                 transitionToShape(next);
@@ -799,11 +928,78 @@
             autoPlayTimer.restart(true);
         }
 
+        // ── NAVIGATION LOGIC ──
+        const uiOverlay = document.querySelector('.ui-overlay');
+        const worksSection = document.getElementById('works-section');
+        const navWorksBtn = document.getElementById('navWorks');
+        const backToHeroBtn = document.getElementById('backToHero');
+
+        function navigateToWorks() {
+            if (viewState === 'works') return;
+            viewState = 'works';
+
+            // 1. Pause auto-play
+            autoPlayTimer.pause();
+
+            // 2. Disperse to cloud (shape 0)
+            transitionToShape(0);
+
+            // 3. Move Camera Deep (Warp Effect)
+            gsap.to(camera.position, {
+                z: -50,
+                duration: 2.5,
+                ease: "power2.inOut"
+            });
+
+            // 4. Fade UI
+            uiOverlay.classList.add('hidden-ui');
+            gsap.delayedCall(1.0, () => {
+                worksSection.classList.add('active');
+            });
+        }
+
+        function navigateToHero() {
+            if (viewState === 'hero') return;
+            viewState = 'hero';
+
+            // 1. Reset Camera
+            gsap.to(camera.position, {
+                z: 14,
+                duration: 2.0,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    // Form first image again
+                    transitionToShape(1);
+                    autoPlayTimer.restart(true);
+                }
+            });
+
+            // 2. Fade UI
+            worksSection.classList.remove('active');
+            gsap.delayedCall(1.0, () => {
+                uiOverlay.classList.remove('hidden-ui');
+            });
+        }
+
+        navWorksBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateToWorks();
+        });
+
+        backToHeroBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateToHero();
+        });
+
         // Cycle to next image on click
         document.addEventListener('click', (e) => {
-            // Don't trigger on link clicks
-            if (e.target.tagName === 'A') return;
-            nextSlide();
+            // Don't trigger on link clicks or buttons
+            if (e.target.closest('a') || e.target.closest('button')) return;
+
+            // Only allow cycling in hero view
+            if (viewState === 'hero') {
+                nextSlide();
+            }
         });
 
         // Hide hint

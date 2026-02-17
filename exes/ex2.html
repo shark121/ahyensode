@@ -56,6 +56,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            gap: 4;
             top: 0;
             left: 5%;
             width: 100vw;
@@ -167,7 +168,28 @@
             pointer-events: none;
         }
 
-        .hero-text {}
+        /* ── Typewriter cursor ── */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: #222;
+            margin-left: 2px;
+            animation: blink 0.7s steps(1) infinite;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -188,16 +210,21 @@
         </div> -->
 
 
-        <div class="hero-text">
-            <h1 style="font-size: 3rem; font-weight: 800; color: #222;">Where strategy, design<br>and technology meet
-            </h1>
+        <div class="hero-text" style="margin-top: 200px; display: flex; flex-direction: column; gap: 20px; ">
+            <h1 id="heroTitle" style="font-size: 3rem; font-weight: 800; color: #222; min-height: 4.5rem;"></h1>
             <p style="font-size: 1rem; font-weight: 400; color: #222;">We create high performance websites, web
                 applications,
                 <br>
                 and user interfaces using modern client-side
                 JavaScript and thin server architecture
             </p>
-            <a href="#" class="cta-btn">Get Started</a>
+            <a href="#" class="cta-btn" style="font-size: 1rem; font-weight: 400; color: #000; height: 30px; padding: 4px; 
+                background-color: #7FFFD4; border-radius: 15px; margin-top: 10px; text-decoration: none;width: 200px; 
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                ">Book
+                Appointment</a>
         </div>
     </div>
 
@@ -205,10 +232,7 @@
     <div class="stage-label" id="stageLabel"></div>
 
     <!-- Progress dots -->
-    <div class="progress-dots" id="progressDots">
-        <div class="dot active"></div>
-        <div class="dot"></div>
-    </div>
+    <div class="progress-dots" id="progressDots"></div>
 
     <!-- Hint -->
     <div class="hint" id="hint">click to disperse / form</div>
@@ -221,8 +245,10 @@
         // ═══════════════════════════════════════════
         //  CONFIGURATION
         // ═══════════════════════════════════════════
-        const PARTICLE_COUNT = 30000;
-        const TRANSITION_DURATION = 2.0;
+        const PARTICLE_COUNT = 40000;
+        const TRANSITION_DURATION = 3.0;
+        const AUTO_PLAY_INTERVAL = 10.0;
+        const TEXT_DELAY = 2.0;
 
         // ═══════════════════════════════════════════
         //  CONCENTRIC CIRCLES BACKGROUND
@@ -517,34 +543,132 @@
         }
 
         // ═══════════════════════════════════════════
-        //  PRE-COMPUTE ALL SHAPES
+        //  SLIDES DATA (images + hero text)
         // ═══════════════════════════════════════════
-        const IMAGE_URL = 'https://i.ibb.co/9mCqwtq8/Untitled.png';
-
-        const shapes = [
-            { data: generateCloud(PARTICLE_COUNT), colors: null, label: 'disperse', name: 'Cloud' },
-            { data: null, colors: null, label: 'form', name: 'Image' }
+        const SLIDES = [
+            {
+                image: 'https://i.ibb.co/9mCqwtq8/Untitled.png',
+                title: 'Where strategy, design\nand technology meet',
+                desc: 'We create high performance websites, web applications,\nand user interfaces using modern client-side JavaScript and thin server architecture'
+            },
+            {
+                image: 'https://i.ibb.co/RpN2zPYn/Untitled-3.png',
+                title: 'Crafting digital\nexperiences that inspire',
+                desc: 'From concept to launch, we build immersive products\nthat captivate audiences and drive real business results'
+            },
+            {
+                image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600',
+                title: 'Innovation rooted\nin precision',
+                desc: 'We blend creative vision with technical excellence\nto deliver solutions that stand the test of time'
+            },
+            {
+                image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600',
+                title: 'Elevate your brand\nwith bold design',
+                desc: 'Our team transforms ideas into stunning visual narratives\nthat connect with your audience on every device'
+            },
+            {
+                image: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=600',
+                title: 'Building the future\none pixel at a time',
+                desc: 'Scalable, performant, and beautiful — we engineer\ndigital products that grow with your ambitions'
+            }
         ];
+
+        // Pre-build shapes array (one per slide)
+        const shapes = SLIDES.map((slide, i) => ({
+            data: null,
+            colors: null,
+            label: `slide ${i + 1}`,
+            name: slide.title
+        }));
+
+        // ═══════════════════════════════════════════
+        //  PROGRESS DOTS (auto-generated)
+        // ═══════════════════════════════════════════
+        const progressDotsContainer = document.getElementById('progressDots');
+        SLIDES.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            progressDotsContainer.appendChild(dot);
+        });
 
         // Initialize targets
         prevTargets.set(positions);
         nextTargets.set(positions);
         targetPositions.set(positions);
 
-        let currentShape = 0;
+        let currentShape = -1; // start at -1 so first transition works
         let isTransitioning = false;
         let glitchIntensity = { value: 0 };
         let morphProgress = { value: 1.0 };
 
         // ═══════════════════════════════════════════
+        //  TYPEWRITER EFFECT
+        // ═══════════════════════════════════════════
+        const heroTitle = document.getElementById('heroTitle');
+        let typewriterTimeline = null;
+
+        function typewriterAnimate(element, text, speed = 30) {
+            return new Promise(resolve => {
+                // Convert \n to <br>
+                const chars = [];
+                const htmlText = text.replace(/\n/g, '<br>');
+                let i = 0;
+                element.innerHTML = '<span class="typewriter-cursor"></span>';
+
+                // Parse chars, treating <br> as single token
+                const tokens = [];
+                let j = 0;
+                while (j < htmlText.length) {
+                    if (htmlText.substring(j, j + 4) === '<br>') {
+                        tokens.push('<br>');
+                        j += 4;
+                    } else {
+                        tokens.push(htmlText[j]);
+                        j++;
+                    }
+                }
+
+                let built = '';
+                function typeNext() {
+                    if (i < tokens.length) {
+                        built += tokens[i];
+                        element.innerHTML = built + '<span class="typewriter-cursor"></span>';
+                        i++;
+                        setTimeout(typeNext, tokens[i - 1] === '<br>' ? speed * 3 : speed);
+                    } else {
+                        // Remove cursor after a short delay
+                        setTimeout(() => {
+                            element.innerHTML = built;
+                            resolve();
+                        }, 600);
+                    }
+                }
+                typeNext();
+            });
+        }
+
+        async function animateHeroText(slideIndex) {
+            const slide = SLIDES[slideIndex];
+            // Fade out old text
+            gsap.to(heroTitle, {
+                opacity: 0, duration: 0.3, onComplete: async () => {
+                    gsap.set(heroTitle, { opacity: 1 });
+                    // Type title
+                    await typewriterAnimate(heroTitle, slide.title, 35);
+                }
+            });
+        }
+
+        // ═══════════════════════════════════════════
         //  TRANSITION SYSTEM
         // ═══════════════════════════════════════════
         const stageLabel = document.getElementById('stageLabel');
-        const dots = document.querySelectorAll('.progress-dots .dot');
+        const dots = progressDotsContainer.querySelectorAll('.dot');
         const hint = document.getElementById('hint');
 
         function setActiveDot(index) {
-            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            const allDots = progressDotsContainer.querySelectorAll('.dot');
+            allDots.forEach((d, i) => d.classList.toggle('active', i === index));
         }
 
         function showStageLabel(text) {
@@ -584,6 +708,9 @@
 
             setActiveDot(index);
             showStageLabel(shape.label);
+
+            // Animate hero text with typewriter effect (delayed)
+            gsap.delayedCall(TEXT_DELAY, () => animateHeroText(index));
 
             // Glitch effect on transition
             gsap.fromTo(glitchIntensity, { value: 0 }, {
@@ -626,7 +753,6 @@
                         const colorArr = geometry.attributes.aColor.array;
                         const t = colorObj.t;
                         for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-                            // Fade to light grey
                             colorArr[i] = startColors[i] + (0.5 - startColors[i]) * t;
                         }
                         geometry.attributes.aColor.needsUpdate = true;
@@ -647,21 +773,37 @@
         //  INIT & EVENTS
         // ═══════════════════════════════════════════
 
-        generateFromImage(IMAGE_URL, PARTICLE_COUNT).then(result => {
-            shapes[1].data = result.positions;
-            shapes[1].colors = result.colors;
+        // Pre-load all images into shapes
+        let imagesLoaded = 0;
+        SLIDES.forEach((slide, i) => {
+            generateFromImage(slide.image, PARTICLE_COUNT).then(result => {
+                shapes[i].data = result.positions;
+                shapes[i].colors = result.colors;
+                imagesLoaded++;
 
-            // Initial transition to Image after load
-            gsap.delayedCall(1.0, () => transitionToShape(1));
+                // Transition to first image once it's ready
+                if (i === 0 && currentShape === -1) {
+                    gsap.delayedCall(1.0, () => transitionToShape(0));
+                }
+            });
         });
 
-        // Toggle on click
-        document.addEventListener('click', () => {
-            // Only allow toggle if image is loaded
-            if (shapes[1].data) {
-                const next = currentShape === 0 ? 1 : 0;
+        // Initialize auto-play timer
+        let autoPlayTimer = gsap.delayedCall(AUTO_PLAY_INTERVAL, nextSlide);
+
+        function nextSlide() {
+            const next = (currentShape + 1) % SLIDES.length;
+            if (shapes[next].data) {
                 transitionToShape(next);
             }
+            autoPlayTimer.restart(true);
+        }
+
+        // Cycle to next image on click
+        document.addEventListener('click', (e) => {
+            // Don't trigger on link clicks
+            if (e.target.tagName === 'A') return;
+            nextSlide();
         });
 
         // Hide hint

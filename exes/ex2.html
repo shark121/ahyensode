@@ -208,9 +208,11 @@
             position: fixed;
             top: 0;
             left: 0;
+            left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 101;
+            z-index: 105;
+            /* Boost above ui-overlay (100) */
             padding: 80px;
             display: flex;
             flex-direction: column;
@@ -219,7 +221,10 @@
             background: rgba(255, 255, 255, 0.0);
             pointer-events: none;
             opacity: 0;
-            transition: opacity 1.0s ease;
+            background: rgba(255, 255, 255, 0.0);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
 
         #works-section.active {
@@ -227,47 +232,57 @@
             pointer-events: auto;
         }
 
-        .works-header {
+        /* Nav Buttons for Works */
+        .works-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 5%;
+            transform: translateY(-50%);
+            z-index: 200;
+            pointer-events: none;
+        }
+
+        .works-nav button {
+            background: none;
+            border: none;
+            color: #222;
+            font-size: 2rem;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: transform 0.3s, color 0.3s;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+        }
+
+        .works-nav button:hover {
+            transform: scale(1.2);
+            color: #000;
+        }
+
+        /* Work Label */
+        .work-current-label {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
-            margin-bottom: 40px;
             color: #222;
         }
 
-        .works-header h2 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 10px;
+        .work-current-label h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
-        .works-grid {
-            display: flex;
-            gap: 40px;
-            perspective: 1000px;
-        }
-
-        .work-item {
-            width: 250px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .work-item:hover {
-            transform: translateY(-10px);
-        }
-
-        .work-item img {
-            width: 100%;
-            height: 350px;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
-        }
-
-        .work-item h3 {
-            font-size: 1.2rem;
-            color: #444;
+        .work-current-label p {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
         }
 
         .back-btn {
@@ -334,25 +349,20 @@
 
     <!-- Works Section -->
     <div id="works-section">
-        <div class="works-header">
-            <h2>Select Projects</h2>
-            <p>Our best work</p>
+        <div class="top-left" style="position: absolute; top: 36px; left: 44px; pointer-events: auto;">
+            <a href="#" id="backNavLink"
+                style="color: #222; text-decoration: none; font-size: 1rem; letter-spacing: 3px; text-transform: lowercase;">back</a>
         </div>
-        <div class="works-grid">
-            <div class="work-item">
-                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400" alt="Project 1">
-                <h3>Neon Cyber</h3>
-            </div>
-            <div class="work-item">
-                <img src="https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=400" alt="Project 2">
-                <h3>Flux Dynamics</h3>
-            </div>
-            <div class="work-item">
-                <img src="https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=400" alt="Project 3">
-                <h3>Aether Lens</h3>
-            </div>
+
+        <div class="works-nav">
+            <button id="prevWork">&larr;</button>
+            <button id="nextWork">&rarr;</button>
         </div>
-        <button class="back-btn" id="backToHero">Back</button>
+
+        <div class="work-current-label">
+            <h2 id="workTitle">Loading...</h2>
+            <p id="workCategory">Web Design</p>
+        </div>
     </div>
 
     <!-- Stage label -->
@@ -505,7 +515,8 @@
             uniforms: {
                 uTime: { value: 0 },
                 uSprite: { value: spriteTex },
-                uSize: { value: 16.0 * Math.min(devicePixelRatio, 2) }
+                uSize: { value: 16.0 * Math.min(devicePixelRatio, 2) },
+                uOpacity: { value: 1.0 } // Added opacity uniform
             },
             vertexShader: `
                 attribute vec3 aColor;
@@ -523,6 +534,7 @@
             fragmentShader: `
                 uniform sampler2D uSprite;
                 uniform float uTime;
+                uniform float uOpacity; // Added uniform
                 varying vec3 vColor;
                 void main() {
                     vec4 sprite = texture2D(uSprite, gl_PointCoord);
@@ -530,7 +542,7 @@
 
                     // Add subtle flicker
                     float flicker = 0.9 + 0.1 * sin(uTime * 10.0 + gl_PointCoord.x * 10.0);
-                    gl_FragColor = vec4(vColor * flicker, sprite.a);
+                    gl_FragColor = vec4(vColor * flicker, sprite.a * uOpacity); // Use uOpacity
                 }
             `,
             transparent: true,
@@ -573,6 +585,105 @@
 
         const particles = new THREE.Points(geometry, particleMat);
         scene.add(particles);
+
+        // ═══════════════════════════════════════════
+        //  FLAG MESH FOR WORKS
+        // ═══════════════════════════════════════════
+        const flagGeom = new THREE.PlaneGeometry(12, 8, 32, 32);
+        const flagMat = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 },
+                uTexture: { value: null },
+                uOpacity: { value: 0.0 }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                uniform float uTime;
+                void main() {
+                    vUv = uv;
+                    vec3 pos = position;
+                    // Flag wave interaction
+                    float wave = sin(pos.x * 0.5 + uTime * 2.0) * 0.5 + sin(pos.y * 0.5 + uTime * 1.5) * 0.3;
+                    pos.z += wave;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D uTexture;
+                uniform float uOpacity;
+                varying vec2 vUv;
+                void main() {
+                    vec4 tex = texture2D(uTexture, vUv);
+                    gl_FragColor = vec4(tex.rgb, tex.a * uOpacity);
+                }
+            `,
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+        const flagMesh = new THREE.Mesh(flagGeom, flagMat);
+        flagMesh.position.set(0, 0, -40); // Placed in front of camera (z=-50 looks at 0, so -40 works)
+        flagMesh.visible = false;
+        scene.add(flagMesh);
+
+        // Works Data
+        const WORKS = [
+            { img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', title: 'Neon Cyber', cat: 'WebGL Experience' },
+            { img: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800', title: 'Flux Dynamics', cat: 'Interactive Site' },
+            { img: 'https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=800', title: 'Aether Lens', cat: 'Digital Product' },
+            { img: 'https://images.unsplash.com/photo-1615810237936-7c93202e70f6?w=800', title: 'Orbital View', cat: 'Concept Art' }
+        ];
+
+        let currentWorkIdx = 0;
+        const workTextures = []; // loaded textures
+
+        // Load textures
+        const texLoader = new THREE.TextureLoader();
+        texLoader.crossOrigin = 'anonymous';
+        WORKS.forEach((w, i) => {
+            texLoader.load(w.img, (tex) => {
+                workTextures[i] = tex;
+                if (i === 0) flagMat.uniforms.uTexture.value = tex;
+            });
+        });
+
+        // DOM Elements for Works
+        const workTitle = document.getElementById('workTitle');
+        const workCategory = document.getElementById('workCategory');
+        const prevWorkBtn = document.getElementById('prevWork');
+        const nextWorkBtn = document.getElementById('nextWork');
+
+        function updateWorkDisplay(idx) {
+            currentWorkIdx = idx;
+            const w = WORKS[idx];
+
+            // Text transition
+            gsap.to([workTitle, workCategory], {
+                opacity: 0, duration: 0.2, onComplete: () => {
+                    workTitle.textContent = w.title;
+                    workCategory.textContent = w.cat;
+                    gsap.to([workTitle, workCategory], { opacity: 1, duration: 0.3 });
+                }
+            });
+
+            // WebGL transition
+            if (workTextures[idx]) {
+                const newTex = workTextures[idx];
+                // Simple texture swap (could be cross-fade with 2 meshes, but swap is fine for flag)
+                flagMat.uniforms.uTexture.value = newTex;
+            }
+        }
+
+        prevWorkBtn.addEventListener('click', () => {
+            let next = currentWorkIdx - 1;
+            if (next < 0) next = WORKS.length - 1;
+            updateWorkDisplay(next);
+        });
+
+        nextWorkBtn.addEventListener('click', () => {
+            let next = currentWorkIdx + 1;
+            if (next >= WORKS.length) next = 0;
+            updateWorkDisplay(next);
+        });
 
         // ═══════════════════════════════════════════
         //  MOUSE TRACKING
@@ -932,7 +1043,7 @@
         const uiOverlay = document.querySelector('.ui-overlay');
         const worksSection = document.getElementById('works-section');
         const navWorksBtn = document.getElementById('navWorks');
-        const backToHeroBtn = document.getElementById('backToHero');
+        const backNavLink = document.getElementById('backNavLink');
 
         function navigateToWorks() {
             if (viewState === 'works') return;
@@ -948,19 +1059,43 @@
             gsap.to(camera.position, {
                 z: -50,
                 duration: 2.5,
-                ease: "power2.inOut"
+                ease: "power2.inOut",
+                onComplete: () => {
+                    // Show Flag
+                    flagMesh.visible = true;
+                    // Reset opacity for fade in effect
+                    flagMat.uniforms.uOpacity.value = 0;
+                    gsap.to(flagMat.uniforms.uOpacity, { value: 1.0, duration: 1.0 });
+                }
             });
 
-            // 4. Fade UI
+            // 4. Fade UI (Out with main UI, In with Works)
             uiOverlay.classList.add('hidden-ui');
-            gsap.delayedCall(1.0, () => {
-                worksSection.classList.add('active');
+
+            // Fade out particles specifically, keep canvas visible for flag
+            gsap.to(particleMat.uniforms.uOpacity, { value: 0, duration: 1.0, delay: 0.5 });
+
+            // Fade in works section slightly faster to reveal it underneath
+            gsap.to(worksSection, {
+                opacity: 1,
+                duration: 1.5,
+                delay: 0.5,
+                onStart: () => {
+                    worksSection.style.pointerEvents = 'auto';
+                    worksSection.style.zIndex = '105';
+                }
             });
+
+            // Set initial work
+            updateWorkDisplay(currentWorkIdx);
         }
 
         function navigateToHero() {
             if (viewState === 'hero') return;
             viewState = 'hero';
+
+            // Hide Flag
+            gsap.to(flagMat.uniforms.uOpacity, { value: 0, duration: 0.5, onComplete: () => { flagMesh.visible = false; } });
 
             // 1. Reset Camera
             gsap.to(camera.position, {
@@ -975,7 +1110,17 @@
             });
 
             // 2. Fade UI
-            worksSection.classList.remove('active');
+            // Fade particles back in
+            gsap.to(particleMat.uniforms.uOpacity, { value: 1, duration: 1.0 });
+
+            gsap.to(worksSection, {
+                opacity: 0,
+                duration: 1.0,
+                onComplete: () => {
+                    worksSection.style.pointerEvents = 'none';
+                    worksSection.style.zIndex = '90'; // Reset
+                }
+            });
             gsap.delayedCall(1.0, () => {
                 uiOverlay.classList.remove('hidden-ui');
             });
@@ -986,7 +1131,7 @@
             navigateToWorks();
         });
 
-        backToHeroBtn.addEventListener('click', (e) => {
+        backNavLink.addEventListener('click', (e) => {
             e.preventDefault();
             navigateToHero();
         });
@@ -1069,6 +1214,7 @@
 
             // Camera & Rendering
             particleMat.uniforms.uTime.value = t;
+            flagMat.uniforms.uTime.value = t; // Update flag time
 
             const rotY = autoRotation.y + mouse.sx * 0.3;
             const rotX = autoRotation.x + mouse.sy * 0.2;

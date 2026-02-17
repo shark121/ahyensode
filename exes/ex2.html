@@ -245,7 +245,7 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(innerWidth, innerHeight);
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-        renderer.setClearColor(0x111111, 1);
+        renderer.setClearColor(0xffffff, 1);
         renderer.domElement.id = 'main-canvas';
         document.body.prepend(renderer.domElement);
 
@@ -437,7 +437,9 @@
                 img.onload = () => {
                     const c = document.createElement('canvas');
                     const maxW = 512;
-                    const scale = Math.min(maxW / img.width, maxW / img.height);
+                    let scale = Math.min(maxW / img.width, maxW / img.height);
+                    // scale = 2
+                    console.log(scale)
                     c.width = Math.floor(img.width * scale);
                     c.height = Math.floor(img.height * scale);
                     const ctx = c.getContext('2d');
@@ -492,7 +494,7 @@
         // ═══════════════════════════════════════════
         //  PRE-COMPUTE ALL SHAPES
         // ═══════════════════════════════════════════
-        const IMAGE_URL = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80';
+        const IMAGE_URL = 'https://i.ibb.co/9mCqwtq8/Untitled.png';
 
         const shapes = [
             { data: generateCloud(PARTICLE_COUNT), colors: null, label: 'disperse', name: 'Cloud' },
@@ -656,8 +658,8 @@
             mouse.sx += (mouse.x - mouse.sx) * 0.04;
             mouse.sy += (mouse.y - mouse.sy) * 0.04;
 
-            autoRotation.y += 0.002;
-            autoRotation.x = Math.sin(t * 0.2) * 0.1;
+            // autoRotation.y += 0.002;
+            // autoRotation.x = Math.sin(t * 0.2) * 0.1;
 
             const mouseWorld = new THREE.Vector3(mouse.sx * 8, mouse.sy * 5, 0);
             const posArr = geometry.attributes.position.array;

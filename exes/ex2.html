@@ -1021,7 +1021,8 @@
 
                 // Transition to first image once it's ready
                 if (i === 0 && currentShape === -1) {
-                    gsap.delayedCall(1.0, () => transitionToShape(0));
+                    // Initial transition to Image after load
+                    gsap.delayedCall(0.05, () => transitionToShape(0));
                 }
             });
         });

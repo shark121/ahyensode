@@ -331,7 +331,8 @@
 
         <div class="hero-text" style="margin-top: 200px; display: flex; flex-direction: column; gap: 20px; ">
             <h1 id="heroTitle" style="font-size: 3rem; font-weight: 800; color: #222; min-height: 4.5rem;"></h1>
-            <p style="font-size: 1rem; font-weight: 400; color: #222;">We create high performance websites, web
+            <p id="heroDesc" style="font-size: 1rem; font-weight: 400; color: #222;">We create high performance
+                websites, web
                 applications,
                 <br>
                 and user interfaces using modern client-side
@@ -795,20 +796,20 @@
                 desc: 'From concept to launch, we build immersive products\nthat captivate audiences and drive real business results'
             },
             {
-                image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600',
+                image: 'https://i.ibb.co/mVvmX2nC/nika-akin-eye-4453129-1920.png',
                 title: 'Innovation rooted\nin precision',
                 desc: 'We blend creative vision with technical excellence\nto deliver solutions that stand the test of time'
             },
-            {
-                image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600',
-                title: 'Elevate your brand\nwith bold design',
-                desc: 'Our team transforms ideas into stunning visual narratives\nthat connect with your audience on every device'
-            },
-            {
-                image: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=600',
-                title: 'Building the future\none pixel at a time',
-                desc: 'Scalable, performant, and beautiful — we engineer\ndigital products that grow with your ambitions'
-            }
+            // {
+            //     image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600',
+            //     title: 'Elevate your brand\nwith bold design',
+            //     desc: 'Our team transforms ideas into stunning visual narratives\nthat connect with your audience on every device'
+            // },
+            // {
+            //     image: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=600',
+            //     title: 'Building the future\none pixel at a time',
+            //     desc: 'Scalable, performant, and beautiful — we engineer\ndigital products that grow with your ambitions'
+            // }
         ];
 
         // Pre-build shapes array (one per slide)
@@ -885,16 +886,48 @@
             });
         }
 
-        async function animateHeroText(slideIndex) {
+        const heroDesc = document.getElementById('heroDesc');
+
+        async function animateHeroText(slideIndex, direction = 1, isFirst = false) {
             const slide = SLIDES[slideIndex];
-            // Fade out old text
-            gsap.to(heroTitle, {
-                opacity: 0, duration: 0.3, onComplete: async () => {
-                    gsap.set(heroTitle, { opacity: 1 });
-                    // Type title
-                    await typewriterAnimate(heroTitle, slide.title, 35);
-                }
-            });
+
+            if (isFirst) {
+                // Initial Typewriter
+                heroTitle.style.opacity = 1;
+                heroDesc.style.opacity = 0;
+                heroDesc.innerHTML = slide.desc.replace(/\n/g, '<br>');
+
+                await typewriterAnimate(heroTitle, slide.title, 35);
+                gsap.to(heroDesc, { opacity: 1, duration: 1.0 });
+            } else {
+                // Scroll Effect (Move Up/Down)
+                const yOffset = direction > 0 ? 50 : -50; // Scroll Down (1) -> comes from bottom (+50)
+
+                // Outgoing
+                gsap.to([heroTitle, heroDesc], {
+                    y: -yOffset,
+                    opacity: 0,
+                    duration: 0.4,
+                    stagger: 0.1,
+                    onComplete: () => {
+                        // Update Content
+                        heroTitle.innerHTML = slide.title.replace(/\n/g, '<br>');
+                        heroDesc.innerHTML = slide.desc.replace(/\n/g, '<br>');
+
+                        // Prepare Incoming
+                        gsap.set([heroTitle, heroDesc], { y: yOffset, opacity: 0 });
+
+                        // Incoming
+                        gsap.to([heroTitle, heroDesc], {
+                            y: 0,
+                            opacity: 1,
+                            duration: 0.6,
+                            stagger: 0.1,
+                            ease: 'power3.out'
+                        });
+                    }
+                });
+            }
         }
 
         // ═══════════════════════════════════════════
@@ -933,22 +966,26 @@
             }
         }
 
-        function transitionToShape(index) {
+        // Fix loop direction logic if needed, but passing explicit direction from scroll is better.
+        // For now, we update transitionToShape signature.
+
+        function transitionToShape(index, direction = 1) {
             if (isTransitioning || index === currentShape) return;
             isTransitioning = true;
-            currentShape = index;
 
             const shape = shapes[index];
             if (!shape.data) {
                 isTransitioning = false;
-                return; // not ready yet
+                return;
             }
+
+            currentShape = index;
 
             setActiveDot(index);
             showStageLabel(shape.label);
 
-            // Animate hero text with typewriter effect (delayed)
-            gsap.delayedCall(TEXT_DELAY, () => animateHeroText(index));
+            // Animate hero text
+            animateHeroText(index, direction, false);
 
             // Glitch effect on transition
             gsap.fromTo(glitchIntensity, { value: 0 }, {
@@ -1046,26 +1083,113 @@
                     // Fade in particles
                     gsap.to(particleMat.uniforms.uOpacity, { value: 1.0, duration: 2.0, ease: 'power2.out' });
 
-                    // Animate text
-                    animateHeroText(0);
+                    // Animate text (First Load)
+                    animateHeroText(0, 1, true);
 
-                    // Restart timer
-                    autoPlayTimer.restart(true);
+                    // Restart timer - disable
+                    // autoPlayTimer.restart(true);
                 }
             });
         });
 
-        // Initialize auto-play timer
-        let autoPlayTimer = gsap.delayedCall(AUTO_PLAY_INTERVAL, nextSlide);
+        // Initialize auto-play timer - REMOVED for Scroll interaction
+        // let autoPlayTimer = gsap.delayedCall(AUTO_PLAY_INTERVAL, nextSlide);
         let viewState = 'hero'; // 'hero' | 'works'
+        let lastScrollTime = 0;
+        const scrollCooldown = 1500; // ms
 
-        function nextSlide() {
-            if (viewState !== 'hero') return; // Pause auto-play if not in hero view
-            const next = (currentShape + 1) % SLIDES.length;
-            if (shapes[next].data) {
-                transitionToShape(next);
+        window.addEventListener('wheel', (e) => {
+            if (viewState !== 'hero' || isTransitioning) return;
+
+            const now = Date.now();
+            if (now - lastScrollTime < scrollCooldown) return;
+
+            const direction = Math.sign(e.deltaY);
+            if (direction === 0) return;
+
+            lastScrollTime = now;
+
+            let next = currentShape + direction;
+            if (next >= SLIDES.length) next = 0;
+            if (next < 0) next = SLIDES.length - 1;
+
+            transitionToShape(next, direction);
+        }, { passive: false });
+
+        // Update transitionToShape signature
+        function transitionToShape(index, direction = 1) {
+            if (isTransitioning || index === currentShape) return;
+            isTransitioning = true;
+            // ... (rest is same, but we need to inject the text call)
+
+            currentShape = index;
+            const shape = shapes[index];
+            if (!shape.data) {
+                isTransitioning = false;
+                return;
             }
-            autoPlayTimer.restart(true);
+
+            setActiveDot(index);
+            showStageLabel(shape.label);
+
+            animateHeroText(index, direction, false); // isFirst = false
+
+            // Glitch effect on transition
+            gsap.fromTo(glitchIntensity, { value: 0 }, {
+                value: 1.0, duration: 0.2, yoyo: true, repeat: 3, ease: 'power2.inOut',
+                onComplete: () => gsap.to(glitchIntensity, { value: 0, duration: 0.5 })
+            });
+
+            // Set targets
+            prevTargets.set(targetPositions);
+            nextTargets.set(shape.data);
+            morphProgress.value = 0;
+
+            // Animate Colors
+            if (shape.colors) {
+                const startColors = new Float32Array(geometry.attributes.aColor.array);
+                const endColors = shape.colors;
+                const colorObj = { t: 0 };
+                gsap.to(colorObj, {
+                    t: 1,
+                    duration: TRANSITION_DURATION,
+                    ease: 'power1.inOut',
+                    onUpdate: () => {
+                        const colorArr = geometry.attributes.aColor.array;
+                        const t = colorObj.t;
+                        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
+                            colorArr[i] = startColors[i] + (endColors[i] - startColors[i]) * t;
+                        }
+                        geometry.attributes.aColor.needsUpdate = true;
+                    }
+                });
+            } else {
+                // Fade to default
+                const startColors = new Float32Array(geometry.attributes.aColor.array);
+                const colorObj = { t: 0 };
+                gsap.to(colorObj, {
+                    t: 1,
+                    duration: TRANSITION_DURATION,
+                    ease: 'power1.inOut',
+                    onUpdate: () => {
+                        const colorArr = geometry.attributes.aColor.array;
+                        const t = colorObj.t;
+                        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
+                            colorArr[i] = startColors[i] + (0.5 - startColors[i]) * t;
+                        }
+                        geometry.attributes.aColor.needsUpdate = true;
+                    }
+                });
+            }
+
+
+            gsap.to(morphProgress, {
+                value: 1.0,
+                duration: TRANSITION_DURATION,
+                ease: 'power2.inOut',
+                onUpdate: updateTargetsFromMorph,
+                onComplete: () => { isTransitioning = false; }
+            });
         }
 
         // ── NAVIGATION LOGIC ──

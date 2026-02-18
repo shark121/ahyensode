@@ -426,7 +426,7 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(innerWidth, innerHeight);
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-        renderer.setClearColor(0xffffff, 1);
+        renderer.setClearColor(0xffffff, 0);
         renderer.domElement.id = 'main-canvas';
         document.body.prepend(renderer.domElement);
 
@@ -516,7 +516,7 @@
                 uTime: { value: 0 },
                 uSprite: { value: spriteTex },
                 uSize: { value: 16.0 * Math.min(devicePixelRatio, 2) },
-                uOpacity: { value: 1.0 } // Added opacity uniform
+                uOpacity: { value: 0.0 } // Start invisible
             },
             vertexShader: `
                 attribute vec3 aColor;
@@ -1021,8 +1021,36 @@
 
                 // Transition to first image once it's ready
                 if (i === 0 && currentShape === -1) {
-                    // Initial transition to Image after load
-                    gsap.delayedCall(0.05, () => transitionToShape(0));
+                    // Snap to shape 0 immediately (no disperse animation)
+                    const s = shapes[0];
+                    const posArr = geometry.attributes.position.array;
+                    const colArr = geometry.attributes.aColor.array;
+
+                    for (let k = 0; k < PARTICLE_COUNT * 3; k++) {
+                        posArr[k] = s.data[k];
+                        targetPositions[k] = s.data[k];
+                        prevTargets[k] = s.data[k];
+                        nextTargets[k] = s.data[k];
+
+                        // Also set colors
+                        if (s.colors) {
+                            colArr[k] = s.colors[k];
+                        }
+                    }
+                    geometry.attributes.position.needsUpdate = true;
+                    geometry.attributes.aColor.needsUpdate = true;
+
+                    currentShape = 0;
+                    setActiveDot(0);
+
+                    // Fade in particles
+                    gsap.to(particleMat.uniforms.uOpacity, { value: 1.0, duration: 2.0, ease: 'power2.out' });
+
+                    // Animate text
+                    animateHeroText(0);
+
+                    // Restart timer
+                    autoPlayTimer.restart(true);
                 }
             });
         });
@@ -1053,8 +1081,24 @@
             // 1. Pause auto-play
             autoPlayTimer.pause();
 
-            // 2. Disperse to cloud (shape 0)
-            transitionToShape(0);
+            // 2. Disperse to cloud
+            isTransitioning = true;
+            currentShape = -1; // No specific slide
+
+            const cloudPos = generateCloud(PARTICLE_COUNT);
+
+            // Set targets
+            prevTargets.set(targetPositions);
+            nextTargets.set(cloudPos);
+            morphProgress.value = 0;
+
+            gsap.to(morphProgress, {
+                value: 1.0,
+                duration: 2.0,
+                ease: 'power2.inOut',
+                onUpdate: updateTargetsFromMorph,
+                onComplete: () => { isTransitioning = false; }
+            });
 
             // 3. Move Camera Deep (Warp Effect)
             gsap.to(camera.position, {
@@ -1112,7 +1156,7 @@
 
             // 2. Fade UI
             // Fade particles back in
-            gsap.to(particleMat.uniforms.uOpacity, { value: 1, duration: 1.0 });
+            gsap.to(particleMat.uniforms.uOpacity, { value: 1, duration: 1.0, delay: 1.0 });
 
             gsap.to(worksSection, {
                 opacity: 0,
@@ -1197,11 +1241,9 @@
                     velocities[i3] += (mx / md) * force * 2.5;
                 }
 
-                // Noise/Drift when in cloud mode (shape 0)
-                if (currentShape === 0) {
-                    velocities[i3] += Math.sin(t + i) * 0.002;
-                    velocities[i3 + 1] += Math.cos(t + i * 0.5) * 0.002;
-                }
+                // Noise/Drift for all shapes
+                velocities[i3] += Math.sin(t + i) * 0.002;
+                velocities[i3 + 1] += Math.cos(t + i * 0.5) * 0.002;
 
                 velocities[i3] *= 0.85; // Damping
                 velocities[i3 + 1] *= 0.85;

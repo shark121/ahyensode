@@ -56,6 +56,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            gap: 4;
             top: 0;
             left: 5%;
             width: 100vw;
@@ -167,7 +168,147 @@
             pointer-events: none;
         }
 
-        .hero-text {}
+        /* ── Typewriter cursor ── */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: #222;
+            margin-left: 2px;
+            animation: blink 0.7s steps(1) infinite;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* ── Works Section ── */
+        #works-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 105;
+            /* Boost above ui-overlay (100) */
+            padding: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.0);
+            pointer-events: none;
+            opacity: 0;
+            background: rgba(255, 255, 255, 0.0);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #works-section.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Nav Buttons for Works */
+        .works-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 5%;
+            transform: translateY(-50%);
+            z-index: 200;
+            pointer-events: none;
+        }
+
+        .works-nav button {
+            background: none;
+            border: none;
+            color: #222;
+            font-size: 2rem;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: transform 0.3s, color 0.3s;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+        }
+
+        .works-nav button:hover {
+            transform: scale(1.2);
+            color: #000;
+        }
+
+        /* Work Label */
+        .work-current-label {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: #222;
+        }
+
+        .work-current-label h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .work-current-label p {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+        }
+
+        .back-btn {
+            margin-top: 50px;
+            padding: 10px 30px;
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Helper to hide UI during transition */
+        .hidden-ui {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
     </style>
 </head>
 
@@ -179,7 +320,7 @@
     <div class="ui-overlay">
         <div class="top-left">
             <a href="#">top</a>
-            <a href="#">works</a>
+            <a href="#" id="navWorks">works</a>
             <a href="#">about</a>
         </div>
         <!-- <div class="top-right">
@@ -188,16 +329,40 @@
         </div> -->
 
 
-        <div class="hero-text">
-            <h1 style="font-size: 3rem; font-weight: 800; color: #222;">Where strategy, design<br>and technology meet
-            </h1>
-            <p style="font-size: 1rem; font-weight: 400; color: #222;">We create high performance websites, web
+        <div class="hero-text" style="margin-top: 200px; display: flex; flex-direction: column; gap: 20px; ">
+            <h1 id="heroTitle" style="font-size: 3rem; font-weight: 800; color: #222; min-height: 4.5rem;"></h1>
+            <p id="heroDesc" style="font-size: 1rem; font-weight: 400; color: #222;">We create high performance
+                websites, web
                 applications,
                 <br>
                 and user interfaces using modern client-side
                 JavaScript and thin server architecture
             </p>
-            <a href="#" class="cta-btn">Get Started</a>
+            <a href="#" class="cta-btn" style="font-size: 1rem; font-weight: 400; color: #000; height: 30px; padding: 4px; 
+                background-color: #7FFFD4; border-radius: 15px; margin-top: 10px; text-decoration: none;width: 200px; 
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                ">Book
+                Appointment</a>
+        </div>
+    </div>
+
+    <!-- Works Section -->
+    <div id="works-section">
+        <div class="top-left" style="position: absolute; top: 36px; left: 44px; pointer-events: auto;">
+            <a href="#" id="backNavLink"
+                style="color: #222; text-decoration: none; font-size: 1rem; letter-spacing: 3px; text-transform: lowercase;">back</a>
+        </div>
+
+        <div class="works-nav">
+            <button id="prevWork">&larr;</button>
+            <button id="nextWork">&rarr;</button>
+        </div>
+
+        <div class="work-current-label">
+            <h2 id="workTitle">Loading...</h2>
+            <p id="workCategory">Web Design</p>
         </div>
     </div>
 
@@ -205,10 +370,7 @@
     <div class="stage-label" id="stageLabel"></div>
 
     <!-- Progress dots -->
-    <div class="progress-dots" id="progressDots">
-        <div class="dot active"></div>
-        <div class="dot"></div>
-    </div>
+    <div class="progress-dots" id="progressDots"></div>
 
     <!-- Hint -->
     <div class="hint" id="hint">click to disperse / form</div>
@@ -221,8 +383,10 @@
         // ═══════════════════════════════════════════
         //  CONFIGURATION
         // ═══════════════════════════════════════════
-        const PARTICLE_COUNT = 30000;
-        const TRANSITION_DURATION = 2.0;
+        const PARTICLE_COUNT = 40000;
+        const TRANSITION_DURATION = 3.0;
+        const AUTO_PLAY_INTERVAL = 10.0;
+        const TEXT_DELAY = 2.0;
 
         // ═══════════════════════════════════════════
         //  CONCENTRIC CIRCLES BACKGROUND
@@ -263,7 +427,7 @@
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(innerWidth, innerHeight);
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-        renderer.setClearColor(0xffffff, 1);
+        renderer.setClearColor(0xffffff, 0);
         renderer.domElement.id = 'main-canvas';
         document.body.prepend(renderer.domElement);
 
@@ -352,7 +516,8 @@
             uniforms: {
                 uTime: { value: 0 },
                 uSprite: { value: spriteTex },
-                uSize: { value: 16.0 * Math.min(devicePixelRatio, 2) }
+                uSize: { value: 16.0 * Math.min(devicePixelRatio, 2) },
+                uOpacity: { value: 0.0 } // Start invisible
             },
             vertexShader: `
                 attribute vec3 aColor;
@@ -370,6 +535,7 @@
             fragmentShader: `
                 uniform sampler2D uSprite;
                 uniform float uTime;
+                uniform float uOpacity; // Added uniform
                 varying vec3 vColor;
                 void main() {
                     vec4 sprite = texture2D(uSprite, gl_PointCoord);
@@ -377,7 +543,7 @@
 
                     // Add subtle flicker
                     float flicker = 0.9 + 0.1 * sin(uTime * 10.0 + gl_PointCoord.x * 10.0);
-                    gl_FragColor = vec4(vColor * flicker, sprite.a);
+                    gl_FragColor = vec4(vColor * flicker, sprite.a * uOpacity); // Use uOpacity
                 }
             `,
             transparent: true,
@@ -420,6 +586,110 @@
 
         const particles = new THREE.Points(geometry, particleMat);
         scene.add(particles);
+
+        // ═══════════════════════════════════════════
+        //  FLAG MESH FOR WORKS
+        // ═══════════════════════════════════════════
+        // Default texture (grey)
+        const defaultTexData = new Uint8Array([100, 100, 100, 255]);
+        const defaultTex = new THREE.DataTexture(defaultTexData, 1, 1, THREE.RGBAFormat);
+        defaultTex.needsUpdate = true;
+
+        const flagGeom = new THREE.PlaneGeometry(12, 8, 32, 32);
+        const flagMat = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 },
+                uTexture: { value: defaultTex },
+                uOpacity: { value: 0.0 }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                uniform float uTime;
+                void main() {
+                    vUv = uv;
+                    vec3 pos = position;
+                    // Flag wave interaction
+                    float wave = sin(pos.x * 0.5 + uTime * 2.0) * 0.5 + sin(pos.y * 0.5 + uTime * 1.5) * 0.3;
+                    pos.z += wave;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D uTexture;
+                uniform float uOpacity;
+                varying vec2 vUv;
+                void main() {
+                    vec4 tex = texture2D(uTexture, vUv);
+                    gl_FragColor = vec4(tex.rgb, tex.a * uOpacity);
+                }
+            `,
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+        const flagMesh = new THREE.Mesh(flagGeom, flagMat);
+        flagMesh.position.set(0, 0, -40); // Placed in front of camera (z=-50 looks at 0, so -40 works)
+        flagMesh.visible = false;
+        scene.add(flagMesh);
+
+        // Works Data
+        const WORKS = [
+            { img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', title: 'Neon Cyber', cat: 'WebGL Experience' },
+            { img: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800', title: 'Flux Dynamics', cat: 'Interactive Site' },
+            { img: 'https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=800', title: 'Aether Lens', cat: 'Digital Product' },
+            { img: 'https://images.unsplash.com/photo-1615810237936-7c93202e70f6?w=800', title: 'Orbital View', cat: 'Concept Art' }
+        ];
+
+        let currentWorkIdx = 0;
+        const workTextures = []; // loaded textures
+
+        // Load textures
+        const texLoader = new THREE.TextureLoader();
+        texLoader.crossOrigin = 'anonymous';
+        WORKS.forEach((w, i) => {
+            texLoader.load(w.img, (tex) => {
+                workTextures[i] = tex;
+                if (i === 0) flagMat.uniforms.uTexture.value = tex;
+            });
+        });
+
+        // DOM Elements for Works
+        const workTitle = document.getElementById('workTitle');
+        const workCategory = document.getElementById('workCategory');
+        const prevWorkBtn = document.getElementById('prevWork');
+        const nextWorkBtn = document.getElementById('nextWork');
+
+        function updateWorkDisplay(idx) {
+            currentWorkIdx = idx;
+            const w = WORKS[idx];
+
+            // Text transition
+            gsap.to([workTitle, workCategory], {
+                opacity: 0, duration: 0.2, onComplete: () => {
+                    workTitle.textContent = w.title;
+                    workCategory.textContent = w.cat;
+                    gsap.to([workTitle, workCategory], { opacity: 1, duration: 0.3 });
+                }
+            });
+
+            // WebGL transition
+            if (workTextures[idx]) {
+                const newTex = workTextures[idx];
+                // Simple texture swap (could be cross-fade with 2 meshes, but swap is fine for flag)
+                flagMat.uniforms.uTexture.value = newTex;
+            }
+        }
+
+        prevWorkBtn.addEventListener('click', () => {
+            let next = currentWorkIdx - 1;
+            if (next < 0) next = WORKS.length - 1;
+            updateWorkDisplay(next);
+        });
+
+        nextWorkBtn.addEventListener('click', () => {
+            let next = currentWorkIdx + 1;
+            if (next >= WORKS.length) next = 0;
+            updateWorkDisplay(next);
+        });
 
         // ═══════════════════════════════════════════
         //  MOUSE TRACKING
@@ -517,34 +787,164 @@
         }
 
         // ═══════════════════════════════════════════
-        //  PRE-COMPUTE ALL SHAPES
+        //  SLIDES DATA (images + hero text)
         // ═══════════════════════════════════════════
-        const IMAGE_URL = 'https://i.ibb.co/9mCqwtq8/Untitled.png';
-
-        const shapes = [
-            { data: generateCloud(PARTICLE_COUNT), colors: null, label: 'disperse', name: 'Cloud' },
-            { data: null, colors: null, label: 'form', name: 'Image' }
+        const SLIDES = [
+            {
+                image: 'https://i.ibb.co/9mCqwtq8/Untitled.png',
+                title: 'Where strategy, design\nand technology meet',
+                desc: 'We create high performance websites, web applications,\nand user interfaces using modern client-side JavaScript and thin server architecture'
+            },
+            {
+                image: 'https://i.ibb.co/RpN2zPYn/Untitled-3.png',
+                title: 'Crafting digital\nexperiences that inspire',
+                desc: 'From concept to launch, we build immersive products\nthat captivate audiences and drive real business results'
+            },
+            {
+                image: 'https://i.ibb.co/mVvmX2nC/nika-akin-eye-4453129-1920.png',
+                title: 'Innovation rooted\nin precision',
+                desc: 'We blend creative vision with technical excellence\nto deliver solutions that stand the test of time'
+            },
+            // {
+            //     image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=600',
+            //     title: 'Elevate your brand\nwith bold design',
+            //     desc: 'Our team transforms ideas into stunning visual narratives\nthat connect with your audience on every device'
+            // },
+            // {
+            //     image: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=600',
+            //     title: 'Building the future\none pixel at a time',
+            //     desc: 'Scalable, performant, and beautiful — we engineer\ndigital products that grow with your ambitions'
+            // }
         ];
+
+        // Pre-build shapes array (one per slide)
+        const shapes = SLIDES.map((slide, i) => ({
+            data: null,
+            colors: null,
+            label: `slide ${i + 1}`,
+            name: slide.title
+        }));
+
+        // ═══════════════════════════════════════════
+        //  PROGRESS DOTS (auto-generated)
+        // ═══════════════════════════════════════════
+        const progressDotsContainer = document.getElementById('progressDots');
+        SLIDES.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            progressDotsContainer.appendChild(dot);
+        });
 
         // Initialize targets
         prevTargets.set(positions);
         nextTargets.set(positions);
         targetPositions.set(positions);
 
-        let currentShape = 0;
+        let currentShape = -1; // start at -1 so first transition works
         let isTransitioning = false;
         let glitchIntensity = { value: 0 };
         let morphProgress = { value: 1.0 };
 
         // ═══════════════════════════════════════════
+        //  TYPEWRITER EFFECT
+        // ═══════════════════════════════════════════
+        const heroTitle = document.getElementById('heroTitle');
+        let typewriterTimeline = null;
+
+        function typewriterAnimate(element, text, speed = 30) {
+            return new Promise(resolve => {
+                // Convert \n to <br>
+                const chars = [];
+                const htmlText = text.replace(/\n/g, '<br>');
+                let i = 0;
+                element.innerHTML = '<span class="typewriter-cursor"></span>';
+
+                // Parse chars, treating <br> as single token
+                const tokens = [];
+                let j = 0;
+                while (j < htmlText.length) {
+                    if (htmlText.substring(j, j + 4) === '<br>') {
+                        tokens.push('<br>');
+                        j += 4;
+                    } else {
+                        tokens.push(htmlText[j]);
+                        j++;
+                    }
+                }
+
+                let built = '';
+                function typeNext() {
+                    if (i < tokens.length) {
+                        built += tokens[i];
+                        element.innerHTML = built + '<span class="typewriter-cursor"></span>';
+                        i++;
+                        setTimeout(typeNext, tokens[i - 1] === '<br>' ? speed * 3 : speed);
+                    } else {
+                        // Remove cursor after a short delay
+                        setTimeout(() => {
+                            element.innerHTML = built;
+                            resolve();
+                        }, 600);
+                    }
+                }
+                typeNext();
+            });
+        }
+
+        const heroDesc = document.getElementById('heroDesc');
+
+        async function animateHeroText(slideIndex, direction = 1, isFirst = false) {
+            const slide = SLIDES[slideIndex];
+
+            if (isFirst) {
+                // Initial Typewriter
+                heroTitle.style.opacity = 1;
+                heroDesc.style.opacity = 0;
+                heroDesc.innerHTML = slide.desc.replace(/\n/g, '<br>');
+
+                await typewriterAnimate(heroTitle, slide.title, 35);
+                gsap.to(heroDesc, { opacity: 1, duration: 1.0 });
+            } else {
+                // Scroll Effect (Move Up/Down)
+                const yOffset = direction > 0 ? 50 : -50; // Scroll Down (1) -> comes from bottom (+50)
+
+                // Outgoing
+                gsap.to([heroTitle, heroDesc], {
+                    y: -yOffset,
+                    opacity: 0,
+                    duration: 0.4,
+                    stagger: 0.1,
+                    onComplete: () => {
+                        // Update Content
+                        heroTitle.innerHTML = slide.title.replace(/\n/g, '<br>');
+                        heroDesc.innerHTML = slide.desc.replace(/\n/g, '<br>');
+
+                        // Prepare Incoming
+                        gsap.set([heroTitle, heroDesc], { y: yOffset, opacity: 0 });
+
+                        // Incoming
+                        gsap.to([heroTitle, heroDesc], {
+                            y: 0,
+                            opacity: 1,
+                            duration: 0.6,
+                            stagger: 0.1,
+                            ease: 'power3.out'
+                        });
+                    }
+                });
+            }
+        }
+
+        // ═══════════════════════════════════════════
         //  TRANSITION SYSTEM
         // ═══════════════════════════════════════════
         const stageLabel = document.getElementById('stageLabel');
-        const dots = document.querySelectorAll('.progress-dots .dot');
+        const dots = progressDotsContainer.querySelectorAll('.dot');
         const hint = document.getElementById('hint');
 
         function setActiveDot(index) {
-            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+            const allDots = progressDotsContainer.querySelectorAll('.dot');
+            allDots.forEach((d, i) => d.classList.toggle('active', i === index));
         }
 
         function showStageLabel(text) {
@@ -571,19 +971,26 @@
             }
         }
 
-        function transitionToShape(index) {
+        // Fix loop direction logic if needed, but passing explicit direction from scroll is better.
+        // For now, we update transitionToShape signature.
+
+        function transitionToShape(index, direction = 1) {
             if (isTransitioning || index === currentShape) return;
             isTransitioning = true;
-            currentShape = index;
 
             const shape = shapes[index];
             if (!shape.data) {
                 isTransitioning = false;
-                return; // not ready yet
+                return;
             }
+
+            currentShape = index;
 
             setActiveDot(index);
             showStageLabel(shape.label);
+
+            // Animate hero text
+            animateHeroText(index, direction, false);
 
             // Glitch effect on transition
             gsap.fromTo(glitchIntensity, { value: 0 }, {
@@ -626,7 +1033,6 @@
                         const colorArr = geometry.attributes.aColor.array;
                         const t = colorObj.t;
                         for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-                            // Fade to light grey
                             colorArr[i] = startColors[i] + (0.5 - startColors[i]) * t;
                         }
                         geometry.attributes.aColor.needsUpdate = true;
@@ -647,20 +1053,271 @@
         //  INIT & EVENTS
         // ═══════════════════════════════════════════
 
-        generateFromImage(IMAGE_URL, PARTICLE_COUNT).then(result => {
-            shapes[1].data = result.positions;
-            shapes[1].colors = result.colors;
+        // Pre-load all images into shapes
+        let imagesLoaded = 0;
+        SLIDES.forEach((slide, i) => {
+            generateFromImage(slide.image, PARTICLE_COUNT).then(result => {
+                shapes[i].data = result.positions;
+                shapes[i].colors = result.colors;
+                imagesLoaded++;
 
-            // Initial transition to Image after load
-            gsap.delayedCall(1.0, () => transitionToShape(1));
+                // Transition to first image once it's ready
+                if (i === 0 && currentShape === -1) {
+                    // Snap to shape 0 immediately (no disperse animation)
+                    const s = shapes[0];
+                    const posArr = geometry.attributes.position.array;
+                    const colArr = geometry.attributes.aColor.array;
+
+                    for (let k = 0; k < PARTICLE_COUNT * 3; k++) {
+                        posArr[k] = s.data[k];
+                        targetPositions[k] = s.data[k];
+                        prevTargets[k] = s.data[k];
+                        nextTargets[k] = s.data[k];
+
+                        // Also set colors
+                        if (s.colors) {
+                            colArr[k] = s.colors[k];
+                        }
+                    }
+                    geometry.attributes.position.needsUpdate = true;
+                    geometry.attributes.aColor.needsUpdate = true;
+
+                    currentShape = 0;
+                    setActiveDot(0);
+
+                    // Fade in particles
+                    gsap.to(particleMat.uniforms.uOpacity, { value: 1.0, duration: 2.0, ease: 'power2.out' });
+
+                    // Animate text (First Load)
+                    animateHeroText(0, 1, true);
+
+                    // Restart timer - disable
+                    // autoPlayTimer.restart(true);
+                }
+            });
         });
 
-        // Toggle on click
-        document.addEventListener('click', () => {
-            // Only allow toggle if image is loaded
-            if (shapes[1].data) {
-                const next = currentShape === 0 ? 1 : 0;
-                transitionToShape(next);
+        // Initialize auto-play timer - REMOVED for Scroll interaction
+        // let autoPlayTimer = gsap.delayedCall(AUTO_PLAY_INTERVAL, nextSlide);
+        let viewState = 'hero'; // 'hero' | 'works'
+        let lastScrollTime = 0;
+        const scrollCooldown = 1500; // ms
+
+        window.addEventListener('wheel', (e) => {
+            if (viewState !== 'hero' || isTransitioning) return;
+
+            const now = Date.now();
+            if (now - lastScrollTime < scrollCooldown) return;
+
+            const direction = Math.sign(e.deltaY);
+            if (direction === 0) return;
+
+            lastScrollTime = now;
+
+            let next = currentShape + direction;
+            if (next >= SLIDES.length) next = 0;
+            if (next < 0) next = SLIDES.length - 1;
+
+            transitionToShape(next, direction);
+        }, { passive: false });
+
+        // Update transitionToShape signature
+        function transitionToShape(index, direction = 1) {
+            if (isTransitioning || index === currentShape) return;
+            isTransitioning = true;
+            // ... (rest is same, but we need to inject the text call)
+
+            currentShape = index;
+            const shape = shapes[index];
+            if (!shape.data) {
+                isTransitioning = false;
+                return;
+            }
+
+            setActiveDot(index);
+            showStageLabel(shape.label);
+
+            animateHeroText(index, direction, false); // isFirst = false
+
+            // Glitch effect on transition
+            gsap.fromTo(glitchIntensity, { value: 0 }, {
+                value: 1.0, duration: 0.2, yoyo: true, repeat: 3, ease: 'power2.inOut',
+                onComplete: () => gsap.to(glitchIntensity, { value: 0, duration: 0.5 })
+            });
+
+            // Set targets
+            prevTargets.set(targetPositions);
+            nextTargets.set(shape.data);
+            morphProgress.value = 0;
+
+            // Animate Colors
+            if (shape.colors) {
+                const startColors = new Float32Array(geometry.attributes.aColor.array);
+                const endColors = shape.colors;
+                const colorObj = { t: 0 };
+                gsap.to(colorObj, {
+                    t: 1,
+                    duration: TRANSITION_DURATION,
+                    ease: 'power1.inOut',
+                    onUpdate: () => {
+                        const colorArr = geometry.attributes.aColor.array;
+                        const t = colorObj.t;
+                        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
+                            colorArr[i] = startColors[i] + (endColors[i] - startColors[i]) * t;
+                        }
+                        geometry.attributes.aColor.needsUpdate = true;
+                    }
+                });
+            } else {
+                // Fade to default
+                const startColors = new Float32Array(geometry.attributes.aColor.array);
+                const colorObj = { t: 0 };
+                gsap.to(colorObj, {
+                    t: 1,
+                    duration: TRANSITION_DURATION,
+                    ease: 'power1.inOut',
+                    onUpdate: () => {
+                        const colorArr = geometry.attributes.aColor.array;
+                        const t = colorObj.t;
+                        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
+                            colorArr[i] = startColors[i] + (0.5 - startColors[i]) * t;
+                        }
+                        geometry.attributes.aColor.needsUpdate = true;
+                    }
+                });
+            }
+
+
+            gsap.to(morphProgress, {
+                value: 1.0,
+                duration: TRANSITION_DURATION,
+                ease: 'power2.inOut',
+                onUpdate: updateTargetsFromMorph,
+                onComplete: () => { isTransitioning = false; }
+            });
+        }
+
+        // ── NAVIGATION LOGIC ──
+        const uiOverlay = document.querySelector('.ui-overlay');
+        const worksSection = document.getElementById('works-section');
+        const navWorksBtn = document.getElementById('navWorks');
+        const backNavLink = document.getElementById('backNavLink');
+
+        function navigateToWorks() {
+            if (viewState === 'works') return;
+            viewState = 'works';
+
+            // 1. Pause auto-play
+            // autoPlayTimer.pause();
+
+            // 2. Disperse to cloud
+            isTransitioning = true;
+            currentShape = -1; // No specific slide
+
+            const cloudPos = generateCloud(PARTICLE_COUNT);
+
+            // Set targets
+            prevTargets.set(targetPositions);
+            nextTargets.set(cloudPos);
+            morphProgress.value = 0;
+
+            gsap.to(morphProgress, {
+                value: 1.0,
+                duration: 1.5,
+                ease: 'power2.inOut',
+                onUpdate: updateTargetsFromMorph,
+                onComplete: () => { isTransitioning = false; }
+            });
+
+            // 3. Move Camera Deep (Warp Effect)
+            gsap.to(camera.position, {
+                z: -50,
+                duration: 2.0,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    // Show Flag
+                    flagMesh.visible = true;
+                    // Reset opacity for fade in effect
+                    flagMat.uniforms.uOpacity.value = 0;
+                    gsap.to(flagMat.uniforms.uOpacity, { value: 1.0, duration: 0.5 });
+                }
+            });
+
+            // 4. Fade UI (Out with main UI, In with Works)
+            uiOverlay.classList.add('hidden-ui');
+
+            // Fade out particles specifically, keep canvas visible for flag
+            gsap.to(particleMat.uniforms.uOpacity, { value: 0, duration: 1.0, delay: 0.5 });
+
+            // Fade in works section slightly faster to reveal it underneath
+            gsap.to(worksSection, {
+                opacity: 1,
+                duration: 1.5,
+                delay: 0.5,
+                onStart: () => {
+                    worksSection.style.pointerEvents = 'auto';
+                    worksSection.style.zIndex = '105';
+                }
+            });
+
+            // Set initial work
+            updateWorkDisplay(currentWorkIdx);
+        }
+
+        function navigateToHero() {
+            if (viewState === 'hero') return;
+            viewState = 'hero';
+
+            // Hide Flag
+            gsap.to(flagMat.uniforms.uOpacity, { value: 0, duration: 0.5, onComplete: () => { flagMesh.visible = false; } });
+
+            // 1. Reset Camera
+            gsap.to(camera.position, {
+                z: 14,
+                duration: 2.0,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    // Form first image again
+                    transitionToShape(1);
+                    // autoPlayTimer.restart(true);
+                }
+            });
+
+            // 2. Fade UI
+            // Fade particles back in
+            gsap.to(particleMat.uniforms.uOpacity, { value: 1, duration: 1.0, delay: 1.0 });
+
+            gsap.to(worksSection, {
+                opacity: 0,
+                duration: 1.0,
+                onComplete: () => {
+                    worksSection.style.pointerEvents = 'none';
+                    worksSection.style.zIndex = '90'; // Reset
+                }
+            });
+            gsap.delayedCall(1.0, () => {
+                uiOverlay.classList.remove('hidden-ui');
+            });
+        }
+
+        navWorksBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateToWorks();
+        });
+
+        backNavLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateToHero();
+        });
+
+        // Cycle to next image on click
+        document.addEventListener('click', (e) => {
+            // Don't trigger on link clicks or buttons
+            if (e.target.closest('a') || e.target.closest('button')) return;
+
+            // Only allow cycling in hero view
+            if (viewState === 'hero') {
+                nextSlide();
             }
         });
 
@@ -713,11 +1370,9 @@
                     velocities[i3] += (mx / md) * force * 2.5;
                 }
 
-                // Noise/Drift when in cloud mode (shape 0)
-                if (currentShape === 0) {
-                    velocities[i3] += Math.sin(t + i) * 0.002;
-                    velocities[i3 + 1] += Math.cos(t + i * 0.5) * 0.002;
-                }
+                // Noise/Drift for all shapes
+                velocities[i3] += Math.sin(t + i) * 0.002;
+                velocities[i3 + 1] += Math.cos(t + i * 0.5) * 0.002;
 
                 velocities[i3] *= 0.85; // Damping
                 velocities[i3 + 1] *= 0.85;
@@ -731,6 +1386,7 @@
 
             // Camera & Rendering
             particleMat.uniforms.uTime.value = t;
+            flagMat.uniforms.uTime.value = t; // Update flag time
 
             const rotY = autoRotation.y + mouse.sx * 0.3;
             const rotX = autoRotation.x + mouse.sy * 0.2;

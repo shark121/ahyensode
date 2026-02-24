@@ -14,8 +14,8 @@
         }
 
         body {
-            background: #fff;
-            color: #eee;
+            background: #F9F1E5;
+            color: #3D2314;
             font-family: 'Outfit', sans-serif;
             overflow: hidden;
             cursor: pointer;
@@ -43,7 +43,7 @@
 
         .bg-circles .ring {
             position: absolute;
-            border: 1px solid #444;
+            border: 1px solid #7A4B31;
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -80,14 +80,14 @@
             font-size: 1.15rem;
             letter-spacing: 2px;
             text-transform: lowercase;
-            color: #fff;
+            color: #3D2314;
         }
 
         .role {
             font-size: 0.55rem;
             text-transform: uppercase;
             letter-spacing: 4px;
-            color: #888;
+            color: #7A4B31;
             margin-top: 4px;
         }
 
@@ -101,14 +101,15 @@
             font-size: 1rem;
             text-transform: lowercase;
             letter-spacing: 3px;
-            color: #888;
+            color: #7A4B31;
             text-decoration: none;
             margin-left: 28px;
             transition: color 0.3s;
         }
 
+        .top-left a:hover,
         .top-right a:hover {
-            color: #fff;
+            color: #D99F36;
         }
 
         /* ── Stage indicator ── */
@@ -121,7 +122,7 @@
             font-size: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 6px;
-            color: #666;
+            color: #7A4B31;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.6s;
@@ -146,12 +147,12 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #444;
+            background: #7A4B31;
             transition: background 0.4s, transform 0.4s;
         }
 
         .progress-dots .dot.active {
-            background: #fff;
+            background: #D99F36;
             transform: scale(1.4);
         }
 
@@ -164,7 +165,7 @@
             font-size: 0.48rem;
             text-transform: uppercase;
             letter-spacing: 4px;
-            color: #666;
+            color: #7A4B31;
             pointer-events: none;
         }
 
@@ -173,7 +174,7 @@
             display: inline-block;
             width: 2px;
             height: 1em;
-            background: #222;
+            background: #3D2314;
             margin-left: 2px;
             animation: blink 0.7s steps(1) infinite;
             vertical-align: text-bottom;
@@ -248,7 +249,7 @@
         .works-nav button {
             background: none;
             border: none;
-            color: #222;
+            color: #3D2314;
             font-size: 2rem;
             cursor: pointer;
             pointer-events: auto;
@@ -259,7 +260,7 @@
 
         .works-nav button:hover {
             transform: scale(1.2);
-            color: #000;
+            color: #D99F36;
         }
 
         /* Work Label */
@@ -269,7 +270,7 @@
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
-            color: #222;
+            color: #3D2314;
         }
 
         .work-current-label h2 {
@@ -282,14 +283,14 @@
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            color: #666;
+            color: #7A4B31;
         }
 
         .back-btn {
             margin-top: 50px;
             padding: 10px 30px;
-            background: #222;
-            color: #fff;
+            background: #3D2314;
+            color: #F9F1E5;
             border: none;
             border-radius: 20px;
             cursor: pointer;
@@ -309,15 +310,37 @@
             opacity: 0 !important;
             pointer-events: none !important;
         }
+
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading-screen img {
+            width: 150px;
+            height: auto;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Loading Screen -->
+
     <!-- Background concentric circles -->
-    <div class="bg-circles" id="bgCircles"></div>
+    <div class="bg-circles" id="bgCircles" style="opacity: 0; transition: opacity 1.5s ease;"></div>
 
     <!-- UI overlay -->
-    <div class="ui-overlay">
+    <div class="ui-overlay" id="uiOverlay" style="opacity: 0; transition: opacity 1.5s ease;">
         <div class="top-left">
             <a href="#">top</a>
             <a href="#" id="navWorks">works</a>
@@ -330,16 +353,16 @@
 
 
         <div class="hero-text" style="margin-top: 200px; display: flex; flex-direction: column; gap: 20px; ">
-            <h1 id="heroTitle" style="font-size: 3rem; font-weight: 800; color: #222; min-height: 4.5rem;"></h1>
-            <p id="heroDesc" style="font-size: 1rem; font-weight: 400; color: #222;">We create high performance
+            <h1 id="heroTitle" style="font-size: 3rem; font-weight: 800; color: #3D2314; min-height: 4.5rem;"></h1>
+            <p id="heroDesc" style="font-size: 1rem; font-weight: 400; color: #3D2314;">We create high performance
                 websites, web
                 applications,
                 <br>
                 and user interfaces using modern client-side
                 JavaScript and thin server architecture
             </p>
-            <a href="#" class="cta-btn" style="font-size: 1rem; font-weight: 400; color: #000; height: 30px; padding: 4px; 
-                background-color: #7FFFD4; border-radius: 15px; margin-top: 10px; text-decoration: none;width: 200px; 
+            <a href="#" class="cta-btn" style="font-size: 1rem; font-weight: 400; color: #3D2314; height: 30px; padding: 4px; 
+                background-color: #D99F36; border-radius: 15px; margin-top: 10px; text-decoration: none;width: 200px; 
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -352,7 +375,7 @@
     <div id="works-section">
         <div class="top-left" style="position: absolute; top: 36px; left: 44px; pointer-events: auto;">
             <a href="#" id="backNavLink"
-                style="color: #222; text-decoration: none; font-size: 1rem; letter-spacing: 3px; text-transform: lowercase;">back</a>
+                style="color: #3D2314; text-decoration: none; font-size: 1rem; letter-spacing: 3px; text-transform: lowercase;">back</a>
         </div>
 
         <div class="works-nav">
@@ -517,7 +540,7 @@
                 uTime: { value: 0 },
                 uSprite: { value: spriteTex },
                 uSize: { value: 16.0 * Math.min(devicePixelRatio, 2) },
-                uOpacity: { value: 0.0 } // Start invisible
+                uOpacity: { value: 0.0 } // Start hidden
             },
             vertexShader: `
                 attribute vec3 aColor;
@@ -570,12 +593,26 @@
             staggerOffsets[i] = Math.random();
         }
 
-        // Initialize to random cloud
-        for (let i = 0; i < PARTICLE_COUNT; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * 20;
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 12;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+        // Initialize to loading spinner sphere
+        function generateSphere(count, radius) {
+            const arr = new Float32Array(count * 3);
+            for (let i = 0; i < count; i++) {
+                const u = Math.random();
+                const v = Math.random();
+                const theta = u * 2.0 * Math.PI;
+                const phi = Math.acos(2.0 * v - 1.0);
+                arr[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                arr[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                arr[i * 3 + 2] = radius * Math.cos(phi);
+            }
+            return arr;
+        }
 
+        // Initialize as hidden scattered cloud
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 50;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 50;
             colors[i * 3] = 0.5;
             colors[i * 3 + 1] = 0.5;
             colors[i * 3 + 2] = 0.5;
@@ -628,15 +665,26 @@
         });
         const flagMesh = new THREE.Mesh(flagGeom, flagMat);
         flagMesh.position.set(0, 0, -40); // Placed in front of camera (z=-50 looks at 0, so -40 works)
+        flagMesh.scale.x = -1; // Laterally invert the images
         flagMesh.visible = false;
         scene.add(flagMesh);
 
+        const PROXY_URL = "https://us-central1-cloud-functions-6aa84.cloudfunctions.net/proxyImage?path=";
+
         // Works Data
         const WORKS = [
-            { img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', title: 'Neon Cyber', cat: 'WebGL Experience' },
-            { img: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800', title: 'Flux Dynamics', cat: 'Interactive Site' },
-            { img: 'https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=800', title: 'Aether Lens', cat: 'Digital Product' },
-            { img: 'https://images.unsplash.com/photo-1615810237936-7c93202e70f6?w=800', title: 'Orbital View', cat: 'Concept Art' }
+            { img: PROXY_URL + 'AROUND%20CLOTHING%20LOGO%20BLACK%20ON%20WHITE%20SMALL.jpeg', title: 'Brand Logo 1', cat: 'Identity' },
+            { img: PROXY_URL + 'AROUND%20CLOTHING%20LOGO-%20WHITE%20ON%20BLACK%20SMALL.jpeg', title: 'Brand Logo 2', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_0260.JPG', title: 'Brand Logo 3', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_0267.JPG', title: 'Brand Logo 4', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_1587.JPG', title: 'Brand Logo 5', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_1589.JPG', title: 'Brand Logo 6', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_1590.JPG', title: 'Brand Logo 7', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_4671.PNG', title: 'Brand Logo 8', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_4673.PNG', title: 'Brand Logo 9', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_4690.PNG', title: 'Brand Logo 10', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_4692.PNG', title: 'Brand Logo 11', cat: 'Identity' },
+            { img: PROXY_URL + 'IMG_4693.PNG', title: 'Brand Logo 12', cat: 'Identity' }
         ];
 
         let currentWorkIdx = 0;
@@ -718,7 +766,7 @@
         }
 
         // 1 — Image-based shape
-        function generateFromImage(imgSrc, count) {
+        function generateFromImage(imgSrc, count, isCentered = false) {
             return new Promise((resolve) => {
                 const img = new Image();
                 img.crossOrigin = 'anonymous';
@@ -758,7 +806,7 @@
 
                     // Convert 600px offset to world units
                     const visibleW = visibleH * (innerWidth / innerHeight);
-                    const xOffset = (350 / innerWidth) * visibleW;
+                    const xOffset = isCentered ? 0 : (350 / innerWidth) * visibleW;
 
                     for (let i = 0; i < count; i++) {
                         const cand = candidates[Math.floor(Math.random() * candidates.length)];
@@ -840,7 +888,7 @@
         nextTargets.set(positions);
         targetPositions.set(positions);
 
-        let currentShape = -1; // start at -1 so first transition works
+        let currentShape = -2; // -2 = loading sphere, -1 = ready
         let isTransitioning = false;
         let glitchIntensity = { value: 0 };
         let morphProgress = { value: 1.0 };
@@ -984,13 +1032,14 @@
                 return;
             }
 
+            const isFirst = (currentShape === -1);
             currentShape = index;
 
             setActiveDot(index);
             showStageLabel(shape.label);
 
             // Animate hero text
-            animateHeroText(index, direction, false);
+            animateHeroText(index, direction, isFirst);
 
             // Glitch effect on transition
             gsap.fromTo(glitchIntensity, { value: 0 }, {
@@ -1053,49 +1102,62 @@
         //  INIT & EVENTS
         // ═══════════════════════════════════════════
 
+        const INITIAL_LOGO_URL = PROXY_URL + 'LOGOS-10%201%20(4).png';
+        let initialLogoLoaded = false;
+
+        generateFromImage(INITIAL_LOGO_URL, PARTICLE_COUNT, true).then(result => {
+            initialLogoLoaded = true;
+
+            // Set initial targets to logo
+            for (let k = 0; k < PARTICLE_COUNT * 3; k++) {
+                targetPositions[k] = result.positions[k];
+                nextTargets[k] = result.positions[k];
+                prevTargets[k] = positions[k];
+                if (result.colors) {
+                    geometry.attributes.aColor.array[k] = result.colors[k];
+                }
+            }
+            geometry.attributes.aColor.needsUpdate = true;
+            morphProgress.value = 0;
+
+            // Morph from cloud to logo
+            gsap.to(particleMat.uniforms.uOpacity, { value: 1.0, duration: 1.0 });
+            gsap.to(morphProgress, {
+                value: 1.0,
+                duration: 2.5,
+                ease: 'power2.out',
+                onUpdate: updateTargetsFromMorph,
+                onComplete: checkStartTransition
+            });
+        });
+
         // Pre-load all images into shapes
         let imagesLoaded = 0;
         SLIDES.forEach((slide, i) => {
-            generateFromImage(slide.image, PARTICLE_COUNT).then(result => {
+            generateFromImage(slide.image, PARTICLE_COUNT, false).then(result => {
                 shapes[i].data = result.positions;
                 shapes[i].colors = result.colors;
                 imagesLoaded++;
-
-                // Transition to first image once it's ready
-                if (i === 0 && currentShape === -1) {
-                    // Snap to shape 0 immediately (no disperse animation)
-                    const s = shapes[0];
-                    const posArr = geometry.attributes.position.array;
-                    const colArr = geometry.attributes.aColor.array;
-
-                    for (let k = 0; k < PARTICLE_COUNT * 3; k++) {
-                        posArr[k] = s.data[k];
-                        targetPositions[k] = s.data[k];
-                        prevTargets[k] = s.data[k];
-                        nextTargets[k] = s.data[k];
-
-                        // Also set colors
-                        if (s.colors) {
-                            colArr[k] = s.colors[k];
-                        }
-                    }
-                    geometry.attributes.position.needsUpdate = true;
-                    geometry.attributes.aColor.needsUpdate = true;
-
-                    currentShape = 0;
-                    setActiveDot(0);
-
-                    // Fade in particles
-                    gsap.to(particleMat.uniforms.uOpacity, { value: 1.0, duration: 2.0, ease: 'power2.out' });
-
-                    // Animate text (First Load)
-                    animateHeroText(0, 1, true);
-
-                    // Restart timer - disable
-                    // autoPlayTimer.restart(true);
-                }
+                checkStartTransition();
             });
         });
+
+        function checkStartTransition() {
+            if (imagesLoaded === SLIDES.length && initialLogoLoaded && currentShape === -2 && morphProgress.value === 1.0) {
+                currentShape = -1; // Ready for transition
+
+                // Wait 1.5s reading time for logo, then morph to first slide
+                setTimeout(() => {
+                    // Reveal UI
+                    const ui = document.getElementById('uiOverlay');
+                    const bg = document.getElementById('bgCircles');
+                    if (ui) ui.style.opacity = '1';
+                    if (bg) bg.style.opacity = '0.1';
+
+                    transitionToShape(0);
+                }, 1500);
+            }
+        }
 
         // Initialize auto-play timer - REMOVED for Scroll interaction
         // let autoPlayTimer = gsap.delayedCall(AUTO_PLAY_INTERVAL, nextSlide);
@@ -1121,81 +1183,7 @@
             transitionToShape(next, direction);
         }, { passive: false });
 
-        // Update transitionToShape signature
-        function transitionToShape(index, direction = 1) {
-            if (isTransitioning || index === currentShape) return;
-            isTransitioning = true;
-            // ... (rest is same, but we need to inject the text call)
 
-            currentShape = index;
-            const shape = shapes[index];
-            if (!shape.data) {
-                isTransitioning = false;
-                return;
-            }
-
-            setActiveDot(index);
-            showStageLabel(shape.label);
-
-            animateHeroText(index, direction, false); // isFirst = false
-
-            // Glitch effect on transition
-            gsap.fromTo(glitchIntensity, { value: 0 }, {
-                value: 1.0, duration: 0.2, yoyo: true, repeat: 3, ease: 'power2.inOut',
-                onComplete: () => gsap.to(glitchIntensity, { value: 0, duration: 0.5 })
-            });
-
-            // Set targets
-            prevTargets.set(targetPositions);
-            nextTargets.set(shape.data);
-            morphProgress.value = 0;
-
-            // Animate Colors
-            if (shape.colors) {
-                const startColors = new Float32Array(geometry.attributes.aColor.array);
-                const endColors = shape.colors;
-                const colorObj = { t: 0 };
-                gsap.to(colorObj, {
-                    t: 1,
-                    duration: TRANSITION_DURATION,
-                    ease: 'power1.inOut',
-                    onUpdate: () => {
-                        const colorArr = geometry.attributes.aColor.array;
-                        const t = colorObj.t;
-                        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-                            colorArr[i] = startColors[i] + (endColors[i] - startColors[i]) * t;
-                        }
-                        geometry.attributes.aColor.needsUpdate = true;
-                    }
-                });
-            } else {
-                // Fade to default
-                const startColors = new Float32Array(geometry.attributes.aColor.array);
-                const colorObj = { t: 0 };
-                gsap.to(colorObj, {
-                    t: 1,
-                    duration: TRANSITION_DURATION,
-                    ease: 'power1.inOut',
-                    onUpdate: () => {
-                        const colorArr = geometry.attributes.aColor.array;
-                        const t = colorObj.t;
-                        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-                            colorArr[i] = startColors[i] + (0.5 - startColors[i]) * t;
-                        }
-                        geometry.attributes.aColor.needsUpdate = true;
-                    }
-                });
-            }
-
-
-            gsap.to(morphProgress, {
-                value: 1.0,
-                duration: TRANSITION_DURATION,
-                ease: 'power2.inOut',
-                onUpdate: updateTargetsFromMorph,
-                onComplete: () => { isTransitioning = false; }
-            });
-        }
 
         // ── NAVIGATION LOGIC ──
         const uiOverlay = document.querySelector('.ui-overlay');
@@ -1340,10 +1328,13 @@
             mouse.sx += (mouse.x - mouse.sx) * 0.04;
             mouse.sy += (mouse.y - mouse.sy) * 0.04;
 
-            // autoRotation.y += 0.002;
-            // autoRotation.x = Math.sin(t * 0.2) * 0.1;
+            // Removed initial rotation for the logo
+            if (currentShape !== -2) {
+                autoRotation.y += (0 - autoRotation.y) * 0.05;
+                autoRotation.x += (0 - autoRotation.x) * 0.05;
+            }
 
-            const mouseWorld = new THREE.Vector3(mouse.sx * 8, mouse.sy * 5, 0);
+            // const mouseWorld = new THREE.Vector3(mouse.sx * 8, mouse.sy * 5, 0);
             const posArr = geometry.attributes.position.array;
 
             for (let i = 0; i < PARTICLE_COUNT; i++) {
@@ -1358,17 +1349,7 @@
                 velocities[i3 + 1] += dy * 0.03;
                 velocities[i3 + 2] += dz * 0.03;
 
-                // Mouse interaction
-                const mx = posArr[i3] - mouseWorld.x;
-                const my = posArr[i3 + 1] - mouseWorld.y;
-                const mz = posArr[i3 + 2] - mouseWorld.z;
-                const md = Math.sqrt(mx * mx + my * my + mz * mz);
-
-                // Repel logic
-                if (md < 4.0) {
-                    const force = (4.0 - md) * 0.02;
-                    velocities[i3] += (mx / md) * force * 2.5;
-                }
+                // Mouse interaction removed
 
                 // Noise/Drift for all shapes
                 velocities[i3] += Math.sin(t + i) * 0.002;
@@ -1388,10 +1369,10 @@
             particleMat.uniforms.uTime.value = t;
             flagMat.uniforms.uTime.value = t; // Update flag time
 
-            const rotY = autoRotation.y + mouse.sx * 0.3;
-            const rotX = autoRotation.x + mouse.sy * 0.2;
-            // particles.rotation.y = rotY;
-            // particles.rotation.x = rotX;
+            const rotY = autoRotation.y;
+            const rotX = autoRotation.x;
+            particles.rotation.y = rotY;
+            particles.rotation.x = rotX;
 
             // camera.position.x = mouse.sx * 2;
             // camera.position.y = mouse.sy * 2;
@@ -1419,6 +1400,19 @@
             renderer.setSize(innerWidth, innerHeight);
             const pr = Math.min(devicePixelRatio, 2);
             rtA.setSize(innerWidth * pr, innerHeight * pr);
+        });
+
+        // Loading Screen Logic
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loading-screen');
+            if (loader) {
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, 500);
+                }, 1000);
+            }
         });
     </script>
 </body>

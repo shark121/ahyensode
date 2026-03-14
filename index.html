@@ -56,9 +56,10 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
             gap: 4;
             top: 0;
-            left: 5%;
+            left: 0;
             width: 100vw;
             height: 100vh;
             z-index: 100;
@@ -103,7 +104,8 @@
         }
 
         .top-right a {
-            font-size: 1rem;
+            font-size: 1.2rem;
+            font-weight: 800;
             text-transform: lowercase;
             letter-spacing: 3px;
             color: #7A4B31;
@@ -114,50 +116,6 @@
 
         .top-right a:hover {
             color: #D99F36;
-        }
-
-        /* ── Stage indicator ── */
-        .stage-label {
-            position: fixed;
-            bottom: 36px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            font-size: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            color: #7A4B31;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.6s;
-        }
-
-        .stage-label.visible {
-            opacity: 1;
-        }
-
-        /* ── Progress dots ── */
-        .progress-dots {
-            position: fixed;
-            bottom: 36px;
-            right: 44px;
-            z-index: 10;
-            display: flex;
-            gap: 8px;
-            pointer-events: none;
-        }
-
-        .progress-dots .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #7A4B31;
-            transition: background 0.4s, transform 0.4s;
-        }
-
-        .progress-dots .dot.active {
-            background: #D99F36;
-            transform: scale(1.4);
         }
 
         /* ── Interaction hint ── */
@@ -292,7 +250,7 @@
 
         .back-btn {
             margin-top: 50px;
-            padding: 10px 30px;
+            padding: 5px 30px;
             background: #3D2314;
             color: #F9F1E5;
             border: none;
@@ -307,6 +265,35 @@
 
         .back-btn:hover {
             transform: scale(1.1);
+        }
+
+        /* ── Call To Action Button ── */
+        .bottom-center {
+            display: flex;
+            justify-content: center;
+            margin-top: auto;
+            margin-bottom: 5vh;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .cta-btn {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #3D2314;
+            padding: 12px 32px;
+            background-color: #D99F36;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s, background-color 0.3s;
+            pointer-events: auto;
+            box-shadow: 0 8px 16px rgba(217, 159, 54, 0.3);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            background-color: #e5ad47;
         }
 
         /* Helper to hide UI during transition */
@@ -367,9 +354,7 @@
             }
 
             .ui-overlay {
-                left: 0;
-                padding: 0 5%;
-                justify-content: flex-end;
+                padding: 0;
             }
 
             .hero-text {
@@ -527,28 +512,14 @@
         </div>
         <div class="top-right">
             <a href="#" id="navWorks">works</a>
+            <a href="about.html">about us</a>
             <a href="#">blog</a>
         </div>
 
-
-        <div class="hero-text"
-            style="margin-top: 200px; display: flex; flex-direction: column; gap: 20px; max-width: 90%; ">
-            <h1 id="heroTitle" style="font-size: 3rem; font-weight: 800; color: #3D2314; min-height: 4.5rem;"></h1>
-            <p id="heroSymbol"
-                style="font-size: 1rem; font-weight: 600; color: #7A4B31; text-transform: uppercase; letter-spacing: 1px; margin-top: -15px;">
-            </p>
-            <p id="heroDesc" style="font-size: 1rem; font-weight: 400; color: #3D2314;">We create high performance
-                websites, web applications,
-                and user interfaces using modern client-side
-                JavaScript and thin server architecture
-            </p>
-            <a href="http://Calendly.com/ahyensode" class="cta-btn" style="font-size: 1rem; font-weight: 400; color: #3D2314; height: 30px; padding: 4px; 
-                background-color: #D99F36; border-radius: 15px; margin-top: 10px; text-decoration: none;width: 200px; 
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                ">Book
-                Appointment</a>
+        <div class="bottom-center">
+            <a href="http://Calendly.com/ahyensode" class="cta-btn">
+                Book Appointment
+            </a>
         </div>
     </div>
 
@@ -570,14 +541,7 @@
         </div>
     </div>
 
-    <!-- Stage label -->
-    <div class="stage-label" id="stageLabel"></div>
 
-    <!-- Progress dots -->
-    <div class="progress-dots" id="progressDots"></div>
-
-    <!-- Hint -->
-    <div class="hint" id="hint">click to disperse / form</div>
 
     <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1016,197 +980,11 @@
             });
         }
 
-        // ═══════════════════════════════════════════
-        //  SLIDES DATA (images + hero text)
-        // ═══════════════════════════════════════════
-        const SLIDES = [
-            // {
-            //     image: 'https://i.ibb.co/9mCqwtq8/Untitled.png',
-            //     title: 'Where strategy, design\nand technology meet',
-            //     desc: 'We create high performance websites, web applications,\nand user interfaces using modern client-side JavaScript and thin server architecture'
-            // },
-            // {
-            //     image: 'https://i.ibb.co/RpN2zPYn/Untitled-3.png',
-            //     title: 'Crafting digital\nexperiences that inspire',
-            //     desc: 'From concept to launch, we build immersive products\nthat captivate audiences and drive real business results'
-            // },
-            {
-                image: PROXY_URL + 'Screenshot_2026-02-24_173000-removebg-preview.png',
-                symbol: 'Ananse Ntentan',
-                title: "Wisdom-Driven \nCreativity",
-                desc: 'We approach every project with depth and intention. By blending insight with imagination, \nwe craft work that tells meaningful stories and solves real problems. Our process is thoughtful, \nlayered, and designed to bring clarity to complex ideas.'
-
-            },
-            {
-                image: PROXY_URL + 'Screenshot_2026-02-24_173302-removebg-preview.png',
-                symbol: 'Dame Dame',
-                title: "Strategic Execution",
-                desc: 'Great design is never random. Every visual choice we make is purposeful, calculated, \nand aligned with your goals. We think several steps ahead to ensure your brand stands out, \ncompetes effectively, and communicates with precision.'
-
-            },
-            {
-                image: PROXY_URL + 'Screenshot_2026-02-24_173700-removebg-preview.png',
-                symbol: 'Kokuromotie',
-                title: "Our Approach",
-                desc: 'At Ahyensode, every project is guided by thoughtful strategy, sharp creativity, and true \ncollaboration. We don’t just create visuals, we build intelligent brand experiences that work'
-            },
-
-            // {
-            //     image: PROXY_URL + 'Screenshot_2026-02-24_173908-removebg-preview.png',
-            //     title: 'Kyemfere',
-            //     desc: `A symbol of knowledge, experience, service, and enduring heritage. Drawn from Akan wisdom, \nthis symbol reflects our respect for mastery, cultural memory, and the lasting value of \nthoughtful craftsmanship over time.`
-            // }
-        ];
-
-        // Pre-build shapes array (one per slide)
-        const shapes = SLIDES.map((slide, i) => ({
-            data: null,
-            colors: null,
-            label: `slide ${i + 1}`,
-            name: slide.title
-        }));
-
-        // ═══════════════════════════════════════════
-        //  PROGRESS DOTS (auto-generated)
-        // ═══════════════════════════════════════════
-        const progressDotsContainer = document.getElementById('progressDots');
-        SLIDES.forEach((_, i) => {
-            const dot = document.createElement('div');
-            dot.className = 'dot' + (i === 0 ? ' active' : '');
-            progressDotsContainer.appendChild(dot);
-        });
-
-        // Initialize targets
-        prevTargets.set(positions);
-        nextTargets.set(positions);
-        targetPositions.set(positions);
-
         let currentShape = -2; // -2 = loading sphere, -1 = ready
         let isTransitioning = false;
         let glitchIntensity = { value: 0 };
         let morphProgress = { value: 1.0 };
-
-        // ═══════════════════════════════════════════
-        //  TYPEWRITER EFFECT
-        // ═══════════════════════════════════════════
-        const heroTitle = document.getElementById('heroTitle');
-        let typewriterTimeline = null;
-
-        function typewriterAnimate(element, text, speed = 30) {
-            return new Promise(resolve => {
-                // Convert \n to <br>
-                const chars = [];
-                const htmlText = text.replace(/\n/g, '<br>');
-                let i = 0;
-                element.innerHTML = '<span class="typewriter-cursor"></span>';
-
-                // Parse chars, treating <br> as single token
-                const tokens = [];
-                let j = 0;
-                while (j < htmlText.length) {
-                    if (htmlText.substring(j, j + 4) === '<br>') {
-                        tokens.push('<br>');
-                        j += 4;
-                    } else {
-                        tokens.push(htmlText[j]);
-                        j++;
-                    }
-                }
-
-                let built = '';
-                function typeNext() {
-                    if (i < tokens.length) {
-                        built += tokens[i];
-                        element.innerHTML = built + '<span class="typewriter-cursor"></span>';
-                        i++;
-                        setTimeout(typeNext, tokens[i - 1] === '<br>' ? speed * 3 : speed);
-                    } else {
-                        // Remove cursor after a short delay
-                        setTimeout(() => {
-                            element.innerHTML = built;
-                            resolve();
-                        }, 600);
-                    }
-                }
-                typeNext();
-            });
-        }
-
-        const heroDesc = document.getElementById('heroDesc');
-        const heroSymbol = document.getElementById('heroSymbol');
-
-        async function animateHeroText(slideIndex, direction = 1, isFirst = false) {
-            const slide = SLIDES[slideIndex];
-
-            if (isFirst) {
-                // Initial Typewriter
-                heroTitle.style.opacity = 1;
-                heroDesc.style.opacity = 0;
-                heroDesc.innerHTML = slide.desc.replace(/\n/g, '<br>');
-
-                if (heroSymbol) {
-                    heroSymbol.style.opacity = 0;
-                    heroSymbol.innerHTML = slide.symbol || '';
-                }
-
-                await typewriterAnimate(heroTitle, slide.title, 35);
-                gsap.to([heroSymbol, heroDesc].filter(Boolean), { opacity: 1, duration: 1.0 });
-            } else {
-                // Scroll Effect (Move Up/Down)
-                const yOffset = direction > 0 ? 50 : -50; // Scroll Down (1) -> comes from bottom (+50)
-                const elementsToAnimate = [heroTitle, heroSymbol, heroDesc].filter(Boolean);
-
-                // Outgoing
-                gsap.to(elementsToAnimate, {
-                    y: -yOffset,
-                    opacity: 0,
-                    duration: 0.4,
-                    stagger: 0.1,
-                    onComplete: () => {
-                        // Update Content
-                        heroTitle.innerHTML = slide.title.replace(/\n/g, '<br>');
-                        heroDesc.innerHTML = slide.desc.replace(/\n/g, '<br>');
-                        if (heroSymbol) {
-                            heroSymbol.innerHTML = slide.symbol || '';
-                        }
-
-                        // Prepare Incoming
-                        gsap.set(elementsToAnimate, { y: yOffset, opacity: 0 });
-
-                        // Incoming
-                        gsap.to(elementsToAnimate, {
-                            y: 0,
-                            opacity: 1,
-                            duration: 0.6,
-                            stagger: 0.1,
-                            ease: 'power3.out'
-                        });
-                    }
-                });
-            }
-        }
-
-        // ═══════════════════════════════════════════
-        //  TRANSITION SYSTEM
-        // ═══════════════════════════════════════════
-        const stageLabel = document.getElementById('stageLabel');
-        const dots = progressDotsContainer.querySelectorAll('.dot');
-        const hint = document.getElementById('hint');
-
-        function setActiveDot(index) {
-            const allDots = progressDotsContainer.querySelectorAll('.dot');
-            allDots.forEach((d, i) => d.classList.toggle('active', i === index));
-        }
-
-        function showStageLabel(text) {
-            stageLabel.textContent = text;
-            stageLabel.classList.add('visible');
-            gsap.delayedCall(2, () => stageLabel.classList.remove('visible'));
-        }
-
-        function easeInOut(t) {
-            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        }
+        let viewState = 'hero'; // 'hero' | 'works'
 
         function updateTargetsFromMorph() {
             const p = morphProgress.value;
@@ -1215,90 +993,13 @@
                 const i3 = i * 3;
                 const offset = staggerOffsets[i] * staggerRange;
                 const localP = Math.max(0, Math.min(1, (p - offset) / (1.0 - staggerRange)));
-                const ep = easeInOut(localP);
+                // easeInOut
+                const t = localP;
+                const ep = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
                 targetPositions[i3] = prevTargets[i3] + (nextTargets[i3] - prevTargets[i3]) * ep;
                 targetPositions[i3 + 1] = prevTargets[i3 + 1] + (nextTargets[i3 + 1] - prevTargets[i3 + 1]) * ep;
                 targetPositions[i3 + 2] = prevTargets[i3 + 2] + (nextTargets[i3 + 2] - prevTargets[i3 + 2]) * ep;
             }
-        }
-
-        // Fix loop direction logic if needed, but passing explicit direction from scroll is better.
-        // For now, we update transitionToShape signature.
-
-        function transitionToShape(index, direction = 1) {
-            if (isTransitioning || index === currentShape) return;
-            isTransitioning = true;
-
-            const shape = shapes[index];
-            if (!shape.data) {
-                isTransitioning = false;
-                return;
-            }
-
-            const isFirst = (currentShape === -1);
-            currentShape = index;
-
-            setActiveDot(index);
-            showStageLabel(shape.label);
-
-            // Animate hero text
-            animateHeroText(index, direction, isFirst);
-
-            // Glitch effect on transition
-            gsap.fromTo(glitchIntensity, { value: 0 }, {
-                value: 1.0, duration: 0.2, yoyo: true, repeat: 3, ease: 'power2.inOut',
-                onComplete: () => gsap.to(glitchIntensity, { value: 0, duration: 0.5 })
-            });
-
-            // Set targets
-            prevTargets.set(targetPositions);
-            nextTargets.set(shape.data);
-            morphProgress.value = 0;
-
-            // Animate Colors
-            if (shape.colors) {
-                const startColors = new Float32Array(geometry.attributes.aColor.array);
-                const endColors = shape.colors;
-                const colorObj = { t: 0 };
-                gsap.to(colorObj, {
-                    t: 1,
-                    duration: TRANSITION_DURATION,
-                    ease: 'power1.inOut',
-                    onUpdate: () => {
-                        const colorArr = geometry.attributes.aColor.array;
-                        const t = colorObj.t;
-                        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-                            colorArr[i] = startColors[i] + (endColors[i] - startColors[i]) * t;
-                        }
-                        geometry.attributes.aColor.needsUpdate = true;
-                    }
-                });
-            } else {
-                // Fade to default
-                const startColors = new Float32Array(geometry.attributes.aColor.array);
-                const colorObj = { t: 0 };
-                gsap.to(colorObj, {
-                    t: 1,
-                    duration: TRANSITION_DURATION,
-                    ease: 'power1.inOut',
-                    onUpdate: () => {
-                        const colorArr = geometry.attributes.aColor.array;
-                        const t = colorObj.t;
-                        for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
-                            colorArr[i] = startColors[i] + (0.5 - startColors[i]) * t;
-                        }
-                        geometry.attributes.aColor.needsUpdate = true;
-                    }
-                });
-            }
-
-            gsap.to(morphProgress, {
-                value: 1.0,
-                duration: TRANSITION_DURATION,
-                ease: 'power2.inOut',
-                onUpdate: updateTargetsFromMorph,
-                onComplete: () => { isTransitioning = false; }
-            });
         }
 
         // ═══════════════════════════════════════════
@@ -1330,95 +1031,17 @@
                 duration: 2.5,
                 ease: 'power2.out',
                 onUpdate: updateTargetsFromMorph,
-                onComplete: checkStartTransition
+                onComplete: () => {
+                    currentShape = -1; // Ready
+                    setTimeout(() => {
+                        const ui = document.getElementById('uiOverlay');
+                        const bg = document.getElementById('bgCircles');
+                        if (ui) ui.style.opacity = '1';
+                        if (bg) bg.style.opacity = '0.1';
+                    }, 500);
+                }
             });
         });
-
-        // Pre-load all images into shapes
-        let imagesLoaded = 0;
-        SLIDES.forEach((slide, i) => {
-            generateFromImage(slide.image, PARTICLE_COUNT, false, 0.9).then(result => {
-                shapes[i].data = result.positions;
-                shapes[i].colors = result.colors;
-                imagesLoaded++;
-                checkStartTransition();
-            });
-        });
-
-        function checkStartTransition() {
-            if (imagesLoaded === SLIDES.length && initialLogoLoaded && currentShape === -2 && morphProgress.value === 1.0) {
-                currentShape = -1; // Ready for transition
-
-                // Wait 1.5s reading time for logo, then morph to first slide
-                setTimeout(() => {
-                    // Reveal UI
-                    const ui = document.getElementById('uiOverlay');
-                    const bg = document.getElementById('bgCircles');
-                    if (ui) ui.style.opacity = '1';
-                    if (bg) bg.style.opacity = '0.1';
-
-                    transitionToShape(0);
-                }, 1500);
-            }
-        }
-
-        // Initialize auto-play timer - REMOVED for Scroll interaction
-        // let autoPlayTimer = gsap.delayedCall(AUTO_PLAY_INTERVAL, nextSlide);
-        let viewState = 'hero'; // 'hero' | 'works'
-        let lastScrollTime = 0;
-        const scrollCooldown = 1500; // ms
-
-        window.addEventListener('wheel', (e) => {
-            if (viewState !== 'hero' || isTransitioning) return;
-
-            const now = Date.now();
-            if (now - lastScrollTime < scrollCooldown) return;
-
-            const direction = Math.sign(e.deltaY);
-            if (direction === 0) return;
-
-            lastScrollTime = now;
-
-            let next = currentShape + direction;
-            if (next >= SLIDES.length) next = 0;
-            if (next < 0) next = SLIDES.length - 1;
-
-            transitionToShape(next, direction);
-        }, { passive: false });
-
-        // ── TOUCH SWIPE SUPPORT FOR MOBILE ──
-        let touchStartY = 0;
-        let touchStartX = 0;
-        const swipeThreshold = 50;
-
-        window.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-            touchStartX = e.touches[0].clientX;
-        }, { passive: true });
-
-        window.addEventListener('touchend', (e) => {
-            if (viewState !== 'hero' || isTransitioning) return;
-
-            const now = Date.now();
-            if (now - lastScrollTime < scrollCooldown) return;
-
-            const touchEndY = e.changedTouches[0].clientY;
-            const touchEndX = e.changedTouches[0].clientX;
-            const diffY = touchStartY - touchEndY;
-            const diffX = touchStartX - touchEndX;
-
-            // Only trigger on vertical swipes (not horizontal)
-            if (Math.abs(diffY) > swipeThreshold && Math.abs(diffY) > Math.abs(diffX)) {
-                lastScrollTime = now;
-                const direction = diffY > 0 ? 1 : -1; // swipe up = next, swipe down = prev
-
-                let next = currentShape + direction;
-                if (next >= SLIDES.length) next = 0;
-                if (next < 0) next = SLIDES.length - 1;
-
-                transitionToShape(next, direction);
-            }
-        }, { passive: true });
 
 
 
@@ -1502,9 +1125,12 @@
                 duration: 2.0,
                 ease: "power2.inOut",
                 onComplete: () => {
-                    // Form first image again
-                    transitionToShape(1);
-                    // autoPlayTimer.restart(true);
+                    // Back to logo shape
+                    currentShape = -1;
+
+                    prevTargets.set(targetPositions);
+                    nextTargets.set(positions); // We could store the logo positions, but keeping it simple for now, morph to random maybe?
+                    // Actually, let's keep it simple. The cloud is fine, or we can just leave it.
                 }
             });
 
@@ -1534,23 +1160,8 @@
             e.preventDefault();
             navigateToHero();
         });
+        // Remove hint hover listener
 
-        // Cycle to next image on click
-        document.addEventListener('click', (e) => {
-            // Don't trigger on link clicks or buttons
-            if (e.target.closest('a') || e.target.closest('button')) return;
-
-            // Only allow cycling in hero view
-            if (viewState === 'hero') {
-                nextSlide();
-            }
-        });
-
-        // Hide hint
-        document.addEventListener('mousemove', function hideHint() {
-            gsap.to(hint, { opacity: 0, duration: 1 });
-            document.removeEventListener('mousemove', hideHint);
-        }, { once: true });
 
         // ═══════════════════════════════════════════
         //  ANIMATION LOOP
@@ -1586,7 +1197,21 @@
                 velocities[i3 + 1] += dy * 0.03;
                 velocities[i3 + 2] += dz * 0.03;
 
-                // Mouse interaction removed
+                // Mouse interaction
+                if (viewState === 'hero' && currentShape !== -2) {
+                    const mx = mouse.sx * 15;
+                    const my = mouse.sy * 15;
+                    const distX = posArr[i3] - mx;
+                    const distY = posArr[i3 + 1] - my;
+                    const distSq = distX * distX + distY * distY;
+
+                    if (distSq < 15.0) {
+                        const force = (15.0 - distSq) * 0.001; // push strength increased by 2x
+                        velocities[i3] += distX * force;
+                        velocities[i3 + 1] += distY * force;
+                        velocities[i3 + 2] += (Math.random() - 0.5) * force;
+                    }
+                }
 
                 // Noise/Drift for all shapes
                 velocities[i3] += Math.sin(t + i) * 0.002;

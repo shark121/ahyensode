@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us | Ahyensode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F9F1E5;
+            color: #3D2314;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ── Background concentric circles ── */
+        .bg-circles {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.1;
+        }
+
+        .bg-circles .ring {
+            position: absolute;
+            border: 1px solid #7A4B31;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ── Navigation ── */
+        .top-left {
+            position: fixed;
+            top: 36px;
+            left: 30px;
+            z-index: 100;
+        }
+
+        .top-left img {
+            height: 70px;
+            width: auto;
+        }
+
+        .top-right {
+            position: fixed;
+            top: 40px;
+            right: 90px;
+            z-index: 100;
+        }
+
+        .top-right a {
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-transform: lowercase;
+            letter-spacing: 3px;
+            color: #7A4B31;
+            text-decoration: none;
+            margin-left: 28px;
+            transition: color 0.3s;
+        }
+
+        .top-right a:hover {
+            color: #D99F36;
+        }
+
+        .top-right a.active {
+            color: #D99F36;
+            font-weight: 600;
+        }
+
+        /* ── Main Layout ── */
+        main {
+            padding-top: 150px;
+            padding-bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 150px;
+        }
+
+        .about-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 80px;
+            max-width: 1100px;
+            width: 90%;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .about-section.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .symbol-img {
+            flex: 1;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .symbol-img img {
+            width: 100%;
+            height: auto;
+            max-width: 350px;
+            filter: drop-shadow(0px 15px 30px rgba(61, 35, 20, 0.15));
+            transition: transform 0.5s ease;
+        }
+
+        .symbol-img img:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .symbol-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #7A4B31;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #3D2314;
+            line-height: 1.1;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #3D2314;
+            line-height: 1.6;
+        }
+
+        /* ── Header Simple ── */
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-header h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #3D2314;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            color: #7A4B31;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-top: 10px;
+        }
+
+        /* ── Mobile Responsive ── */
+        @media (max-width: 768px) {
+            .top-left {
+                top: 20px;
+                left: 20px;
+            }
+
+            .top-left img {
+                height: 32px;
+            }
+
+            .top-right a {
+                font-size: 0.85rem;
+                letter-spacing: 2px;
+                margin-left: 16px;
+            }
+
+            .top-right {
+                top: 20px;
+                right: 20px;
+            }
+
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-section {
+                flex-direction: column;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .about-section.reverse {
+                flex-direction: column;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .description {
+                font-size: 1rem;
+            }
+
+            main {
+                gap: 100px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background concentric circles -->
+    <div class="bg-circles" id="bgCircles"></div>
+
+    <!-- Navigation -->
+    <div class="top-left">
+        <a href="index.html">
+            <img src="assets/LOGOS-03.png" alt="Ahyensode Logo">
+        </a>
+    </div>
+    <div class="top-right">
+        <a href="index.html#works" id="navWorks">works</a>
+        <a href="about.html" class="active">about us</a>
+        <a href="#">blog</a>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <div class="page-header">
+            <h1>About Us</h1>
+            <p>Our Philosophy</p>
+        </div>
+
+        <section class="about-section">
+            <div class="symbol-img">
+                <img src="https://us-central1-cloud-functions-6aa84.cloudfunctions.net/proxyImage?path=Screenshot_2026-02-24_173000-removebg-preview.png"
+                    alt="Ananse Ntentan">
+            </div>
+            <div class="content">
+                <div class="symbol-name">Ananse Ntentan</div>
+                <h2 class="title">Wisdom-Driven<br>Creativity</h2>
+                <p class="description">
+                    We approach every project with depth and intention. By blending insight with imagination,
+                    we craft work that tells meaningful stories and solves real problems. Our process is thoughtful,
+                    layered, and designed to bring clarity to complex ideas.
+                </p>
+            </div>
+        </section>
+
+        <section class="about-section reverse">
+            <div class="symbol-img">
+                <img src="https://us-central1-cloud-functions-6aa84.cloudfunctions.net/proxyImage?path=Screenshot_2026-02-24_173302-removebg-preview.png"
+                    alt="Dame Dame">
+            </div>
+            <div class="content">
+                <div class="symbol-name">Dame Dame</div>
+                <h2 class="title">Strategic<br>Execution</h2>
+                <p class="description">
+                    Great design is never random. Every visual choice we make is purposeful, calculated,
+                    and aligned with your goals. We think several steps ahead to ensure your brand stands out,
+                    competes effectively, and communicates with precision.
+                </p>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <div class="symbol-img">
+                <img src="https://us-central1-cloud-functions-6aa84.cloudfunctions.net/proxyImage?path=Screenshot_2026-02-24_173700-removebg-preview.png"
+                    alt="Kokuromotie">
+            </div>
+            <div class="content">
+                <div class="symbol-name">Kokuromotie</div>
+                <h2 class="title">Our<br>Approach</h2>
+                <p class="description">
+                    At Ahyensode, every project is guided by thoughtful strategy, sharp creativity, and true
+                    collaboration. We don't just create visuals, we build intelligent brand experiences that work.
+                </p>
+            </div>
+        </section>
+
+        <div style="margin-top: 50px; text-align: center;">
+            <a href="http://Calendly.com/ahyensode" class="cta-btn" style="
+                font-size: 1.1rem; 
+                font-weight: 600; 
+                color: #3D2314; 
+                padding: 15px 40px; 
+                background-color: #D99F36; 
+                border-radius: 30px; 
+                text-decoration: none;
+                display: inline-block;
+                transition: transform 0.3s, background-color 0.3s;
+                box-shadow: 0 10px 20px rgba(217, 159, 54, 0.3);
+            " onmouseover="this.style.transform='translateY(-3px)'; this.style.backgroundColor='#e5ad47'"
+                onmouseout="this.style.transform='translateY(0)'; this.style.backgroundColor='#D99F36'">
+                Book Appointment
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // ── CONCENTRIC CIRCLES BACKGROUND ──
+        (function createCircles() {
+            const container = document.getElementById('bgCircles');
+            const sizes = [120, 220, 340, 480, 640, 820, 1020];
+            sizes.forEach(s => {
+                const ring = document.createElement('div');
+                ring.className = 'ring';
+                ring.style.width = s + 'px';
+                ring.style.height = s + 'px';
+                container.appendChild(ring);
+            });
+            // Slow drift animation
+            gsap.to(container, {
+                rotation: 360,
+                duration: 120,
+                repeat: -1,
+                ease: 'none'
+            });
+            gsap.to(container, {
+                x: 20, y: 15,
+                duration: 8,
+                yoyo: true,
+                repeat: -1,
+                ease: 'sine.inOut'
+            });
+        })();
+
+        // ── SCROLL ANIMATIONS ──
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Header animation
+        gsap.from(".page-header", {
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+            delay: 0.2
+        });
+
+        // Section animations
+        gsap.utils.toArray('.about-section').forEach((section, i) => {
+            gsap.to(section, {
+                scrollTrigger: {
+                    trigger: section,
+                    start: "top 80%",
+                    end: "bottom 20%",
+                    toggleActions: "play none none reverse"
+                },
+                y: 0,
+                opacity: 1,
+                duration: 1,
+                ease: "power3.out"
+            });
+
+            // Image parallax
+            gsap.fromTo(section.querySelector('.symbol-img img'),
+                { y: 30 },
+                {
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top bottom",
+                        end: "bottom top",
+                        scrub: 1
+                    },
+                    y: -30,
+                    ease: "none"
+                }
+            );
+        });
+    </script>
+</body>
+
+</html>

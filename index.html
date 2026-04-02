@@ -277,8 +277,13 @@
         /* ── Works Section ── */
         #works-section {
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh; z-index: 105;
-            padding: 36px 44px; /* Same offset where top-left was located */
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 105;
+            padding: 36px 44px;
+            /* Same offset where top-left was located */
             display: flex;
             flex-direction: column;
             background: rgba(255, 255, 255, 0.0);
@@ -288,7 +293,8 @@
         }
 
         #works-section.active {
-            opacity: 1; pointer-events: auto;
+            opacity: 1;
+            pointer-events: auto;
         }
 
         /* Works Header (for Back Button) */
@@ -308,7 +314,8 @@
             flex-direction: column;
             width: 100%;
             align-items: center;
-            min-height: 0; /* Unlocks native flex overflow scrolling */
+            min-height: 0;
+            /* Unlocks native flex overflow scrolling */
         }
 
         /* Nav Buttons Row */
@@ -317,17 +324,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            /* Wrap when necessary */
+            gap: 10px;
             padding: 0 5%;
             z-index: 200;
-            margin: auto 0; /* Auto margin centers it perfectly in the flex column before grid loads */
+            margin: auto 0;
+            /* Auto margin centers it perfectly in the flex column before grid loads */
         }
 
         .works-nav button {
-            background: none; border: none; color: #3D2314; font-size: 2rem; cursor: pointer; pointer-events: auto; transition: transform 0.3s, color 0.3s; font-family: 'Outfit', sans-serif; font-weight: 300; padding: 20px;
+            background: none;
+            border: none;
+            color: #3D2314;
+            font-size: 2rem;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: transform 0.3s, color 0.3s;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            padding: 20px;
         }
 
         .works-nav button:hover {
-            transform: scale(1.2); color: #D99F36;
+            transform: scale(1.2);
+            color: #D99F36;
         }
 
         /* Work Label Container */
@@ -340,18 +361,24 @@
             justify-content: center;
             align-items: center;
             transition: transform 0.3s ease;
+            flex: 1 1 auto;
+            /* Allow taking available space */
+            min-width: 0;
+            /* Unlocks text wrapping inside flex flex blocks */
         }
 
         .work-current-label:hover {
             transform: scale(1.05);
         }
+
         .work-current-label:hover #workTitle {
             color: #D99F36 !important;
-            text-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+            text-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
         }
 
         #workTitle {
-            font-size: 3.5rem;
+            font-size: clamp(0.5rem, 3.5vw, 3.5rem);
+            /* Aggressively scales down to prevent any wrapping */
             font-weight: 800;
             margin-bottom: 0.5rem;
             text-transform: uppercase;
@@ -361,15 +388,20 @@
             position: relative;
             display: inline-block;
             white-space: nowrap;
-            padding: 30px 40px; /* Strong hit block */
+            /* Forces text to stay on a single line */
+            padding: 10px 10px;
+            /* Essential for tiny mobile screens */
             pointer-events: auto !important;
+            max-width: 100%;
         }
 
         /* Masonry Grid */
         .works-grid-wrapper {
             width: 100%;
-            flex-grow: 1; /* Consumes remaining space beneath nav */
-            min-height: 0; /* Unlocks native flex overflow scrolling */
+            flex-grow: 1;
+            /* Consumes remaining space beneath nav */
+            min-height: 0;
+            /* Unlocks native flex overflow scrolling */
             max-width: 1200px;
             margin: 0 auto;
             position: relative;
@@ -379,7 +411,8 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
             opacity: 0;
-            display: none; /* Removed from flex flow initially */
+            display: none;
+            /* Removed from flex flow initially */
             pointer-events: none;
         }
 
@@ -519,42 +552,48 @@
 
         /* ── Mobile Responsive ── */
         @media (max-width: 768px) {
-            .top-left {
+            .ui-overlay .top-left {
                 top: 40px;
                 left: 20px;
+                transform: translateY(-50%);
             }
 
-            .top-left img {
-                height: 32px;
+            .ui-overlay .top-left img {
+                height: 28px; /* Slightly scaled down to fit horizontal row */
             }
 
-            .top-right a {
-                font-size: 0.85rem;
-                letter-spacing: 2px;
-                margin-left: 16px;
+            .ui-overlay .top-right a {
+                font-size: 0.75rem; /* Scaled down */
+                letter-spacing: 1px;
+                margin-left: 10px;
             }
 
-            .top-right {
+            .ui-overlay .top-right {
                 top: 40px;
                 right: 20px;
+                left: auto;
+                transform: translateY(-50%);
             }
 
-            .top-center {
+            .ui-overlay .top-center {
                 top: 40px;
-                gap: 15px;
+                gap: 10px; /* Reduced gap */
+                transform: translate(-50%, -50%);
             }
 
-            .top-center .social-svg {
-                width: 20px;
-                height: 20px;
+            .ui-overlay .top-center .social-svg {
+                width: 18px;
+                height: 18px;
             }
 
-            .nav-links {
+            .ui-overlay .nav-links {
+                display: flex; /* Kept fully visible */
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+
+            .ui-overlay .hamburger {
                 display: none;
-            }
-
-            .hamburger {
-                display: flex;
             }
 
             .logo {
@@ -634,34 +673,38 @@
         }
 
         @media (max-width: 480px) {
-            .top-left {
+            .ui-overlay .top-left {
                 top: 30px;
-                left: 16px;
+                left: 10px;
+                transform: translateY(-50%);
             }
 
-            .top-left img {
-                height: 28px;
+            .ui-overlay .top-left img {
+                height: 20px; /* Extremely small to fit 320px screens horizontally */
             }
 
-            .top-right a {
-                font-size: 0.75rem;
-                letter-spacing: 1.5px;
-                margin-left: 12px;
+            .ui-overlay .top-right a {
+                font-size: 0.55rem;
+                letter-spacing: 1px;
+                margin-left: 8px;
             }
 
-            .top-right {
+            .ui-overlay .top-right {
                 top: 30px;
-                right: 16px;
+                right: 10px;
+                left: auto;
+                transform: translateY(-50%);
             }
 
-            .top-center {
+            .ui-overlay .top-center {
                 top: 30px;
-                gap: 10px;
+                gap: 6px;
+                transform: translate(-50%, -50%);
             }
 
-            .top-center .social-svg {
-                width: 18px;
-                height: 18px;
+            .ui-overlay .top-center .social-svg {
+                width: 14px;
+                height: 14px;
             }
 
             .hero-text {
@@ -734,35 +777,56 @@
             <img src="assets/LOGOS-03.png" alt="Ahyensode Logo">
         </div>
         <div class="top-center">
-            <a href="#" target="_blank" aria-label="Instagram">
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/ahyensode_?igsh=MXQ4NHZ3cGphdWVheg%3D%3D&utm_source=qr" target="_blank" aria-label="Instagram">
                 <svg viewBox="0 0 32 32" class="social-svg">
-                    <path fill="currentColor" d="M23,0H9C4,0,0,4,0,9v6v8c0,5,4,9,9,9h14c5,0,9-4,9-9v-8V9C32,4,28,0,23,0z"/>
-                    <circle fill="none" stroke="#F9F1E5" stroke-width="2" cx="16" cy="16" r="8"/>
-                    <circle fill="#F9F1E5" cx="25" cy="6" r="2"/>
+                    <path fill="currentColor"
+                        d="M23,0H9C4,0,0,4,0,9v6v8c0,5,4,9,9,9h14c5,0,9-4,9-9v-8V9C32,4,28,0,23,0z" />
+                    <circle fill="none" stroke="#F9F1E5" stroke-width="2" cx="16" cy="16" r="8" />
+                    <circle fill="#F9F1E5" cx="25" cy="6" r="2" />
                 </svg>
             </a>
-            <a href="#" target="_blank" aria-label="TikTok">
+            <!-- TikTok -->
+            <a href="https://www.tiktok.com/@ahyensode?lang=en-GB&is_from_webapp=1&sender_device=mobile&sender_web_id=7624055382759147022" target="_blank" aria-label="TikTok">
                 <svg viewBox="0 0 24 24" class="social-svg">
-                    <path fill="currentColor" d="M16.8218 5.1344C16.0887 4.29394 15.648 3.19805 15.648 2H14.7293C14.9659 3.3095 15.7454 4.43326 16.8218 5.1344Z"/>
-                    <path fill="currentColor" d="M8.3218 11.9048C6.73038 11.9048 5.43591 13.2004 5.43591 14.7931C5.43591 15.903 6.06691 16.8688 6.98556 17.3517C6.64223 16.8781 6.43808 16.2977 6.43808 15.6661C6.43808 14.0734 7.73255 12.7778 9.324 12.7778C9.62093 12.7778 9.90856 12.8288 10.1777 12.9124V9.40192C9.89927 9.36473 9.61628 9.34149 9.324 9.34149C9.27294 9.34149 9.22654 9.34614 9.1755 9.34614V12.0394C8.90176 11.9558 8.61873 11.9048 8.3218 11.9048Z"/>
-                    <path fill="currentColor" d="M19.4245 6.67608V9.34614C17.6429 9.34614 15.9912 8.77501 14.6456 7.80911V14.7977C14.6456 18.2851 11.8108 21.127 8.32172 21.127C6.97621 21.127 5.7235 20.6998 4.69812 19.98C5.8534 21.2198 7.50049 22 9.32392 22C12.8083 22 15.6478 19.1627 15.6478 15.6707V8.68211C16.9933 9.64801 18.645 10.2191 20.4267 10.2191V6.78293C20.0787 6.78293 19.7446 6.74574 19.4245 6.67608Z"/>
-                    <path fill="currentColor" d="M14.6456 14.7977V7.80911C15.9912 8.77501 17.6429 9.34614 19.4245 9.34614V6.67608C18.3945 6.45788 17.4899 5.90063 16.8218 5.1344C15.7454 4.43326 14.9704 3.3095 14.7245 2H12.2098L12.2051 15.7775C12.1495 17.3192 10.8782 18.5591 9.32393 18.5591C8.35884 18.5591 7.50977 18.0808 6.98085 17.3564C6.06219 16.8688 5.4312 15.9076 5.4312 14.7977C5.4312 13.205 6.72567 11.9094 8.31708 11.9094C8.61402 11.9094 8.90168 11.9605 9.17079 12.0441V9.35079C5.75598 9.42509 3 12.2298 3 15.6707C3 17.3331 3.64492 18.847 4.69812 19.98C5.7235 20.6998 6.97621 21.127 8.32172 21.127C11.8061 21.127 14.6456 18.2851 14.6456 14.7977Z"/>
+                    <path fill="currentColor"
+                        d="M16.8218 5.1344C16.0887 4.29394 15.648 3.19805 15.648 2H14.7293C14.9659 3.3095 15.7454 4.43326 16.8218 5.1344Z" />
+                    <path fill="currentColor"
+                        d="M8.3218 11.9048C6.73038 11.9048 5.43591 13.2004 5.43591 14.7931C5.43591 15.903 6.06691 16.8688 6.98556 17.3517C6.64223 16.8781 6.43808 16.2977 6.43808 15.6661C6.43808 14.0734 7.73255 12.7778 9.324 12.7778C9.62093 12.7778 9.90856 12.8288 10.1777 12.9124V9.40192C9.89927 9.36473 9.61628 9.34149 9.324 9.34149C9.27294 9.34149 9.22654 9.34614 9.1755 9.34614V12.0394C8.90176 11.9558 8.61873 11.9048 8.3218 11.9048Z" />
+                    <path fill="currentColor"
+                        d="M19.4245 6.67608V9.34614C17.6429 9.34614 15.9912 8.77501 14.6456 7.80911V14.7977C14.6456 18.2851 11.8108 21.127 8.32172 21.127C6.97621 21.127 5.7235 20.6998 4.69812 19.98C5.8534 21.2198 7.50049 22 9.32392 22C12.8083 22 15.6478 19.1627 15.6478 15.6707V8.68211C16.9933 9.64801 18.645 10.2191 20.4267 10.2191V6.78293C20.0787 6.78293 19.7446 6.74574 19.4245 6.67608Z" />
+                    <path fill="currentColor"
+                        d="M14.6456 14.7977V7.80911C15.9912 8.77501 17.6429 9.34614 19.4245 9.34614V6.67608C18.3945 6.45788 17.4899 5.90063 16.8218 5.1344C15.7454 4.43326 14.9704 3.3095 14.7245 2H12.2098L12.2051 15.7775C12.1495 17.3192 10.8782 18.5591 9.32393 18.5591C8.35884 18.5591 7.50977 18.0808 6.98085 17.3564C6.06219 16.8688 5.4312 15.9076 5.4312 14.7977C5.4312 13.205 6.72567 11.9094 8.31708 11.9094C8.61402 11.9094 8.90168 11.9605 9.17079 12.0441V9.35079C5.75598 9.42509 3 12.2298 3 15.6707C3 17.3331 3.64492 18.847 4.69812 19.98C5.7235 20.6998 6.97621 21.127 8.32172 21.127C11.8061 21.127 14.6456 18.2851 14.6456 14.7977Z" />
                 </svg>
             </a>
-            <a href="#" target="_blank" aria-label="LinkedIn">
+            <!-- LinkedIn -->
+            <a href="https://www.linkedin.com/company/ahyensode/" target="_blank" aria-label="LinkedIn">
                 <svg viewBox="0 0 495 495" class="social-svg">
-                    <polygon fill="currentColor" points="247.5,0 247.5,40 455,40 455,455 247.5,455 247.5,495 495,495 495,0 	"/>
-                    <polygon fill="currentColor" points="40,455 40,40 247.5,40 247.5,0 0,0 0,495 247.5,495 247.5,455 	"/>
-                    <path fill="currentColor" d="M127.323,167.186h0.446c23.551,0,38.194-15.601,38.194-35.101 c-0.442-19.928-14.643-35.087-37.752-35.087C105.107,96.998,90,112.157,90,132.085C90,151.585,104.678,167.186,127.323,167.186z"/>
-                    <path fill="currentColor" d="M266.4,398.002V284.576c0-6.086,0.464-12.119,2.24-16.459c4.887-12.149,15.978-24.693,34.641-24.693 c24.439,0,34.195,18.629,34.195,45.92v108.657H405V281.535c0-62.379-33.307-91.398-77.744-91.398 c-35.871,0-51.883,19.74-60.856,33.547v0.665h-0.442c0.118-0.219,0.306-0.442,0.442-0.665v-28.779h-67.537 c0.905,19.053,0,203.096,0,203.096H266.4z"/>
-                    <rect x="94.016" y="194.906" fill="currentColor" width="67.506" height="203.096"/>
+                    <polygon fill="currentColor"
+                        points="247.5,0 247.5,40 455,40 455,455 247.5,455 247.5,495 495,495 495,0 	" />
+                    <polygon fill="currentColor"
+                        points="40,455 40,40 247.5,40 247.5,0 0,0 0,495 247.5,495 247.5,455 	" />
+                    <path fill="currentColor"
+                        d="M127.323,167.186h0.446c23.551,0,38.194-15.601,38.194-35.101 c-0.442-19.928-14.643-35.087-37.752-35.087C105.107,96.998,90,112.157,90,132.085C90,151.585,104.678,167.186,127.323,167.186z" />
+                    <path fill="currentColor"
+                        d="M266.4,398.002V284.576c0-6.086,0.464-12.119,2.24-16.459c4.887-12.149,15.978-24.693,34.641-24.693 c24.439,0,34.195,18.629,34.195,45.92v108.657H405V281.535c0-62.379-33.307-91.398-77.744-91.398 c-35.871,0-51.883,19.74-60.856,33.547v0.665h-0.442c0.118-0.219,0.306-0.442,0.442-0.665v-28.779h-67.537 c0.905,19.053,0,203.096,0,203.096H266.4z" />
+                    <rect x="94.016" y="194.906" fill="currentColor" width="67.506" height="203.096" />
                 </svg>
             </a>
-            <a href="#" target="_blank" aria-label="X">
+            <!-- X (Twitter) -->
+            <a href="https://x.com/ahyensode?s=21" target="_blank" aria-label="X">
                 <svg viewBox="0 0 49.8 45" class="social-svg">
-                    <path fill="currentColor" d="M39.2,0h7.6L30.2,19.1L49.8,45H34.4l-12-15.7L8.6,45H1l17.8-20.4L0,0h15.8l10.9,14.4L39.2,0z M36.5,40.4h4.2L13.5,4.3H8.9 L36.5,40.4z"/>
+                    <path fill="currentColor"
+                        d="M39.2,0h7.6L30.2,19.1L49.8,45H34.4l-12-15.7L8.6,45H1l17.8-20.4L0,0h15.8l10.9,14.4L39.2,0z M36.5,40.4h4.2L13.5,4.3H8.9 L36.5,40.4z" />
                 </svg>
             </a>
+            <!-- YouTube (New) -->
+            <a href="https://youtube.com/@ahyensode?si=tFbnN7f-JXTVhiOT" target="_blank" aria-label="YouTube">
+                <svg viewBox="0 0 24 24" class="social-svg">
+                    <path fill="currentColor" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+            </a>
+
         </div>
         <div class="top-right">
             <div class="nav-links">
@@ -1131,7 +1195,7 @@
 
             // Slide flex header row up
             gsap.to('.works-nav', { marginTop: 0, marginBottom: '20px', duration: 0.6, ease: 'power2.inOut' });
-            
+
             // Shrink title
             gsap.to(workTitle, { fontSize: '2.5rem', duration: 0.6, ease: 'power2.inOut' });
 
@@ -1169,9 +1233,11 @@
             viewState = 'works_menu';
 
             // Fade out grid and remove from DOM flow smoothly
-            gsap.to(gridWrapper, { opacity: 0, pointerEvents: 'none', duration: 0.3, onComplete: () => {
-                gsap.set(gridWrapper, { display: 'none' });
-            }});
+            gsap.to(gridWrapper, {
+                opacity: 0, pointerEvents: 'none', duration: 0.3, onComplete: () => {
+                    gsap.set(gridWrapper, { display: 'none' });
+                }
+            });
 
             // Restore flexbox center alignment positioning by returning Auto Margins
             gsap.to('.works-nav', { marginTop: 'auto', marginBottom: 'auto', duration: 0.6, ease: 'power2.inOut', delay: 0.2 });

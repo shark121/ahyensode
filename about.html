@@ -59,7 +59,7 @@
             position: fixed;
             top: 40px;
             right: 90px;
-            z-index: 100;
+            z-index: 1001;
         }
 
         .top-right a {
@@ -80,6 +80,77 @@
         .top-right a.active {
             color: #D99F36;
             font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+            /* Above drawer */
+            pointer-events: auto;
+        }
+
+        .hamburger span {
+            width: 30px;
+            height: 3px;
+            background: #3D2314;
+            transition: 0.3s;
+            border-radius: 3px;
+        }
+
+        .hamburger.open span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+
+        .hamburger.open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.open span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+        }
+
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 250px;
+            height: 100vh;
+            background: #F9F1E5;
+            display: flex;
+            flex-direction: column;
+            padding-top: 100px;
+            padding-left: 30px;
+            gap: 40px;
+            transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 1000;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+            pointer-events: auto;
+        }
+
+        .mobile-drawer.open {
+            right: 0;
+        }
+
+        .mobile-drawer a {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: lowercase;
+            letter-spacing: 3px;
+            color: #7A4B31;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .mobile-drawer a:hover {
+            color: #D99F36;
         }
 
         /* ── Main Layout ── */
@@ -192,8 +263,16 @@
             }
 
             .top-right {
-                top: 20px;
+                top: 25px;
                 right: 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
             }
 
             .page-header h1 {
@@ -236,8 +315,21 @@
         </a>
     </div>
     <div class="top-right">
-        <a href="index.html#works" id="navWorks">works</a>
-        <a href="about.html" class="active">about us</a>
+        <div class="nav-links">
+            <a href="index.html#works" id="navWorks">works</a>
+            <a href="about.html" class="active">about us</a>
+            <a href="#">blog</a>
+        </div>
+        <div class="hamburger" id="hamburgerMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <div class="mobile-drawer" id="mobileDrawer">
+        <a href="index.html#works" id="mobileNavWorks">works</a>
+        <a href="about.html">about us</a>
         <a href="#">blog</a>
     </div>
 
@@ -341,6 +433,17 @@
                 ease: 'sine.inOut'
             });
         })();
+
+        // ── MOBILE DRAWER LOGIC ──
+        const hamburgerBtn = document.getElementById('hamburgerMenu');
+        const mobileDrawer = document.getElementById('mobileDrawer');
+
+        if (hamburgerBtn && mobileDrawer) {
+            hamburgerBtn.addEventListener('click', () => {
+                hamburgerBtn.classList.toggle('open');
+                mobileDrawer.classList.toggle('open');
+            });
+        }
 
         // ── SCROLL ANIMATIONS ──
         gsap.registerPlugin(ScrollTrigger);

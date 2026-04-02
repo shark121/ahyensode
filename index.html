@@ -96,6 +96,7 @@
             position: absolute;
             top: 40px;
             right: 90px;
+            z-index: 1001;
         }
 
         .top-left img {
@@ -115,6 +116,77 @@
         }
 
         .top-right a:hover {
+            color: #D99F36;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+            /* Above drawer */
+            pointer-events: auto;
+        }
+
+        .hamburger span {
+            width: 30px;
+            height: 3px;
+            background: #3D2314;
+            transition: 0.3s;
+            border-radius: 3px;
+        }
+
+        .hamburger.open span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+
+        .hamburger.open span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.open span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+        }
+
+        .mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 250px;
+            height: 100vh;
+            background: #F9F1E5;
+            display: flex;
+            flex-direction: column;
+            padding-top: 100px;
+            padding-left: 30px;
+            gap: 40px;
+            transition: right 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 1000;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+            pointer-events: auto;
+        }
+
+        .mobile-drawer.open {
+            right: 0;
+        }
+
+        .mobile-drawer a {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: lowercase;
+            letter-spacing: 3px;
+            color: #7A4B31;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .mobile-drawer a:hover {
             color: #D99F36;
         }
 
@@ -340,8 +412,16 @@
             }
 
             .top-right {
-                top: 20px;
+                top: 25px;
                 right: 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
             }
 
             .logo {
@@ -511,7 +591,20 @@
             <img src="assets/LOGOS-03.png" alt="Ahyensode Logo">
         </div>
         <div class="top-right">
-            <a href="#" id="navWorks">works</a>
+            <div class="nav-links">
+                <a href="#" id="navWorks">works</a>
+                <a href="about.html">about us</a>
+                <a href="#">blog</a>
+            </div>
+            <div class="hamburger" id="hamburgerMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="mobile-drawer" id="mobileDrawer">
+            <a href="#" id="mobileNavWorks">works</a>
             <a href="about.html">about us</a>
             <a href="#">blog</a>
         </div>
@@ -888,7 +981,7 @@
         // ═══════════════════════════════════════════
         //  MOUSE TRACKING
         // ═══════════════════════════════════════════
-        const mouse = { x: 0, y: 0, sx: 0, sy: 0 }; // sx/sy = smoothed
+        const mouse = { x: -999, y: -999, sx: -999, sy: -999 }; // sx/sy = smoothed
         document.addEventListener('mousemove', e => {
             mouse.x = (e.clientX / innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / innerHeight) * 2 + 1;
@@ -1008,9 +1101,11 @@
 
         const INITIAL_LOGO_URL = PROXY_URL + 'LOGOS-10%201%20(4).png';
         let initialLogoLoaded = false;
+        let logoPositions = null;
 
         generateFromImage(INITIAL_LOGO_URL, PARTICLE_COUNT, true).then(result => {
             initialLogoLoaded = true;
+            logoPositions = result.positions;
 
             // Set initial targets to logo
             for (let k = 0; k < PARTICLE_COUNT * 3; k++) {
@@ -1024,12 +1119,20 @@
             geometry.attributes.aColor.needsUpdate = true;
             morphProgress.value = 0;
 
-            // Morph from cloud to logo
-            gsap.to(particleMat.uniforms.uOpacity, { value: 1.0, duration: 1.0 });
+            // Initialize camera for the "fly backward" effect
+            camera.position.z = -50;
+            gsap.to(camera.position, {
+                z: 14,
+                duration: 2.0,
+                ease: "power2.inOut"
+            });
+
+            // Morph from cloud to logo concurrently
+            gsap.to(particleMat.uniforms.uOpacity, { value: 1.0, duration: 1.5, delay: 0.5 });
             gsap.to(morphProgress, {
                 value: 1.0,
-                duration: 2.5,
-                ease: 'power2.out',
+                duration: 2.0,
+                ease: 'power2.inOut',
                 onUpdate: updateTargetsFromMorph,
                 onComplete: () => {
                     currentShape = -1; // Ready
@@ -1038,12 +1141,32 @@
                         const bg = document.getElementById('bgCircles');
                         if (ui) ui.style.opacity = '1';
                         if (bg) bg.style.opacity = '0.1';
-                    }, 500);
+                    }, 0);
                 }
             });
         });
 
+        // ── MOBILE DRAWER LOGIC ──
+        const hamburgerBtn = document.getElementById('hamburgerMenu');
+        const mobileDrawer = document.getElementById('mobileDrawer');
+        const mobileNavWorks = document.getElementById('mobileNavWorks');
 
+        if (hamburgerBtn && mobileDrawer) {
+            hamburgerBtn.addEventListener('click', () => {
+                hamburgerBtn.classList.toggle('open');
+                mobileDrawer.classList.toggle('open');
+            });
+
+            // Close the drawer if the works link is clicked
+            if (mobileNavWorks) {
+                mobileNavWorks.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    hamburgerBtn.classList.remove('open');
+                    mobileDrawer.classList.remove('open');
+                    if (typeof navigateToWorks === 'function') navigateToWorks();
+                });
+            }
+        }
 
         // ── NAVIGATION LOGIC ──
         const uiOverlay = document.querySelector('.ui-overlay');
@@ -1119,24 +1242,31 @@
             // Hide Flag
             gsap.to(flagMat.uniforms.uOpacity, { value: 0, duration: 0.5, onComplete: () => { flagMesh.visible = false; } });
 
+            // Back to logo shape immediately
+            currentShape = -1;
+            if (logoPositions) {
+                prevTargets.set(targetPositions);
+                nextTargets.set(logoPositions);
+                morphProgress.value = 0;
+
+                gsap.to(morphProgress, {
+                    value: 1.0,
+                    duration: 2.0, // Match camera duration
+                    ease: 'power2.inOut',
+                    onUpdate: updateTargetsFromMorph
+                });
+            }
+
             // 1. Reset Camera
             gsap.to(camera.position, {
                 z: 14,
                 duration: 2.0,
-                ease: "power2.inOut",
-                onComplete: () => {
-                    // Back to logo shape
-                    currentShape = -1;
-
-                    prevTargets.set(targetPositions);
-                    nextTargets.set(positions); // We could store the logo positions, but keeping it simple for now, morph to random maybe?
-                    // Actually, let's keep it simple. The cloud is fine, or we can just leave it.
-                }
+                ease: "power2.inOut"
             });
 
             // 2. Fade UI
-            // Fade particles back in
-            gsap.to(particleMat.uniforms.uOpacity, { value: 1, duration: 1.0, delay: 1.0 });
+            // Fade particles back in concurrently
+            gsap.to(particleMat.uniforms.uOpacity, { value: 1, duration: 1.5, delay: 0.5 });
 
             gsap.to(worksSection, {
                 opacity: 0,
@@ -1213,9 +1343,9 @@
                     }
                 }
 
-                // Noise/Drift for all shapes
-                velocities[i3] += Math.sin(t + i) * 0.002;
-                velocities[i3 + 1] += Math.cos(t + i * 0.5) * 0.002;
+                // Noise/Drift for all shapes (subtle ambient movement)
+                velocities[i3] += Math.sin(t * 0.5 + posArr[i3] * 0.3) * 0.0004;
+                velocities[i3 + 1] += Math.cos(t * 0.5 + posArr[i3 + 1] * 0.3) * 0.0004;
 
                 velocities[i3] *= 0.85; // Damping
                 velocities[i3 + 1] *= 0.85;

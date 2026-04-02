@@ -72,8 +72,11 @@
 
         .top-left {
             position: absolute;
-            top: 36px;
+            top: 71px;
             left: 30px;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
         }
 
         .logo {
@@ -94,8 +97,9 @@
 
         .top-right {
             position: absolute;
-            top: 40px;
+            top: 71px;
             right: 90px;
+            transform: translateY(-50%);
             z-index: 1001;
         }
 
@@ -117,6 +121,38 @@
 
         .top-right a:hover {
             color: #D99F36;
+        }
+
+        .top-center {
+            position: absolute;
+            top: 71px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1001;
+            pointer-events: auto;
+        }
+
+        .top-center a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s, color 0.3s;
+            color: #7A4B31;
+        }
+
+        .top-center a:hover {
+            transform: scale(1.1);
+            color: #D99F36;
+        }
+
+        .top-center .social-svg {
+            width: 24px;
+            height: 24px;
+            color: inherit;
+            display: block;
         }
 
         .nav-links {
@@ -241,21 +277,10 @@
         /* ── Works Section ── */
         #works-section {
             position: fixed;
-            top: 0;
-            left: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 105;
-            /* Boost above ui-overlay (100) */
-            padding: 80px;
+            top: 0; left: 0; width: 100vw; height: 100vh; z-index: 105;
+            padding: 36px 44px; /* Same offset where top-left was located */
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.0);
-            pointer-events: none;
-            opacity: 0;
             background: rgba(255, 255, 255, 0.0);
             pointer-events: none;
             opacity: 0;
@@ -263,61 +288,159 @@
         }
 
         #works-section.active {
-            opacity: 1;
+            opacity: 1; pointer-events: auto;
+        }
+
+        /* Works Header (for Back Button) */
+        .works-header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            flex-shrink: 0;
+            z-index: 201;
             pointer-events: auto;
         }
 
-        /* Nav Buttons for Works */
+        /* Works Content Wrapper */
+        .works-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+            min-height: 0; /* Unlocks native flex overflow scrolling */
+        }
+
+        /* Nav Buttons Row */
         .works-nav {
-            position: absolute;
-            top: 50%;
             width: 100%;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 0 5%;
-            transform: translateY(-50%);
             z-index: 200;
-            pointer-events: none;
+            margin: auto 0; /* Auto margin centers it perfectly in the flex column before grid loads */
         }
 
         .works-nav button {
-            background: none;
-            border: none;
-            color: #3D2314;
-            font-size: 2rem;
-            cursor: pointer;
-            pointer-events: auto;
-            transition: transform 0.3s, color 0.3s;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 300;
+            background: none; border: none; color: #3D2314; font-size: 2rem; cursor: pointer; pointer-events: auto; transition: transform 0.3s, color 0.3s; font-family: 'Outfit', sans-serif; font-weight: 300; padding: 20px;
         }
 
         .works-nav button:hover {
-            transform: scale(1.2);
-            color: #D99F36;
+            transform: scale(1.2); color: #D99F36;
         }
 
-        /* Work Label */
+        /* Work Label Container */
         .work-current-label {
-            position: absolute;
-            bottom: 20%;
-            left: 50%;
-            transform: translateX(-50%);
             text-align: center;
-            color: #3D2314;
+            z-index: 100;
+            cursor: pointer;
+            pointer-events: auto !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease;
         }
 
-        .work-current-label h2 {
-            font-size: 2rem;
-            font-weight: 600;
+        .work-current-label:hover {
+            transform: scale(1.05);
+        }
+        .work-current-label:hover #workTitle {
+            color: #D99F36 !important;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+        #workTitle {
+            font-size: 3.5rem;
+            font-weight: 800;
             margin-bottom: 0.5rem;
-        }
-
-        .work-current-label p {
-            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 2px;
+            color: #3D2314;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+            position: relative;
+            display: inline-block;
+            white-space: nowrap;
+            padding: 30px 40px; /* Strong hit block */
+            pointer-events: auto !important;
+        }
+
+        /* Masonry Grid */
+        .works-grid-wrapper {
+            width: 100%;
+            flex-grow: 1; /* Consumes remaining space beneath nav */
+            min-height: 0; /* Unlocks native flex overflow scrolling */
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            overflow-y: auto;
+            padding-bottom: 50px;
+            /* Hide scrollbar */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            opacity: 0;
+            display: none; /* Removed from flex flow initially */
+            pointer-events: none;
+        }
+
+        .works-grid-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .works-grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 180px);
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .works-grid-container {
+                grid-template-columns: repeat(2, 180px);
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .works-grid-container {
+                grid-template-columns: 180px;
+                gap: 10px;
+            }
+        }
+
+        .grid-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            transition: transform 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .grid-item:hover {
+            transform: translateY(-5px) scale(1.05);
+            z-index: 10;
+        }
+
+        .grid-item img {
+            max-width: 100%;
+            max-height: 180px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            font-size: 1.2rem;
             color: #7A4B31;
+            letter-spacing: 2px;
+            font-weight: 300;
         }
 
         .back-btn {
@@ -397,7 +520,7 @@
         /* ── Mobile Responsive ── */
         @media (max-width: 768px) {
             .top-left {
-                top: 20px;
+                top: 40px;
                 left: 20px;
             }
 
@@ -412,8 +535,18 @@
             }
 
             .top-right {
-                top: 25px;
+                top: 40px;
                 right: 20px;
+            }
+
+            .top-center {
+                top: 40px;
+                gap: 15px;
+            }
+
+            .top-center .social-svg {
+                width: 20px;
+                height: 20px;
             }
 
             .nav-links {
@@ -502,7 +635,7 @@
 
         @media (max-width: 480px) {
             .top-left {
-                top: 16px;
+                top: 30px;
                 left: 16px;
             }
 
@@ -517,8 +650,18 @@
             }
 
             .top-right {
-                top: 16px;
+                top: 30px;
                 right: 16px;
+            }
+
+            .top-center {
+                top: 30px;
+                gap: 10px;
+            }
+
+            .top-center .social-svg {
+                width: 18px;
+                height: 18px;
             }
 
             .hero-text {
@@ -590,6 +733,37 @@
         <div class="top-left">
             <img src="assets/LOGOS-03.png" alt="Ahyensode Logo">
         </div>
+        <div class="top-center">
+            <a href="#" target="_blank" aria-label="Instagram">
+                <svg viewBox="0 0 32 32" class="social-svg">
+                    <path fill="currentColor" d="M23,0H9C4,0,0,4,0,9v6v8c0,5,4,9,9,9h14c5,0,9-4,9-9v-8V9C32,4,28,0,23,0z"/>
+                    <circle fill="none" stroke="#F9F1E5" stroke-width="2" cx="16" cy="16" r="8"/>
+                    <circle fill="#F9F1E5" cx="25" cy="6" r="2"/>
+                </svg>
+            </a>
+            <a href="#" target="_blank" aria-label="TikTok">
+                <svg viewBox="0 0 24 24" class="social-svg">
+                    <path fill="currentColor" d="M16.8218 5.1344C16.0887 4.29394 15.648 3.19805 15.648 2H14.7293C14.9659 3.3095 15.7454 4.43326 16.8218 5.1344Z"/>
+                    <path fill="currentColor" d="M8.3218 11.9048C6.73038 11.9048 5.43591 13.2004 5.43591 14.7931C5.43591 15.903 6.06691 16.8688 6.98556 17.3517C6.64223 16.8781 6.43808 16.2977 6.43808 15.6661C6.43808 14.0734 7.73255 12.7778 9.324 12.7778C9.62093 12.7778 9.90856 12.8288 10.1777 12.9124V9.40192C9.89927 9.36473 9.61628 9.34149 9.324 9.34149C9.27294 9.34149 9.22654 9.34614 9.1755 9.34614V12.0394C8.90176 11.9558 8.61873 11.9048 8.3218 11.9048Z"/>
+                    <path fill="currentColor" d="M19.4245 6.67608V9.34614C17.6429 9.34614 15.9912 8.77501 14.6456 7.80911V14.7977C14.6456 18.2851 11.8108 21.127 8.32172 21.127C6.97621 21.127 5.7235 20.6998 4.69812 19.98C5.8534 21.2198 7.50049 22 9.32392 22C12.8083 22 15.6478 19.1627 15.6478 15.6707V8.68211C16.9933 9.64801 18.645 10.2191 20.4267 10.2191V6.78293C20.0787 6.78293 19.7446 6.74574 19.4245 6.67608Z"/>
+                    <path fill="currentColor" d="M14.6456 14.7977V7.80911C15.9912 8.77501 17.6429 9.34614 19.4245 9.34614V6.67608C18.3945 6.45788 17.4899 5.90063 16.8218 5.1344C15.7454 4.43326 14.9704 3.3095 14.7245 2H12.2098L12.2051 15.7775C12.1495 17.3192 10.8782 18.5591 9.32393 18.5591C8.35884 18.5591 7.50977 18.0808 6.98085 17.3564C6.06219 16.8688 5.4312 15.9076 5.4312 14.7977C5.4312 13.205 6.72567 11.9094 8.31708 11.9094C8.61402 11.9094 8.90168 11.9605 9.17079 12.0441V9.35079C5.75598 9.42509 3 12.2298 3 15.6707C3 17.3331 3.64492 18.847 4.69812 19.98C5.7235 20.6998 6.97621 21.127 8.32172 21.127C11.8061 21.127 14.6456 18.2851 14.6456 14.7977Z"/>
+                </svg>
+            </a>
+            <a href="#" target="_blank" aria-label="LinkedIn">
+                <svg viewBox="0 0 495 495" class="social-svg">
+                    <polygon fill="currentColor" points="247.5,0 247.5,40 455,40 455,455 247.5,455 247.5,495 495,495 495,0 	"/>
+                    <polygon fill="currentColor" points="40,455 40,40 247.5,40 247.5,0 0,0 0,495 247.5,495 247.5,455 	"/>
+                    <path fill="currentColor" d="M127.323,167.186h0.446c23.551,0,38.194-15.601,38.194-35.101 c-0.442-19.928-14.643-35.087-37.752-35.087C105.107,96.998,90,112.157,90,132.085C90,151.585,104.678,167.186,127.323,167.186z"/>
+                    <path fill="currentColor" d="M266.4,398.002V284.576c0-6.086,0.464-12.119,2.24-16.459c4.887-12.149,15.978-24.693,34.641-24.693 c24.439,0,34.195,18.629,34.195,45.92v108.657H405V281.535c0-62.379-33.307-91.398-77.744-91.398 c-35.871,0-51.883,19.74-60.856,33.547v0.665h-0.442c0.118-0.219,0.306-0.442,0.442-0.665v-28.779h-67.537 c0.905,19.053,0,203.096,0,203.096H266.4z"/>
+                    <rect x="94.016" y="194.906" fill="currentColor" width="67.506" height="203.096"/>
+                </svg>
+            </a>
+            <a href="#" target="_blank" aria-label="X">
+                <svg viewBox="0 0 49.8 45" class="social-svg">
+                    <path fill="currentColor" d="M39.2,0h7.6L30.2,19.1L49.8,45H34.4l-12-15.7L8.6,45H1l17.8-20.4L0,0h15.8l10.9,14.4L39.2,0z M36.5,40.4h4.2L13.5,4.3H8.9 L36.5,40.4z"/>
+                </svg>
+            </a>
+        </div>
         <div class="top-right">
             <div class="nav-links">
                 <a href="#" id="navWorks">works</a>
@@ -618,19 +792,25 @@
 
     <!-- Works Section -->
     <div id="works-section">
-        <div class="top-left" style="position: absolute; top: 36px; left: 44px; pointer-events: auto;">
+        <div class="top-left" style="position: absolute; top: 36px; left: 44px; pointer-events: auto; z-index: 201;">
             <a href="#" id="backNavLink"
                 style="color: #3D2314; text-decoration: none; font-size: 1rem; letter-spacing: 3px; text-transform: lowercase;">back</a>
         </div>
 
-        <div class="works-nav">
-            <button id="prevWork">&larr;</button>
-            <button id="nextWork">&rarr;</button>
-        </div>
+        <div class="works-content">
+            <div class="works-nav" id="worksNavRow">
+                <button id="prevWork">&larr;</button>
+                <div class="work-current-label">
+                    <h2 id="workTitle">Logos</h2>
+                </div>
+                <button id="nextWork">&rarr;</button>
+            </div>
 
-        <div class="work-current-label">
-            <h2 id="workTitle">Loading...</h2>
-            <p id="workCategory">Web Design</p>
+            <div class="works-grid-wrapper">
+                <div class="works-grid-container" id="worksGridContainer">
+                    <!-- Grid items injected dynamically -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -863,119 +1043,155 @@
         const particles = new THREE.Points(geometry, particleMat);
         scene.add(particles);
 
-        // ═══════════════════════════════════════════
-        //  FLAG MESH FOR WORKS
-        // ═══════════════════════════════════════════
-        // Default texture (grey)
-        const defaultTexData = new Uint8Array([100, 100, 100, 255]);
-        const defaultTex = new THREE.DataTexture(defaultTexData, 1, 1, THREE.RGBAFormat);
-        defaultTex.needsUpdate = true;
-
-        const flagGeom = new THREE.PlaneGeometry(12, 8, 32, 32);
-        const flagMat = new THREE.ShaderMaterial({
-            uniforms: {
-                uTime: { value: 0 },
-                uTexture: { value: defaultTex },
-                uOpacity: { value: 0.0 }
-            },
-            vertexShader: `
-                varying vec2 vUv;
-                uniform float uTime;
-                void main() {
-                    vUv = uv;
-                    vec3 pos = position;
-                    // Flag wave interaction
-                    float wave = sin(pos.x * 0.5 + uTime * 2.0) * 0.5 + sin(pos.y * 0.5 + uTime * 1.5) * 0.3;
-                    pos.z += wave;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform sampler2D uTexture;
-                uniform float uOpacity;
-                varying vec2 vUv;
-                void main() {
-                    vec4 tex = texture2D(uTexture, vUv);
-                    gl_FragColor = vec4(tex.rgb, tex.a * uOpacity);
-                }
-            `,
-            transparent: true,
-            side: THREE.DoubleSide
-        });
-        const flagMesh = new THREE.Mesh(flagGeom, flagMat);
-        flagMesh.position.set(0, 0, -40); // Placed in front of camera (z=-50 looks at 0, so -40 works)
-        flagMesh.scale.x = -1; // Laterally invert the images
-        flagMesh.visible = false;
-        scene.add(flagMesh);
-
         const PROXY_URL = "https://us-central1-cloud-functions-6aa84.cloudfunctions.net/proxyImage?path=";
 
-        // Works Data
-        const WORKS = [
-            { img: PROXY_URL + 'AROUND%20CLOTHING%20LOGO%20BLACK%20ON%20WHITE%20SMALL.jpeg', title: 'Around', cat: '' },
-            // { img: PROXY_URL + 'AROUND%20CLOTHING%20LOGO-%20WHITE%20ON%20BLACK%20SMALL.jpeg', title: 'Around Clothing', cat: '' },
-            { img: PROXY_URL + 'IMG_0260.JPG', title: 'RJAE', cat: '' },
-            // { img: PROXY_URL + 'IMG_0267.JPG', title: '', cat: '' },
-            { img: PROXY_URL + 'IMG_1587.JPG', title: 'Daily Blendz', cat: '' },
-            // { img: PROXY_URL + 'IMG_1589.JPG', title: '', cat: '' },
-            // { img: PROXY_URL + 'IMG_1590.JPG', title: '', cat: '' },
-            // { img: PROXY_URL + 'IMG_4671.PNG', title: '', cat: '' },
-            { img: PROXY_URL + 'IMG_4673.PNG', title: 'Mpaboa Fie', cat: '' },
-            // { img: PROXY_URL + 'IMG_4690.PNG', title: '', cat: '' },
-            { img: PROXY_URL + 'IMG_4692.PNG', title: 'Sadarks', cat: '' },
-            // { img: PROXY_URL + 'IMG_4693.PNG', title: '', cat: '' }
+        // Works Data Categories
+        const WORK_CATEGORIES = [
+            {
+                id: 'logos',
+                title: 'Logos',
+                items: [
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/AROUND%20CLOTHING%20LOGO%20BLACK%20ON%20WHITE%20SMALL.jpeg?alt=media&token=05d021d6-40ff-49b6-bbad-b86b15e94bd0', title: 'Around' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/AROUND%20CLOTHING%20LOGO-%20WHITE%20ON%20BLACK%20SMALL.jpeg?alt=media&token=c5cdc9c2-3ca9-4726-9b5c-57cd08fa79ac', title: 'Around White' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_0260.JPG?alt=media&token=62ea7b50-80a3-4a68-ac83-49c2d85bacfb', title: 'RJAE' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_0267.JPG?alt=media&token=62558e11-0d0d-4843-82d7-05c73d047472', title: 'Logo 4' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_1587.JPG?alt=media&token=46c29cca-d066-4665-be20-a2492b301c19', title: 'Daily Blendz' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_1589.JPG?alt=media&token=9bba4bd3-c192-4784-b8c1-630768eb24d7', title: 'Logo 6' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_1590.JPG?alt=media&token=0b2b209a-887e-4c3b-a9d6-ce0aefb1754c', title: 'Logo 7' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_4671.PNG?alt=media&token=d0e848bc-3421-4d42-91d4-70a10ec223a0', title: 'Logo 8' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_4673.PNG?alt=media&token=7dc180ae-1e4b-4838-995d-bcfb6f945e95', title: 'Mpaboa Fie' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_4690.PNG?alt=media&token=8d21f92b-ef99-4a47-8dbf-729c67e0b999', title: 'Logo 10' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_4692.PNG?alt=media&token=434806f2-247a-4f2c-9060-81d0b8c56be6', title: 'Sadarks' },
+                    { img: 'https://firebasestorage.googleapis.com/v0/b/cloud-functions-6aa84.firebasestorage.app/o/IMG_4693.PNG?alt=media&token=3cde6267-0038-491b-9980-32b13774942f', title: 'Logo 12' }
+                ]
+            },
+            {
+                id: 'animations',
+                title: 'Animations',
+                items: []
+            },
+            {
+                id: 'cover_arts',
+                title: 'Cover Arts',
+                items: []
+            },
+            {
+                id: 'motion_design',
+                title: 'Motion Design',
+                items: []
+            },
+            {
+                id: 'flyers_and_posters',
+                title: 'Flyers And Posters',
+                items: []
+            }
         ];
 
-        let currentWorkIdx = 0;
-        const workTextures = []; // loaded textures
-
-        // Load textures
-        const texLoader = new THREE.TextureLoader();
-        texLoader.crossOrigin = 'anonymous';
-        WORKS.forEach((w, i) => {
-            texLoader.load(w.img, (tex) => {
-                workTextures[i] = tex;
-                if (i === 0) flagMat.uniforms.uTexture.value = tex;
-            });
-        });
+        let currentCategoryIdx = 0;
 
         // DOM Elements for Works
         const workTitle = document.getElementById('workTitle');
-        const workCategory = document.getElementById('workCategory');
+        const workLabelContainer = document.querySelector('.work-current-label');
         const prevWorkBtn = document.getElementById('prevWork');
         const nextWorkBtn = document.getElementById('nextWork');
+        const worksGridContainer = document.getElementById('worksGridContainer');
+        const gridWrapper = document.querySelector('.works-grid-wrapper');
 
-        function updateWorkDisplay(idx) {
-            currentWorkIdx = idx;
-            const w = WORKS[idx];
+        // Click listener to enter grid view
+        workTitle.addEventListener('click', () => {
+            if (viewState === 'works_menu') {
+                openWorksGrid(currentCategoryIdx);
+            }
+        });
 
-            // Text transition
-            gsap.to([workTitle, workCategory], {
-                opacity: 0, duration: 0.2, onComplete: () => {
-                    workTitle.textContent = w.title;
-                    workCategory.textContent = w.cat;
-                    gsap.to([workTitle, workCategory], { opacity: 1, duration: 0.3 });
+        function updateCategoryDisplay(idx) {
+            currentCategoryIdx = idx;
+            const category = WORK_CATEGORIES[idx];
+
+            // Animate out old title
+            gsap.to(workTitle, {
+                opacity: 0,
+                duration: 0.2,
+                onComplete: () => {
+                    workTitle.textContent = category.title;
+                    gsap.to(workTitle, { opacity: 1, duration: 0.2 });
                 }
             });
+        }
 
-            // WebGL transition
-            if (workTextures[idx]) {
-                const newTex = workTextures[idx];
-                // Simple texture swap (could be cross-fade with 2 meshes, but swap is fine for flag)
-                flagMat.uniforms.uTexture.value = newTex;
+        function openWorksGrid(idx) {
+            viewState = 'works_grid';
+            const category = WORK_CATEGORIES[idx];
+
+            // Fade arrows gracefully
+            gsap.to(['#prevWork', '#nextWork'], { opacity: 0, pointerEvents: 'none', duration: 0.3 });
+
+            // Display grid in flex layout bounds
+            gsap.set(gridWrapper, { display: 'block' });
+
+            // Slide flex header row up
+            gsap.to('.works-nav', { marginTop: 0, marginBottom: '20px', duration: 0.6, ease: 'power2.inOut' });
+            
+            // Shrink title
+            gsap.to(workTitle, { fontSize: '2.5rem', duration: 0.6, ease: 'power2.inOut' });
+
+            // Build grid
+            if (gridWrapper) gridWrapper.scrollTop = 0;
+            worksGridContainer.innerHTML = '';
+            if (category.items && category.items.length > 0) {
+                category.items.forEach((item) => {
+                    const domItem = document.createElement('div');
+                    domItem.className = 'grid-item';
+                    domItem.innerHTML = `
+                        <img src="${item.img}" alt="${item.title}" loading="lazy" />
+                    `;
+                    worksGridContainer.appendChild(domItem);
+                });
+            } else {
+                worksGridContainer.innerHTML = `<div class="empty-state">More incoming...</div>`;
+            }
+
+            // Fade in grid
+            gsap.to(gridWrapper, { opacity: 1, pointerEvents: 'auto', duration: 0.3, delay: 0.4 });
+
+            // Stagger grid items
+            const items = worksGridContainer.querySelectorAll('.grid-item');
+            if (items.length > 0) {
+                gsap.fromTo(items,
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, delay: 0.4, ease: 'power2.out' }
+                );
             }
         }
 
+        function navigateBackToWorksMenu() {
+            if (viewState === 'works_menu') return;
+            viewState = 'works_menu';
+
+            // Fade out grid and remove from DOM flow smoothly
+            gsap.to(gridWrapper, { opacity: 0, pointerEvents: 'none', duration: 0.3, onComplete: () => {
+                gsap.set(gridWrapper, { display: 'none' });
+            }});
+
+            // Restore flexbox center alignment positioning by returning Auto Margins
+            gsap.to('.works-nav', { marginTop: 'auto', marginBottom: 'auto', duration: 0.6, ease: 'power2.inOut', delay: 0.2 });
+            gsap.to(workTitle, { fontSize: '3.5rem', duration: 0.6, ease: 'power2.inOut', delay: 0.2 });
+
+            // Un-fade Arrows
+            gsap.to(['#prevWork', '#nextWork'], { opacity: 1, pointerEvents: 'auto', duration: 0.3, delay: 0.5 });
+        }
+
+
         prevWorkBtn.addEventListener('click', () => {
-            let next = currentWorkIdx - 1;
-            if (next < 0) next = WORKS.length - 1;
-            updateWorkDisplay(next);
+            let next = currentCategoryIdx - 1;
+            if (next < 0) next = WORK_CATEGORIES.length - 1;
+            updateCategoryDisplay(next);
         });
 
         nextWorkBtn.addEventListener('click', () => {
-            let next = currentWorkIdx + 1;
-            if (next >= WORKS.length) next = 0;
-            updateWorkDisplay(next);
+            let next = currentCategoryIdx + 1;
+            if (next >= WORK_CATEGORIES.length) next = 0;
+            updateCategoryDisplay(next);
         });
 
         // ═══════════════════════════════════════════
@@ -1175,8 +1391,14 @@
         const backNavLink = document.getElementById('backNavLink');
 
         function navigateToWorks() {
-            if (viewState === 'works') return;
-            viewState = 'works';
+            if (viewState === 'works_menu' || viewState === 'works_grid') return;
+            viewState = 'works_menu';
+
+            // Ensure flex resetting is pure
+            gsap.set(gridWrapper, { opacity: 0, pointerEvents: 'none', display: 'none' });
+            gsap.set('.works-nav', { marginTop: 'auto', marginBottom: 'auto' });
+            gsap.set(['#prevWork', '#nextWork'], { opacity: 1, pointerEvents: 'auto' });
+            gsap.set(workTitle, { fontSize: '3.5rem' });
 
             // 1. Pause auto-play
             // autoPlayTimer.pause();
@@ -1204,14 +1426,7 @@
             gsap.to(camera.position, {
                 z: -50,
                 duration: 2.0,
-                ease: "power2.inOut",
-                onComplete: () => {
-                    // Show Flag
-                    flagMesh.visible = true;
-                    // Reset opacity for fade in effect
-                    flagMat.uniforms.uOpacity.value = 0;
-                    gsap.to(flagMat.uniforms.uOpacity, { value: 1.0, duration: 0.5 });
-                }
+                ease: "power2.inOut"
             });
 
             // 4. Fade UI (Out with main UI, In with Works)
@@ -1232,15 +1447,13 @@
             });
 
             // Set initial work
-            updateWorkDisplay(currentWorkIdx);
+            updateCategoryDisplay(currentCategoryIdx);
         }
 
         function navigateToHero() {
             if (viewState === 'hero') return;
             viewState = 'hero';
 
-            // Hide Flag
-            gsap.to(flagMat.uniforms.uOpacity, { value: 0, duration: 0.5, onComplete: () => { flagMesh.visible = false; } });
 
             // Back to logo shape immediately
             currentShape = -1;
@@ -1288,7 +1501,11 @@
 
         backNavLink.addEventListener('click', (e) => {
             e.preventDefault();
-            navigateToHero();
+            if (viewState === 'works_grid') {
+                navigateBackToWorksMenu();
+            } else {
+                navigateToHero();
+            }
         });
         // Remove hint hover listener
 
@@ -1359,7 +1576,6 @@
 
             // Camera & Rendering
             particleMat.uniforms.uTime.value = t;
-            flagMat.uniforms.uTime.value = t; // Update flag time
 
             const rotY = autoRotation.y;
             const rotX = autoRotation.x;
